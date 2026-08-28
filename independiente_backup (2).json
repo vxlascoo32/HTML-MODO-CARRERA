@@ -1,0 +1,1689 @@
+{
+  "club": {
+    "nombre": "Independiente",
+    "liga": "Argentina",
+    "temporada": "2029",
+    "division": "Primera División"
+  },
+  "players": [
+    {
+      "id": "mtd3zj23dz43s",
+      "nombre": "Francisco Cornejo",
+      "pos": "Arquero",
+      "edad": "20",
+      "nacionalidad": "Argentina",
+      "media": "80",
+      "potencial": "",
+      "valor": "22500000",
+      "salario": "30000"
+    },
+    {
+      "id": "mtczi4359bd94",
+      "nombre": "Juan Pablo Cozzani",
+      "pos": "Arquero",
+      "edad": "30",
+      "nacionalidad": "Argentina",
+      "media": "75",
+      "potencial": "",
+      "valor": "4.400.000",
+      "salario": "10.000"
+    },
+    {
+      "id": "mtd2zcanx2sfq",
+      "nombre": "Marc Rojas",
+      "pos": "Arquero",
+      "edad": "18",
+      "nacionalidad": "Chilena",
+      "media": "67",
+      "potencial": "",
+      "valor": "2200000",
+      "salario": "1000"
+    },
+    {
+      "id": "mtd30py0dahni",
+      "nombre": "Ivan Mancilla",
+      "pos": "Arquero",
+      "edad": "17",
+      "nacionalidad": "Chilena",
+      "media": "61",
+      "potencial": "",
+      "valor": "850000",
+      "salario": "590"
+    },
+    {
+      "id": "mtd3v206jxbjd",
+      "nombre": "Lautaro del Blanco",
+      "pos": "Lateral Izquierdo",
+      "edad": "25",
+      "nacionalidad": "Argentina",
+      "media": "80",
+      "potencial": "",
+      "valor": "34000000",
+      "salario": "30000"
+    },
+    {
+      "id": "mtczkaictnhgg",
+      "nombre": "Joan Álvarez",
+      "pos": "Lateral Izquierdo",
+      "edad": "20",
+      "nacionalidad": "Argentina",
+      "media": "73",
+      "potencial": "",
+      "valor": "3.700.000",
+      "salario": "7.500"
+    },
+    {
+      "id": "mtczj051gb4fx",
+      "nombre": "Teo Rodriguez Pagano",
+      "pos": "Lateral Izquierdo",
+      "edad": "23",
+      "nacionalidad": "Argentina",
+      "media": "72",
+      "potencial": "",
+      "valor": "3.300.000",
+      "salario": "7.500"
+    },
+    {
+      "id": "mtczjtdtqjxqb",
+      "nombre": "Nicolas Tagliafico",
+      "pos": "Lateral Izquierdo",
+      "edad": "36",
+      "nacionalidad": "Argentina",
+      "media": "71",
+      "potencial": "",
+      "valor": "2.400.000",
+      "salario": "12.500"
+    },
+    {
+      "id": "mtd323kx372d3",
+      "nombre": "José Mansilla",
+      "pos": "Lateral Izquierdo",
+      "edad": "18",
+      "nacionalidad": "Ecuatoriana",
+      "media": "68",
+      "potencial": "",
+      "valor": "3200000",
+      "salario": "1900"
+    },
+    {
+      "id": "mtd31hzv1ojmz",
+      "nombre": "Ángel Soto",
+      "pos": "Lateral Izquierdo",
+      "edad": "17",
+      "nacionalidad": "Paraguaya",
+      "media": "65",
+      "potencial": "",
+      "valor": "2600000",
+      "salario": "950"
+    },
+    {
+      "id": "mtczn6gpl10d1",
+      "nombre": "Maximiliano Gutierrez",
+      "pos": "Lateral Derecho",
+      "edad": "24",
+      "nacionalidad": "Chilena",
+      "media": "76",
+      "potencial": "",
+      "valor": "9.500.000",
+      "salario": "10.000"
+    },
+    {
+      "id": "mtcznri7wnr7a",
+      "nombre": "Felipe Faúndez",
+      "pos": "Lateral Derecho",
+      "edad": "22",
+      "nacionalidad": "Chilena",
+      "media": "73",
+      "potencial": "",
+      "valor": "7.500.000",
+      "salario": "12.500"
+    },
+    {
+      "id": "mtd338cp0xwkl",
+      "nombre": "Luciano Barros Ayala",
+      "pos": "Lateral Derecho",
+      "edad": "27",
+      "nacionalidad": "Argentina",
+      "media": "72",
+      "potencial": "",
+      "valor": "7000000",
+      "salario": "3000"
+    },
+    {
+      "id": "mtd33x9ew0vz0",
+      "nombre": "Eusebio Varela",
+      "pos": "Lateral Derecho",
+      "edad": "17",
+      "nacionalidad": "Ecuatoriana",
+      "media": "65",
+      "potencial": "",
+      "valor": "2000000",
+      "salario": "1500"
+    },
+    {
+      "id": "mtczlwgqizeiq",
+      "nombre": "Gonzalo Bordón",
+      "pos": "Defensor Central",
+      "edad": "23",
+      "nacionalidad": "Argentina",
+      "media": "79",
+      "potencial": "",
+      "valor": "43.000.000",
+      "salario": "67.000"
+    },
+    {
+      "id": "mtczmjtu7wa31",
+      "nombre": "Juan Arrayago",
+      "pos": "Defensor Central",
+      "edad": "23",
+      "nacionalidad": "Argentina",
+      "media": "78",
+      "potencial": "",
+      "valor": "52.000.000",
+      "salario": "30.000"
+    },
+    {
+      "id": "mtczkswg2yvnk",
+      "nombre": "Tobías Ramirez",
+      "pos": "Defensor Central",
+      "edad": "22",
+      "nacionalidad": "Argentina",
+      "media": "76",
+      "potencial": "",
+      "valor": "10.500.000",
+      "salario": "45.500"
+    },
+    {
+      "id": "mtczlcckr7pgy",
+      "nombre": "Fernando Closter",
+      "pos": "Defensor Central",
+      "edad": "23",
+      "nacionalidad": "Argentina",
+      "media": "75",
+      "potencial": "",
+      "valor": "15.000.000",
+      "salario": "3.000"
+    },
+    {
+      "id": "mtd49f6w1ruma",
+      "nombre": "Mateo Mendoza",
+      "pos": "Defensor Central",
+      "edad": "24",
+      "nacionalidad": "Argentina",
+      "media": "75",
+      "potencial": "",
+      "valor": "9500000",
+      "salario": "30000"
+    },
+    {
+      "id": "mtd32k3jmghsi",
+      "nombre": "Christian Moyano",
+      "pos": "Defensor Central",
+      "edad": "17",
+      "nacionalidad": "Paraguaya",
+      "media": "62",
+      "potencial": "",
+      "valor": "1400000",
+      "salario": "950"
+    },
+    {
+      "id": "mtdaqkh1kuohj",
+      "nombre": "David Velazquez",
+      "pos": "Defensor Central",
+      "edad": "16",
+      "nacionalidad": "Ecuatoriana",
+      "media": "61",
+      "potencial": "85-91",
+      "valor": "",
+      "salario": ""
+    },
+    {
+      "id": "mtd41megf9cli",
+      "nombre": "Patrik Mercado",
+      "pos": "Mediocentro",
+      "edad": "25",
+      "nacionalidad": "Ecuatoriana",
+      "media": "81",
+      "potencial": "",
+      "valor": "42000000",
+      "salario": "45000"
+    },
+    {
+      "id": "mtczqc1g8efyr",
+      "nombre": "Agustin Dos Santos",
+      "pos": "Mediocentro",
+      "edad": "20",
+      "nacionalidad": "Uruguaya",
+      "media": "75",
+      "potencial": "",
+      "valor": "13.000.000",
+      "salario": "12.000"
+    },
+    {
+      "id": "mtd4c3h5euzt2",
+      "nombre": "Juan Cruz Meza",
+      "pos": "Mediocentro",
+      "edad": "20",
+      "nacionalidad": "Argentina",
+      "media": "73",
+      "potencial": "",
+      "valor": "8000000",
+      "salario": "30000"
+    },
+    {
+      "id": "mtczqvt9tuz6n",
+      "nombre": "Mateo Perez Curci",
+      "pos": "Mediocentro",
+      "edad": "22",
+      "nacionalidad": "Argentina",
+      "media": "70",
+      "potencial": "",
+      "valor": "2.500.000",
+      "salario": "11.500"
+    },
+    {
+      "id": "mtd44gr5t724u",
+      "nombre": "Fabricio Arnaiz",
+      "pos": "Mediocentro Defensivo",
+      "edad": "17",
+      "nacionalidad": "Argentina",
+      "media": "75",
+      "potencial": "",
+      "valor": "14500000",
+      "salario": "30000"
+    },
+    {
+      "id": "mtczrdb4xbovm",
+      "nombre": "Osmar Gimenez",
+      "pos": "Mediocentro Ofensivo",
+      "edad": "21",
+      "nacionalidad": "Paraguaya",
+      "media": "71",
+      "potencial": "",
+      "valor": "3.500.000",
+      "salario": "5.000"
+    },
+    {
+      "id": "mtd4haa58u4du",
+      "nombre": "Josias Palais",
+      "pos": "Mediocentro Izquierdo",
+      "edad": "23",
+      "nacionalidad": "Argentina",
+      "media": "78",
+      "potencial": "",
+      "valor": "40500000",
+      "salario": "30000"
+    },
+    {
+      "id": "mtd34z0501s2f",
+      "nombre": "Ivan Bello",
+      "pos": "Mediocentro Izquierdo",
+      "edad": "18",
+      "nacionalidad": "Argentina",
+      "media": "67",
+      "potencial": "",
+      "valor": "3800000",
+      "salario": "1300"
+    },
+    {
+      "id": "mtczsisloxums",
+      "nombre": "Maxloren Castro",
+      "pos": "Extremo Izquierdo",
+      "edad": "20",
+      "nacionalidad": "Peruana",
+      "media": "74",
+      "potencial": "",
+      "valor": "6.000.000",
+      "salario": "22.500"
+    },
+    {
+      "id": "mtczsjx0p5xwx",
+      "nombre": "David Martinez",
+      "pos": "Extremo Derecho",
+      "edad": "22",
+      "nacionalidad": "Venezolana",
+      "media": "76",
+      "potencial": "",
+      "valor": "12.500.000",
+      "salario": "12.500"
+    },
+    {
+      "id": "mtd46exodltr0",
+      "nombre": "Cristian Cruz",
+      "pos": "Extremo Derecho",
+      "edad": "19",
+      "nacionalidad": "Argentina",
+      "media": "75",
+      "potencial": "",
+      "valor": "14500000",
+      "salario": "30000"
+    },
+    {
+      "id": "mtd35pg80ghg8",
+      "nombre": "Joaquin Lorenzo",
+      "pos": "Extremo Derecho",
+      "edad": "18",
+      "nacionalidad": "Argentina",
+      "media": "70",
+      "potencial": "",
+      "valor": "6000000",
+      "salario": "1500"
+    },
+    {
+      "id": "mtczsm64w2qfk",
+      "nombre": "José Manuel \"Flaco\" Lopez",
+      "pos": "Delantero Centro",
+      "edad": "27",
+      "nacionalidad": "Argentina",
+      "media": "82",
+      "potencial": "",
+      "valor": "39.000.000",
+      "salario": "50.000"
+    },
+    {
+      "id": "mtczsllp1pida",
+      "nombre": "Yandri Vazquez",
+      "pos": "Delantero Centro",
+      "edad": "22",
+      "nacionalidad": "Ecuatoriana",
+      "media": "70",
+      "potencial": "",
+      "valor": "2.600.000",
+      "salario": "7.500"
+    },
+    {
+      "id": "mtdb0iju9lrpf",
+      "nombre": "Alex Luna",
+      "pos": "Mediocentro Ofensivo",
+      "edad": "24",
+      "nacionalidad": "Argentina",
+      "media": "82",
+      "potencial": "",
+      "valor": "44500000",
+      "salario": "40000"
+    }
+  ],
+  "youth": [
+    {
+      "id": "mtdaocjnpevjj",
+      "nombre": "Ismael Sanchez",
+      "pos": "Arquero",
+      "edad": "15",
+      "nacionalidad": "Costa Rica",
+      "media": "55",
+      "potencial": "83-89",
+      "valor": "",
+      "salario": ""
+    },
+    {
+      "id": "mtdaovxa2pir8",
+      "nombre": "Juan Carlos Domínguez",
+      "pos": "Arquero",
+      "edad": "15",
+      "nacionalidad": "Costa Rica",
+      "media": "56",
+      "potencial": "83-93",
+      "valor": "",
+      "salario": ""
+    },
+    {
+      "id": "mtdapcrlbjqfi",
+      "nombre": "Pepe Ibarra",
+      "pos": "Arquero",
+      "edad": "16",
+      "nacionalidad": "Costa Rica",
+      "media": "61",
+      "potencial": "78-92",
+      "valor": "",
+      "salario": ""
+    },
+    {
+      "id": "mtdapqtieuigv",
+      "nombre": "Raul Mercado",
+      "pos": "Arquero",
+      "edad": "16",
+      "nacionalidad": "Costa Rica",
+      "media": "59",
+      "potencial": "75-89",
+      "valor": "",
+      "salario": ""
+    },
+    {
+      "id": "mtdaq5e84umt0",
+      "nombre": "Lino Iglesias",
+      "pos": "Arquero",
+      "edad": "15",
+      "nacionalidad": "Costa Rica",
+      "media": "58",
+      "potencial": "80-94",
+      "valor": "",
+      "salario": ""
+    },
+    {
+      "id": "mtdarl37c586m",
+      "nombre": "Fabricio Gallardo",
+      "pos": "Lateral Derecho",
+      "edad": "15",
+      "nacionalidad": "Uruguaya",
+      "media": "59",
+      "potencial": "80-86",
+      "valor": "",
+      "salario": ""
+    },
+    {
+      "id": "mtdaryzr6fwe6",
+      "nombre": "Evaristo Peralta",
+      "pos": "Lateral Derecho",
+      "edad": "14",
+      "nacionalidad": "Uruguaya",
+      "media": "53",
+      "potencial": "69-93",
+      "valor": "",
+      "salario": ""
+    },
+    {
+      "id": "mtdascvhgg8ml",
+      "nombre": "Nacho Silva",
+      "pos": "Mediocentro",
+      "edad": "16",
+      "nacionalidad": "Uruguaya",
+      "media": "63",
+      "potencial": "83-89",
+      "valor": "",
+      "salario": ""
+    },
+    {
+      "id": "mtdat1tzc1is1",
+      "nombre": "Juanma Hernandez",
+      "pos": "Extremo Derecho",
+      "edad": "15",
+      "nacionalidad": "Argentina",
+      "media": "61",
+      "potencial": "85-91",
+      "valor": "",
+      "salario": ""
+    },
+    {
+      "id": "mtdate6kedzet",
+      "nombre": "Marcos Lopez",
+      "pos": "Extremo Derecho",
+      "edad": "15",
+      "nacionalidad": "Argentina",
+      "media": "59",
+      "potencial": "92-94",
+      "valor": "",
+      "salario": ""
+    },
+    {
+      "id": "mtdats6ktfhik",
+      "nombre": "Sergio Ortega",
+      "pos": "Extremo Derecho",
+      "edad": "15",
+      "nacionalidad": "Argentina",
+      "media": "58",
+      "potencial": "88-94",
+      "valor": "",
+      "salario": ""
+    }
+  ],
+  "matches": [],
+  "transfers": [
+    {
+      "id": "mtd0w5324xscd",
+      "tipo": "out",
+      "jugador": "Ian Subiabre",
+      "club": "Liverpool",
+      "monto": "90,000,000",
+      "valoracion": "81",
+      "fecha": "01/01/2029",
+      "nombre": "Ian Subiabre",
+      "pos": "Mediocentro Izquierdo"
+    },
+    {
+      "id": "mtd0y6f2tzdti",
+      "tipo": "out",
+      "jugador": "Matheo Machuca",
+      "club": "Manchester United",
+      "monto": "78,000,000",
+      "valoracion": "79",
+      "fecha": "01/01/2029",
+      "nombre": "Matheo Machuca",
+      "pos": "Mediocentro Defensivo"
+    },
+    {
+      "id": "mtd19fra4aymc",
+      "tipo": "out",
+      "jugador": "Facundo Cruz",
+      "club": "Borussia Dortmund",
+      "monto": "160,000,000",
+      "valoracion": "83",
+      "fecha": "01/01/2029",
+      "nombre": "Facundo Cruz",
+      "pos": "Mediocentro Ofensivo"
+    },
+    {
+      "id": "mtd19z53r47fq",
+      "tipo": "out",
+      "jugador": "Santiago Montiel",
+      "club": "Brentford",
+      "monto": "35,000,000",
+      "valoracion": "80",
+      "fecha": "01/01/2029",
+      "nombre": "Santiago Montiel",
+      "pos": "Mediocentro Ofensivo"
+    },
+    {
+      "id": "mtd3uh3dt16rm",
+      "tipo": "in",
+      "jugador": "Lautaro del Blanco",
+      "club": "Unión",
+      "monto": "27500000",
+      "valoracion": "80",
+      "fecha": "03/01/2029",
+      "nombre": "Lautaro del Blanco",
+      "pos": "Lateral Izquierdo"
+    },
+    {
+      "id": "mtd3z0h6pwcpq",
+      "tipo": "in",
+      "jugador": "Francisco Cornejo",
+      "club": "Bochum",
+      "monto": "31500000",
+      "valoracion": "80",
+      "fecha": "03/01/2029",
+      "nombre": "Francisco Cornejo",
+      "pos": "Arquero"
+    },
+    {
+      "id": "mtd40l015pcwi",
+      "tipo": "in",
+      "jugador": "Patrik Mercado",
+      "club": "Independiente del Valle",
+      "monto": "35000000",
+      "valoracion": "81",
+      "fecha": "03/01/2029",
+      "nombre": "Patrik Mercado",
+      "pos": "Mediocentro"
+    },
+    {
+      "id": "mtd43goombu3p",
+      "tipo": "in",
+      "jugador": "Fabricio Arnaiz",
+      "club": "Olympiacos",
+      "monto": "15000000",
+      "valoracion": "75",
+      "fecha": "03/01/2029",
+      "nombre": "Fabricio Arnaiz",
+      "pos": "Mediocentro Defensivo"
+    },
+    {
+      "id": "mtd45dutjtgbs",
+      "tipo": "in",
+      "jugador": "Cristian Cruz",
+      "club": "Rosario Central",
+      "monto": "17550000",
+      "valoracion": "75",
+      "fecha": "03/01/2029",
+      "nombre": "Cristian Cruz",
+      "pos": "Extremo Derecho"
+    },
+    {
+      "id": "mtd48jd2eqii6",
+      "tipo": "in",
+      "jugador": "Mateo Mendoza",
+      "club": "Godoy Cruz",
+      "monto": "10900000",
+      "valoracion": "75",
+      "fecha": "03/01/2029",
+      "nombre": "Mateo Mendoza",
+      "pos": "Defensor Central"
+    },
+    {
+      "id": "mtd4b7vi5zzep",
+      "tipo": "in",
+      "jugador": "Juan Cruz Meza",
+      "club": "Club Brujas",
+      "monto": "9800000",
+      "valoracion": "73",
+      "fecha": "03/01/2029",
+      "nombre": "Juan Cruz Meza",
+      "pos": "Mediocentro"
+    },
+    {
+      "id": "mtd4uq0liydtt",
+      "tipo": "out",
+      "jugador": "Andres Romero",
+      "club": "Aldosivi",
+      "monto": "1900000",
+      "valoracion": "62",
+      "fecha": "",
+      "nombre": "Andres Romero"
+    },
+    {
+      "id": "mtdb0ijuhfesj",
+      "playerId": "mtdb0iju9lrpf",
+      "tipo": "in",
+      "nombre": "Alex Luna",
+      "pos": "Mediocentro Ofensivo",
+      "edad": "24",
+      "nacionalidad": "Argentina",
+      "media": "82",
+      "potencial": "",
+      "valor": "44500000",
+      "salario": "40000",
+      "monto": "55600000",
+      "club": "Instituto",
+      "fecha": ""
+    }
+  ],
+  "renewals": [],
+  "loans": [
+    {
+      "id": "mtdb5iu4pnyq1",
+      "tipo": "cedido",
+      "jugador": "José Mansilla",
+      "club": "Le Havre",
+      "duracion": "1 año",
+      "opcionCompra": "No",
+      "monto": "",
+      "fecha": ""
+    },
+    {
+      "id": "mtdb65rjti3xw",
+      "tipo": "cedido",
+      "jugador": "Luciano Barros Ayala",
+      "club": "Everton",
+      "duracion": "2 años",
+      "opcionCompra": "No",
+      "monto": "",
+      "fecha": ""
+    }
+  ],
+  "topScorers": [
+    {
+      "id": "mtd7xq7yb4f5r",
+      "playerId": "mtczn6gpl10d1",
+      "jugador": "Maximiliano Gutierrez",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yp1fpp",
+      "playerId": "mtd3zj23dz43s",
+      "jugador": "Francisco Cornejo",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yi7hjw",
+      "playerId": "mtczi4359bd94",
+      "jugador": "Juan Pablo Cozzani",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yiumuh",
+      "playerId": "mtd2zcanx2sfq",
+      "jugador": "Marc Rojas",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yvvkvi",
+      "playerId": "mtd30py0dahni",
+      "jugador": "Ivan Mancilla",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7y6d05d",
+      "playerId": "mtd3v206jxbjd",
+      "jugador": "Lautaro del Blanco",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yat4yr",
+      "playerId": "mtczkaictnhgg",
+      "jugador": "Joan Álvarez",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yasqlm",
+      "playerId": "mtczj051gb4fx",
+      "jugador": "Teo Rodriguez Pagano",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7ymua43",
+      "playerId": "mtczjtdtqjxqb",
+      "jugador": "Nicolas Tagliafico",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yp2qsd",
+      "playerId": "mtd323kx372d3",
+      "jugador": "José Mansilla",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7ygrsyl",
+      "playerId": "mtd31hzv1ojmz",
+      "jugador": "Ángel Soto",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7y4plj3",
+      "playerId": "mtcznri7wnr7a",
+      "jugador": "Felipe Faúndez",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yjpoip",
+      "playerId": "mtd338cp0xwkl",
+      "jugador": "Luciano Barros Ayala",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yfezol",
+      "playerId": "mtd33x9ew0vz0",
+      "jugador": "Eusebio Varela",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yjfueq",
+      "playerId": "mtczlwgqizeiq",
+      "jugador": "Gonzalo Bordón",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7ytsyi5",
+      "playerId": "mtczmjtu7wa31",
+      "jugador": "Juan Arrayago",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yc4vud",
+      "playerId": "mtczkswg2yvnk",
+      "jugador": "Tobías Ramirez",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yiti57",
+      "playerId": "mtczlcckr7pgy",
+      "jugador": "Fernando Closter",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7y01e19",
+      "playerId": "mtd49f6w1ruma",
+      "jugador": "Mateo Mendoza",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7ypcsu7",
+      "playerId": "mtd32k3jmghsi",
+      "jugador": "Christian Moyano",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7ykn2up",
+      "playerId": "mtd41megf9cli",
+      "jugador": "Patrik Mercado",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yi14rb",
+      "playerId": "mtczqc1g8efyr",
+      "jugador": "Agustin Dos Santos",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7ylvamv",
+      "playerId": "mtd4c3h5euzt2",
+      "jugador": "Juan Cruz Meza",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yy3skh",
+      "playerId": "mtczqvt9tuz6n",
+      "jugador": "Mateo Perez Curci",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7ymhjzx",
+      "playerId": "mtd44gr5t724u",
+      "jugador": "Fabricio Arnaiz",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7ykmwga",
+      "playerId": "mtczrdb4xbovm",
+      "jugador": "Osmar Gimenez",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yhdnj8",
+      "playerId": "mtd4haa58u4du",
+      "jugador": "Josias Palais",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yfuabh",
+      "playerId": "mtd34z0501s2f",
+      "jugador": "Ivan Bello",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7y4r77w",
+      "playerId": "mtczsisloxums",
+      "jugador": "Maxloren Castro",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yj8cfu",
+      "playerId": "mtczsjx0p5xwx",
+      "jugador": "David Martinez",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yj8pw2",
+      "playerId": "mtd46exodltr0",
+      "jugador": "Cristian Cruz",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7ys9vfg",
+      "playerId": "mtd35pg80ghg8",
+      "jugador": "Joaquin Lorenzo",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yr510q",
+      "playerId": "mtczsm64w2qfk",
+      "jugador": "José Manuel \"Flaco\" Lopez",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yiry01",
+      "playerId": "mtczsllp1pida",
+      "jugador": "Yandri Vazquez",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtdavgcur88gl",
+      "playerId": "mtdaqkh1kuohj",
+      "jugador": "David Velazquez",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtdb0ijz4nxmc",
+      "playerId": "mtdb0iju9lrpf",
+      "jugador": "Nuevo Fichaje",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    }
+  ],
+  "topAssists": [
+    {
+      "id": "mtd7xq7yz2rv4",
+      "playerId": "mtd3zj23dz43s",
+      "jugador": "Francisco Cornejo",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yf9vhh",
+      "playerId": "mtczi4359bd94",
+      "jugador": "Juan Pablo Cozzani",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yh4njz",
+      "playerId": "mtd2zcanx2sfq",
+      "jugador": "Marc Rojas",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yphht2",
+      "playerId": "mtd30py0dahni",
+      "jugador": "Ivan Mancilla",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7y64dne",
+      "playerId": "mtd3v206jxbjd",
+      "jugador": "Lautaro del Blanco",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yav5g3",
+      "playerId": "mtczkaictnhgg",
+      "jugador": "Joan Álvarez",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7y96z0e",
+      "playerId": "mtczj051gb4fx",
+      "jugador": "Teo Rodriguez Pagano",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7y7d5rd",
+      "playerId": "mtczjtdtqjxqb",
+      "jugador": "Nicolas Tagliafico",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7ydsief",
+      "playerId": "mtd323kx372d3",
+      "jugador": "José Mansilla",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7y1q56w",
+      "playerId": "mtd31hzv1ojmz",
+      "jugador": "Ángel Soto",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yrfc93",
+      "playerId": "mtczn6gpl10d1",
+      "jugador": "Maximiliano Gutierrez",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yd4clv",
+      "playerId": "mtcznri7wnr7a",
+      "jugador": "Felipe Faúndez",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yor94i",
+      "playerId": "mtd338cp0xwkl",
+      "jugador": "Luciano Barros Ayala",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yoo49l",
+      "playerId": "mtd33x9ew0vz0",
+      "jugador": "Eusebio Varela",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yujily",
+      "playerId": "mtczlwgqizeiq",
+      "jugador": "Gonzalo Bordón",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yvfpbi",
+      "playerId": "mtczmjtu7wa31",
+      "jugador": "Juan Arrayago",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yf9e11",
+      "playerId": "mtczkswg2yvnk",
+      "jugador": "Tobías Ramirez",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7ynk185",
+      "playerId": "mtczlcckr7pgy",
+      "jugador": "Fernando Closter",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7y2p9p6",
+      "playerId": "mtd49f6w1ruma",
+      "jugador": "Mateo Mendoza",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7y7a514",
+      "playerId": "mtd32k3jmghsi",
+      "jugador": "Christian Moyano",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yvtqp5",
+      "playerId": "mtd41megf9cli",
+      "jugador": "Patrik Mercado",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yz3vrj",
+      "playerId": "mtczqc1g8efyr",
+      "jugador": "Agustin Dos Santos",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7ylrqhx",
+      "playerId": "mtd4c3h5euzt2",
+      "jugador": "Juan Cruz Meza",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7ytldtc",
+      "playerId": "mtczqvt9tuz6n",
+      "jugador": "Mateo Perez Curci",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yvrulu",
+      "playerId": "mtd44gr5t724u",
+      "jugador": "Fabricio Arnaiz",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yj8vgj",
+      "playerId": "mtczrdb4xbovm",
+      "jugador": "Osmar Gimenez",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7y17h91",
+      "playerId": "mtd4haa58u4du",
+      "jugador": "Josias Palais",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yt8lph",
+      "playerId": "mtd34z0501s2f",
+      "jugador": "Ivan Bello",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7y9qes2",
+      "playerId": "mtczsisloxums",
+      "jugador": "Maxloren Castro",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7y2atgh",
+      "playerId": "mtczsjx0p5xwx",
+      "jugador": "David Martinez",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7y09fvf",
+      "playerId": "mtd46exodltr0",
+      "jugador": "Cristian Cruz",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7ysm6uq",
+      "playerId": "mtd35pg80ghg8",
+      "jugador": "Joaquin Lorenzo",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yqsu8a",
+      "playerId": "mtczsm64w2qfk",
+      "jugador": "José Manuel \"Flaco\" Lopez",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7y2oxsw",
+      "playerId": "mtczsllp1pida",
+      "jugador": "Yandri Vazquez",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtdavgcuh3htj",
+      "playerId": "mtdaqkh1kuohj",
+      "jugador": "David Velazquez",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtdb0ijzolzr2",
+      "playerId": "mtdb0iju9lrpf",
+      "jugador": "Nuevo Fichaje",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    }
+  ],
+  "topMatches": [
+    {
+      "id": "mtd7xq7y0lh0e",
+      "playerId": "mtd3zj23dz43s",
+      "jugador": "Francisco Cornejo",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7ybfjdg",
+      "playerId": "mtczi4359bd94",
+      "jugador": "Juan Pablo Cozzani",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yawc5e",
+      "playerId": "mtd2zcanx2sfq",
+      "jugador": "Marc Rojas",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7y6gs13",
+      "playerId": "mtd30py0dahni",
+      "jugador": "Ivan Mancilla",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7y601lo",
+      "playerId": "mtd3v206jxbjd",
+      "jugador": "Lautaro del Blanco",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yugf3e",
+      "playerId": "mtczkaictnhgg",
+      "jugador": "Joan Álvarez",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yzj72p",
+      "playerId": "mtczj051gb4fx",
+      "jugador": "Teo Rodriguez Pagano",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7y8vjx5",
+      "playerId": "mtczjtdtqjxqb",
+      "jugador": "Nicolas Tagliafico",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7ymmeek",
+      "playerId": "mtd323kx372d3",
+      "jugador": "José Mansilla",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7ymvxvq",
+      "playerId": "mtd31hzv1ojmz",
+      "jugador": "Ángel Soto",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7ypt3tn",
+      "playerId": "mtczn6gpl10d1",
+      "jugador": "Maximiliano Gutierrez",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7y68v4m",
+      "playerId": "mtcznri7wnr7a",
+      "jugador": "Felipe Faúndez",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7ywz0w8",
+      "playerId": "mtd338cp0xwkl",
+      "jugador": "Luciano Barros Ayala",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7y519gf",
+      "playerId": "mtd33x9ew0vz0",
+      "jugador": "Eusebio Varela",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7ykc660",
+      "playerId": "mtczlwgqizeiq",
+      "jugador": "Gonzalo Bordón",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yeo1zk",
+      "playerId": "mtczmjtu7wa31",
+      "jugador": "Juan Arrayago",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7ywhtkr",
+      "playerId": "mtczkswg2yvnk",
+      "jugador": "Tobías Ramirez",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yciavc",
+      "playerId": "mtczlcckr7pgy",
+      "jugador": "Fernando Closter",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7ysr9bb",
+      "playerId": "mtd49f6w1ruma",
+      "jugador": "Mateo Mendoza",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7y8ptbl",
+      "playerId": "mtd32k3jmghsi",
+      "jugador": "Christian Moyano",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yhf4cv",
+      "playerId": "mtd41megf9cli",
+      "jugador": "Patrik Mercado",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7y3yo9r",
+      "playerId": "mtczqc1g8efyr",
+      "jugador": "Agustin Dos Santos",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7y6mfgv",
+      "playerId": "mtd4c3h5euzt2",
+      "jugador": "Juan Cruz Meza",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7ywb25w",
+      "playerId": "mtczqvt9tuz6n",
+      "jugador": "Mateo Perez Curci",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7ya8sc7",
+      "playerId": "mtd44gr5t724u",
+      "jugador": "Fabricio Arnaiz",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yamg8g",
+      "playerId": "mtczrdb4xbovm",
+      "jugador": "Osmar Gimenez",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7y0u6n8",
+      "playerId": "mtd4haa58u4du",
+      "jugador": "Josias Palais",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7ys4zcw",
+      "playerId": "mtd34z0501s2f",
+      "jugador": "Ivan Bello",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yhjejj",
+      "playerId": "mtczsisloxums",
+      "jugador": "Maxloren Castro",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yp3003",
+      "playerId": "mtczsjx0p5xwx",
+      "jugador": "David Martinez",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7ywv5p8",
+      "playerId": "mtd46exodltr0",
+      "jugador": "Cristian Cruz",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yx8s3k",
+      "playerId": "mtd35pg80ghg8",
+      "jugador": "Joaquin Lorenzo",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7yzaipm",
+      "playerId": "mtczsm64w2qfk",
+      "jugador": "José Manuel \"Flaco\" Lopez",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtd7xq7ymny53",
+      "playerId": "mtczsllp1pida",
+      "jugador": "Yandri Vazquez",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtdavgcu03sgl",
+      "playerId": "mtdaqkh1kuohj",
+      "jugador": "David Velazquez",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtdb0ijzqt9aj",
+      "playerId": "mtdb0iju9lrpf",
+      "jugador": "Nuevo Fichaje",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    }
+  ],
+  "trophies": [
+    {
+      "id": "mtczxtiky6h27",
+      "competicion": "Torneo Clausura",
+      "temporada": "2027"
+    },
+    {
+      "id": "mtczxz8yatlfy",
+      "competicion": "Torneo Apertura",
+      "temporada": "2028"
+    },
+    {
+      "id": "mtd0ebjry72ft",
+      "competicion": "CONMEBOL Libertadores",
+      "temporada": "2028"
+    },
+    {
+      "id": "mtd18y25a088b",
+      "competicion": "Torneo Clausura",
+      "temporada": "2028"
+    }
+  ],
+  "tactics": {
+    "formacion": "4-2-3-1",
+    "porFormacion": {
+      "4-4-2": {},
+      "4-2-3-1": {
+        "starters": {
+          "por": "mtczi4359bd94",
+          "li": "mtczj051gb4fx",
+          "dfc1": "mtczlcckr7pgy",
+          "dfc2": "mtczkswg2yvnk",
+          "ld": "mtcznri7wnr7a",
+          "mcd1": "mtd49f6w1ruma",
+          "mcd2": "mtd4c3h5euzt2",
+          "mco3": "mtczsjx0p5xwx",
+          "mco1": "mtczsisloxums",
+          "mco2": "mtd46exodltr0",
+          "dc": "mtczsllp1pida"
+        },
+        "subs": [
+          "mtczsm64w2qfk",
+          "mtd41megf9cli",
+          "mtd3v206jxbjd",
+          "mtczmjtu7wa31",
+          "mtczlwgqizeiq",
+          "mtd4haa58u4du",
+          "mtczqc1g8efyr"
+        ]
+      }
+    },
+    "presets": [
+      {
+        "id": "mtd8e7iirr4yd",
+        "nombre": "Titulares",
+        "formacion": "4-2-3-1",
+        "starters": {
+          "por": "mtd3zj23dz43s",
+          "li": "mtd3v206jxbjd",
+          "dfc1": "mtczlwgqizeiq",
+          "dfc2": "mtczmjtu7wa31",
+          "ld": "mtczn6gpl10d1",
+          "mcd1": "mtd41megf9cli",
+          "mcd2": "mtd44gr5t724u",
+          "mco3": "mtd46exodltr0",
+          "mco2": "mtczqc1g8efyr",
+          "mco1": "mtd4haa58u4du",
+          "dc": "mtczsm64w2qfk"
+        },
+        "subs": [
+          "mtd4c3h5euzt2",
+          "mtd49f6w1ruma",
+          "mtczkswg2yvnk",
+          "mtczsjx0p5xwx",
+          "mtczsisloxums",
+          "mtczsllp1pida",
+          "mtcznri7wnr7a"
+        ]
+      }
+    ]
+  }
+}
