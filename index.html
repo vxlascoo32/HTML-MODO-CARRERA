@@ -1,1894 +1,214 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cuaderno de Carrera · FC 26</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg: #0b1a13;
-    --bg-stripe: #0e2016;
-    --surface: #12271c;
-    --surface-2: #193423;
-    --surface-3: #204029;
-    --border: #2a4934;
-    --border-soft: #1e3a28;
-    --gold: #e8b64c;
-    --gold-dim: #9c7d3c;
-    --gold-text: #f6d488;
-    --text: #eef2ec;
-    --text-dim: #93ab9d;
-    --text-faint: #5f7669;
-    --win: #4caf7d;
-    --win-bg: rgba(76,175,125,0.12);
-    --draw: #d9b64c;
-    --draw-bg: rgba(217,182,76,0.12);
-    --loss: #d1616b;
-    --loss-bg: rgba(209,97,107,0.12);
-    --blue-in: #5fa8d3;
-    --blue-in-bg: rgba(95,168,211,0.12);
-    --red-out: #d1616b;
-    --red-out-bg: rgba(209,97,107,0.12);
-    --radius: 8px;
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{
-    background:
-      repeating-linear-gradient(180deg, var(--bg-stripe) 0px, var(--bg-stripe) 46px, var(--bg) 46px, var(--bg) 92px);
-    color:var(--text);
-    font-family:'Inter',system-ui,sans-serif;
-    min-height:100vh;
-    display:flex;
-  }
-  ::selection{ background:var(--gold-dim); color:#1a1207; }
-  h1,h2,h3,.display{
-    font-family:'Oswald',sans-serif;
-    text-transform:uppercase;
-    letter-spacing:0.04em;
-    font-weight:600;
-    margin:0;
-  }
-  .mono{ font-family:'Roboto Mono',monospace; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Táctica de Juego</title>
+  <style>
+    /* Estructura general de la cancha */
+    .pitch {
+      position: relative;
+      width: 100%;
+      max-width: 450px;
+      height: 620px;
+      background-color: #1a3c27;
+      background-image: repeating-linear-gradient(
+        0deg,
+        #1a3c27,
+        #1a3c27 60px,
+        #143220 60px,
+        #143220 120px
+      );
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+      margin: 0 auto;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
 
-  #sidebar{
-    width:230px;
-    flex:0 0 230px;
-    background:var(--surface);
-    border-right:1px solid var(--border);
-    display:flex;
-    flex-direction:column;
-    padding:20px 14px;
-    position:sticky;
-    top:0;
-    height:100vh;
-    overflow-y:auto;
-  }
-  .crest{
-    width:64px;height:64px;
-    border-radius:50%;
-    background:radial-gradient(circle at 30% 25%, var(--surface-3), var(--surface-2) 70%);
-    border:2px solid var(--gold-dim);
-    display:flex;align-items:center;justify-content:center;
-    font-family:'Oswald',sans-serif;
-    font-size:22px;font-weight:700;color:var(--gold);
-    margin:0 auto 10px auto;
-  }
-  #club-name-display{ text-align:center; font-size:16px; color:var(--text); }
-  #club-season-display{ text-align:center; font-size:11px; color:var(--text-dim); letter-spacing:0.08em; margin-top:2px; }
-  nav{ margin-top:20px; display:flex; flex-direction:column; gap:4px; }
-  nav button{
-    all:unset; cursor:pointer; display:flex; align-items:center; gap:10px;
-    padding:9px 12px; border-radius:var(--radius);
-    font-family:'Oswald',sans-serif; font-size:13px; letter-spacing:0.05em; text-transform:uppercase;
-    color:var(--text-dim); border-left:3px solid transparent;
-  }
-  nav button:hover{ background:var(--surface-2); color:var(--text); }
-  nav button.active{ background:var(--surface-2); color:var(--gold-text); border-left:3px solid var(--gold); }
-  nav button .tag{
-    margin-left:auto; font-family:'Roboto Mono',monospace; font-size:10px;
-    color:var(--text-faint); background:var(--surface-3); padding:1px 6px; border-radius:10px;
-  }
-  #sidebar-foot{ margin-top:auto; padding-top:16px; display:flex; flex-direction:column; gap:6px; }
-  #sidebar-foot button{
-    all:unset; cursor:pointer; font-size:11px; color:var(--text-faint);
-    text-align:left; padding:6px 8px; border-radius:6px; border:1px dashed var(--border);
-  }
-  #sidebar-foot button:hover{ color:var(--text-dim); border-color:var(--text-faint); }
+    /* Dibujo del terreno de juego */
+    .area-top {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 240px;
+      height: 90px;
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      border-top: none;
+    }
 
-  #main{ flex:1; min-width:0; padding:26px 34px 60px 34px; }
-  .topbar{ display:flex; align-items:center; justify-content:space-between; gap:20px; margin-bottom:22px; flex-wrap:wrap; }
-  #form-ticker{ display:flex; gap:6px; align-items:center; }
-  .form-dot{
-    width:26px;height:26px; border-radius:50%; display:flex;align-items:center;justify-content:center;
-    font-size:11px;font-weight:700;font-family:'Oswald',sans-serif; border:1px solid transparent;
-  }
-  .form-dot.V{ background:var(--win-bg); color:var(--win); border-color:var(--win); }
-  .form-dot.E{ background:var(--draw-bg); color:var(--draw); border-color:var(--draw); }
-  .form-dot.D{ background:var(--loss-bg); color:var(--loss); border-color:var(--loss); }
-  .form-label{ font-size:11px; color:var(--text-faint); letter-spacing:0.08em; text-transform:uppercase; margin-right:8px;}
+    .area-bottom {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 240px;
+      height: 90px;
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      border-bottom: none;
+    }
 
-  .panel-title{ font-size:22px; margin-bottom:4px; color:var(--text);}
-  .panel-sub{ font-size:12px; color:var(--text-dim); margin-bottom:22px; letter-spacing:0.03em;}
+    .center-circle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 110px;
+      height: 140px;
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      border-radius: 50%;
+    }
 
-  .tab{ display:none; }
-  .tab.active{ display:block; animation:fade .15s ease; }
-  @keyframes fade{ from{opacity:0; transform:translateY(3px);} to{opacity:1; transform:none;} }
+    /* Ficha del jugador (Posición + Select) */
+    .player-node {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      /* Mantiene la ficha centrada exactamante sobre las coordenadas left/top */
+      transform: translate(-50%, -50%);
+      z-index: 2;
+    }
 
-  .stat-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:12px; margin-bottom:26px; }
-  .stat-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; }
-  .stat-card .label{ font-size:10px; letter-spacing:0.09em; text-transform:uppercase; color:var(--text-faint); }
-  .stat-card .value{ font-family:'Oswald',sans-serif; font-size:26px; font-weight:600; margin-top:4px; color:var(--text); }
-  .stat-card .value.gold{ color:var(--gold-text); }
-  .stat-card .value.win{ color:var(--win); }
-  .stat-card .value.loss{ color:var(--loss); }
+    /* Etiqueta dorada de la posición */
+    .position-badge {
+      background-color: #cda85f;
+      color: #0c1810;
+      font-weight: 800;
+      font-size: 0.65rem;
+      padding: 1px 7px;
+      border-radius: 8px;
+      margin-bottom: 2px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
 
-  .section-block{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px 20px; margin-bottom:20px; }
-  .section-block h3{ font-size:14px; color:var(--gold-text); margin-bottom:14px; padding-bottom:8px; border-bottom:1px solid var(--border-soft); }
+    /* Desplegable con ancho corregido */
+    .player-select {
+      min-width: 135px;           /* Incrementado para permitir nombres largos */
+      max-width: 160px;           /* Límite para evitar choques en líneas pobladas */
+      width: max-content;
+      background-color: #0d2116;
+      color: #ffffff;
+      border: 1.5px solid #cda85f;
+      border-radius: 6px;
+      padding: 3px 20px 3px 8px;  /* Espacio reservado a la derecha para la flecha */
+      font-size: 0.82rem;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+      box-sizing: border-box;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
 
-  .field-row{ display:flex; gap:16px; flex-wrap:wrap; }
-  .field{ display:flex; flex-direction:column; gap:5px; min-width:150px; flex:1; }
-  .field label{ font-size:10px; letter-spacing:0.07em; text-transform:uppercase; color:var(--text-faint); }
-  input, select, textarea{
-    background:var(--surface-2); border:1px solid var(--border); color:var(--text);
-    padding:8px 10px; border-radius:6px; font-family:'Inter',sans-serif; font-size:13px;
-  }
-  input:focus, select:focus, textarea:focus{ outline:none; border-color:var(--gold-dim); }
+    .player-select:focus {
+      border-color: #ffffff;
+      box-shadow: 0 0 6px rgba(205, 168, 95, 0.6);
+    }
 
-  table{ width:100%; border-collapse:collapse; font-size:13px; }
-  thead th{
-    text-align:left; font-size:10px; letter-spacing:0.07em; text-transform:uppercase;
-    color:var(--text-faint); padding:6px 8px; border-bottom:1px solid var(--border); white-space:nowrap;
-  }
-  tbody td{ padding:6px 8px; border-bottom:1px solid var(--border-soft); vertical-align:middle; }
-  tbody tr:hover{ background:var(--surface-2); }
-  td[contenteditable="true"]{ cursor:text; border-radius:4px; }
-  td[contenteditable="true"]:focus{ outline:1px solid var(--gold-dim); background:var(--surface-3); }
-  td.num{ text-align:center; font-family:'Roboto Mono',monospace; }
-  .empty-row td{ text-align:center; color:var(--text-faint); padding:20px; font-style:italic; }
+    /* Ubicaciones de cada posición (% de la cancha) */
+    .pos-dc    { top: 12%; left: 50%; }
 
-  .badge{ display:inline-block; padding:2px 9px; border-radius:20px; font-size:11px; font-weight:600; font-family:'Oswald',sans-serif; letter-spacing:0.03em; }
-  .badge.V{ background:var(--win-bg); color:var(--win); }
-  .badge.E{ background:var(--draw-bg); color:var(--draw); }
-  .badge.D{ background:var(--loss-bg); color:var(--loss); }
-  .badge.in{ background:var(--blue-in-bg); color:var(--blue-in); }
-  .badge.out{ background:var(--red-out-bg); color:var(--red-out); }
+    .pos-mco-l { top: 29%; left: 20%; }
+    .pos-mco-c { top: 25%; left: 50%; }
+    .pos-mco-r { top: 29%; left: 80%; }
 
-  select.pill{ background:var(--surface-3); border:1px solid var(--border); border-radius:20px; font-size:11px; padding:3px 8px; font-family:'Oswald',sans-serif; color:var(--text); }
+    .pos-mcd-l { top: 52%; left: 36%; }
+    .pos-mcd-r { top: 52%; left: 64%; }
 
-  button.action{ all:unset; cursor:pointer; padding:7px 14px; border-radius:6px; font-family:'Oswald',sans-serif; font-size:12px; letter-spacing:0.05em; text-transform:uppercase; }
-  button.primary{ background:var(--gold); color:#1a1207; font-weight:700; }
-  button.primary:hover{ background:var(--gold-text); }
-  button.ghost{ border:1px solid var(--border); color:var(--text-dim); }
-  button.ghost:hover{ border-color:var(--text-faint); color:var(--text); }
-  button.danger-ghost{ border:1px solid var(--loss); color:var(--loss); font-size:11px; padding:4px 9px; }
-  button.danger-ghost:hover{ background:var(--loss-bg); }
-  .toolbar{ display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; align-items:flex-end; }
+    .pos-li    { top: 71%; left: 14%; }
+    .pos-dfc-l { top: 74%; left: 38%; }
+    .pos-dfc-r { top: 74%; left: 62%; }
+    .pos-ld    { top: 71%; left: 86%; }
 
-  .top-players{ display:flex; flex-direction:column; gap:8px; }
-  .top-player-row{ display:flex; align-items:center; gap:10px; font-size:13px; }
-  .top-player-row .rank{ width:18px; color:var(--text-faint); font-family:'Roboto Mono',monospace; }
-  .top-player-row .bar-wrap{ flex:1; background:var(--surface-2); border-radius:4px; height:8px; overflow:hidden; }
-  .top-player-row .bar{ height:100%; background:var(--gold-dim); }
-  .top-player-row .val{ font-family:'Roboto Mono',monospace; color:var(--gold-text); width:26px; text-align:right; }
-
-  .trophy-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:12px; }
-  .trophy-card{ background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius); padding:14px; position:relative; }
-  .trophy-card .comp{ font-family:'Oswald',sans-serif; font-size:14px; color:var(--gold-text); }
-  .trophy-card .season{ font-size:11px; color:var(--text-dim); margin-top:2px; }
-  .trophy-card .rm{ position:absolute; top:8px; right:8px; }
-
-  footer.credit{ margin-top:30px; font-size:10px; color:var(--text-faint); text-align:center; letter-spacing:0.05em; }
-
-  ::-webkit-scrollbar{ width:10px; height:10px; }
-  ::-webkit-scrollbar-track{ background:var(--bg); }
-  ::-webkit-scrollbar-thumb{ background:var(--surface-3); border-radius:5px; }
-
-  .scorers-cell{ display:flex; align-items:center; gap:8px; }
-  .scorers-summary{ font-size:12px; color:var(--text-dim); max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .scorers-summary.empty{ color:var(--text-faint); font-style:italic; }
-  button.edit-scorers{
-    all:unset; cursor:pointer; font-family:'Oswald',sans-serif; font-size:11px; letter-spacing:0.03em;
-    color:var(--gold-text); border:1px solid var(--gold-dim); border-radius:6px; padding:4px 9px; white-space:nowrap;
-  }
-  button.edit-scorers:hover{ background:var(--surface-3); }
-
-  .modal-overlay{ display:none; position:fixed; inset:0; background:rgba(4,10,7,0.72); z-index:100; align-items:center; justify-content:center; padding:20px; }
-  .modal-overlay.open{ display:flex; }
-  .modal-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px 22px; width:100%; max-width:420px; max-height:80vh; overflow-y:auto; }
-  .modal-card h3{ font-size:15px; color:var(--gold-text); margin-bottom:4px; }
-  .modal-sub{ font-size:11px; color:var(--text-faint); margin-bottom:16px; }
-  .scorer-list{ display:flex; flex-direction:column; gap:6px; margin-bottom:16px; }
-  .scorer-list .empty-hint{ font-size:12px; color:var(--text-faint); font-style:italic; }
-  .scorer-row{ display:flex; align-items:center; gap:8px; background:var(--surface-2); border:1px solid var(--border-soft); border-radius:6px; padding:6px 10px; font-size:13px; }
-  .scorer-row .sr-name{ flex:1; }
-  .scorer-row .sr-goals{ font-family:'Roboto Mono',monospace; color:var(--gold-text); }
-  .scorer-row button{ all:unset; cursor:pointer; color:var(--loss); font-size:13px; padding:2px 4px; }
-  .add-scorer-row{ display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap; margin-bottom:10px; }
-  .add-scorer-row .field{ min-width:auto; }
-  .add-scorer-row select{ min-width:150px; }
-  .add-scorer-row input[type=number]{ width:60px; }
-  .modal-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:14px; }
-
-  .pitch-wrap{ display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start; }
-  .pitch{
-    position:relative; width:100%; max-width:460px; aspect-ratio: 68 / 100;
-    background: repeating-linear-gradient(0deg, #163a26 0, #163a26 10%, #123021 10%, #123021 20%);
-    border:2px solid rgba(255,255,255,0.35); border-radius:6px; flex:1 1 320px;
-  }
-  .pitch svg{ position:absolute; inset:0; width:100%; height:100%; }
-  .slot{ position:absolute; transform:translate(-50%,-50%); display:flex; flex-direction:column; align-items:center; gap:3px; width:84px; }
-  .slot .slot-label{
-    font-family:'Oswald',sans-serif; font-size:9px; letter-spacing:0.06em;
-    color:var(--gold-text); background:rgba(11,26,19,0.75); padding:1px 6px; border-radius:8px;
-  }
-  .slot select{ width:100%; font-size:11px; padding:4px 5px; text-align:center; background:rgba(18,39,28,0.92); border:1px solid var(--gold-dim); border-radius:6px; color:var(--text); }
-  .slot select.unfilled{ border-color:var(--border); color:var(--text-faint); }
-  .lineup-summary{ flex:1 1 280px; min-width:260px; display:flex; flex-direction:column; gap:16px; }
-  .lineup-summary .section-block{ margin-bottom:0; }
-  .sub-grid{ display:flex; flex-direction:column; gap:6px; }
-  .sub-row{ display:flex; align-items:center; gap:8px; font-size:12px; }
-  .sub-row label{ width:65px; color:var(--text-faint); font-family:'Roboto Mono',monospace; font-size:11px; }
-  .sub-row select{ flex:1; font-size:12px; padding:4px 6px; }
-  .reserves-tags{ display:flex; flex-wrap:wrap; gap:6px; }
-  .reserve-tag{ background:var(--surface-2); border:1px solid var(--border-soft); color:var(--text-dim); padding:4px 8px; border-radius:12px; font-size:11px; }
-
-  select.pos-select{ background:var(--surface-2); border:1px solid var(--border); color:var(--text); padding:4px 6px; border-radius:4px; font-size:12px; width:100%; }
-
-  @media (max-width:800px){
-    body{ flex-direction:column; }
-    #sidebar{ position:relative; width:100%; height:auto; flex:none; flex-direction:row; align-items:center; overflow-x:auto; }
-    .crest{ display:none; }
-    #club-name-display,#club-season-display{ display:none; }
-    nav{ flex-direction:row; margin-top:0; }
-    #sidebar-foot{ display:none; }
-    #main{ padding:18px; }
-    .pitch{ max-width:100%; }
-    .slot{ width:70px; }
-    .slot select{ font-size:10px; }
-  }
-</style>
+    .pos-por   { top: 90%; left: 50%; }
+  </style>
 </head>
 <body>
 
-<aside id="sidebar">
-  <div class="crest" id="crest-initials">FC</div>
-  <div id="club-name-display">Mi Club</div>
-  <div id="club-season-display">TEMPORADA 25/26</div>
-  <nav>
-    <button data-tab="resumen" class="active"><span>Resumen</span></button>
-    <button data-tab="plantilla"><span>Plantilla</span><span class="tag" id="count-plantilla">0</span></button>
-    <button data-tab="inferiores"><span>Inferiores</span><span class="tag" id="count-inferiores">0</span></button>
-    <button data-tab="tactica"><span>Táctica</span></button>
-    <button data-tab="partidos"><span>Partidos</span><span class="tag" id="count-partidos">0</span></button>
-    <button data-tab="fichajes"><span>Fichajes</span><span class="tag" id="count-fichajes">0</span></button>
-    <button data-tab="renovaciones"><span>Renovaciones</span><span class="tag" id="count-renovaciones">0</span></button>
-    <button data-tab="cesiones"><span>Cesiones</span><span class="tag" id="count-cesiones">0</span></button>
-    <button data-tab="lideres"><span>Líderes</span></button>
-    <button data-tab="titulos"><span>Títulos</span><span class="tag" id="count-titulos">0</span></button>
-  </nav>
-  <div id="sidebar-foot">
-    <button id="btn-export">↓ Exportar backup (.json)</button>
-    <button id="btn-import">↑ Importar backup</button>
-    <button id="btn-reset" style="color:var(--loss); border-color:var(--loss);">Borrar todos los datos</button>
-    <input type="file" id="file-import" accept="application/json" style="display:none;">
-  </div>
-</aside>
-
-<main id="main">
-
-  <section class="tab active" id="tab-resumen">
-    <div class="topbar">
-      <div>
-        <h1 class="panel-title">Resumen de carrera</h1>
-        <div class="panel-sub">Estado general del club, plantilla y resultados</div>
-      </div>
-      <div>
-        <span class="form-label">Últimos 5</span>
-        <span id="form-ticker"></span>
-      </div>
-    </div>
-
-    <div class="section-block">
-      <h3>Datos del club</h3>
-      <div class="field-row">
-        <div class="field"><label>Nombre del club</label><input id="cfg-club" placeholder="Ej: River Plate"></div>
-        <div class="field"><label>Liga / País</label><input id="cfg-liga" placeholder="Ej: Premier League"></div>
-        <div class="field"><label>Temporada</label><input id="cfg-temporada" placeholder="Ej: 2025/26"></div>
-        <div class="field"><label>División</label><input id="cfg-division" placeholder="Ej: 1ª división"></div>
-      </div>
-    </div>
-
-    <div class="stat-grid" id="stat-grid"></div>
-
-    <div class="field-row" style="align-items:stretch;">
-      <div class="section-block" style="flex:1; min-width:280px;">
-        <h3>Top potenciales de la plantilla</h3>
-        <div class="top-players" id="top-potencial"></div>
-      </div>
-      <div class="section-block" style="flex:1; min-width:280px;">
-        <h3>Top media (overall) de la plantilla</h3>
-        <div class="top-players" id="top-media"></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="tab" id="tab-plantilla">
-    <h1 class="panel-title">Plantilla</h1>
-    <div class="panel-sub">Elegí la posición de la lista desplegable y edita cualquier celda haciendo clic.</div>
-    <div class="toolbar">
-      <button class="action primary" id="add-player">+ Agregar jugador</button>
-      <button class="action ghost" id="sort-posicion">Ordenar por posición</button>
-      <button class="action ghost" id="sort-potencial">Ordenar por potencial</button>
-      <button class="action ghost" id="sort-media">Ordenar por media</button>
-    </div>
-    <div class="section-block" style="overflow-x:auto;">
-      <table id="table-plantilla">
-        <thead>
-          <tr>
-            <th>Nombre</th><th>Posición</th><th>Edad</th><th>Nac.</th><th>Media</th><th>Potencial</th><th>Valor</th><th>Salario</th><th></th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </section>
-
-  <section class="tab" id="tab-inferiores">
-    <h1 class="panel-title">Inferiores</h1>
-    <div class="panel-sub">Jugadores de la cantera. Cuando estén listos, promovelos al plantel principal.</div>
-    <div class="toolbar">
-      <button class="action primary" id="add-youth">+ Agregar juvenil</button>
-    </div>
-    <div class="section-block" style="overflow-x:auto;">
-      <table id="table-inferiores">
-        <thead>
-          <tr>
-            <th>Nombre</th><th>Posición</th><th>Edad</th><th>Nac.</th><th>Media</th><th>Potencial</th><th>Valor</th><th>Salario</th><th></th><th></th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </section>
-
-  <section class="tab" id="tab-tactica">
-    <h1 class="panel-title">Táctica</h1>
-    <div class="panel-sub">Elegí una formación, armá tu once titular, suplentes y guardá variantes tácticas.</div>
-
-    <div class="toolbar">
-      <div class="field" style="max-width:180px;">
-        <label>Formación</label>
-        <select id="formation-select"></select>
-      </div>
-      <div class="field" style="max-width:200px;">
-        <label>Guardar táctica actual</label>
-        <input type="text" id="tactic-preset-name" placeholder="Ej: Ultra Ofensiva">
-      </div>
-      <button class="action primary" id="save-tactic-btn">Guardar</button>
-      
-      <div class="field" style="max-width:200px; margin-left:auto;">
-        <label>Cargar táctica guardada</label>
-        <select id="preset-select"><option value="">-- Seleccionar --</option></select>
-      </div>
-      <button class="action ghost" id="load-tactic-btn">Cargar</button>
-      <button class="action danger-ghost" id="delete-tactic-btn">Eliminar</button>
-      <button class="action ghost" id="clear-lineup">Vaciar alineación</button>
-    </div>
-
-    <div class="pitch-wrap">
-      <div class="pitch" id="pitch">
-        <svg viewBox="0 0 100 100" preserveAspectRatio="none">
-          <rect x="2" y="2" width="96" height="96" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="0.4"/>
-          <line x1="2" y1="50" x2="98" y2="50" stroke="rgba(255,255,255,0.35)" stroke-width="0.4"/>
-          <circle cx="50" cy="50" r="9" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="0.4"/>
-          <rect x="22" y="2" width="56" height="14" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="0.4"/>
-          <rect x="22" y="84" width="56" height="14" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="0.4"/>
-        </svg>
-        <div id="slots-container"></div>
-      </div>
-
-      <div class="lineup-summary">
-        <div class="section-block">
-          <h3>Suplentes (7)</h3>
-          <div class="sub-grid" id="subs-container"></div>
-        </div>
-
-        <div class="section-block">
-          <h3>Reservas / No convocados</h3>
-          <div class="reserves-tags" id="reserves-container"></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="tab" id="tab-partidos">
-    <h1 class="panel-title">Partidos</h1>
-    <div class="panel-sub">Registrá cada partido jugado. El resultado (V/E/D) se calcula solo.</div>
-    <div class="toolbar">
-      <button class="action primary" id="add-match">+ Agregar partido</button>
-    </div>
-    <div class="section-block" style="overflow-x:auto;">
-      <table id="table-partidos">
-        <thead>
-          <tr>
-            <th>Jornada</th><th>Competición</th><th>Rival</th><th>L/V</th><th>GF</th><th>GC</th><th>Res.</th><th>Goleadores</th><th>Fecha</th><th></th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </section>
-
-  <section class="tab" id="tab-fichajes">
-    <h1 class="panel-title">Fichajes</h1>
-    <div class="panel-sub">Al anotar un fichaje (Entrada) se suma a Plantilla. Al anotar una Salida se elimina.</div>
-    <div class="toolbar">
-      <button class="action primary" id="add-transfer-in">+ Registrar Fichaje (Entrada)</button>
-      <button class="action ghost" id="add-transfer-out" style="color:var(--loss); border-color:var(--loss);">- Registrar Salida (Venta/Baja)</button>
-    </div>
-    <div class="section-block" style="overflow-x:auto;">
-      <table id="table-fichajes">
-        <thead>
-          <tr>
-            <th>Tipo</th><th>Nombre</th><th>Posición</th><th>Edad</th><th>Nac.</th><th>Media</th><th>Pot.</th><th>Valor</th><th>Salario</th><th>Monto</th><th>Club</th><th>Fecha</th><th></th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </section>
-
-  <section class="tab" id="tab-renovaciones">
-    <h1 class="panel-title">Renovaciones de Contrato</h1>
-    <div class="panel-sub">Historial y registro de renovaciones contractuales del plantel.</div>
-    <div class="toolbar">
-      <button class="action primary" id="add-renewal">+ Anotar renovación</button>
-    </div>
-    <div class="section-block" style="overflow-x:auto;">
-      <table id="table-renovaciones">
-        <thead>
-          <tr>
-            <th>Jugador</th><th>Sueldo Anterior</th><th>Nuevo Sueldo</th><th>Duración / Fin</th><th>Cláusula</th><th>Fecha</th><th></th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </section>
-
-  <section class="tab" id="tab-cesiones">
-    <h1 class="panel-title">Cesiones</h1>
-    <div class="panel-sub">Registro de préstamos (jugadores cedidos a otros clubes o recibidos).</div>
-    <div class="toolbar">
-      <button class="action primary" id="add-loan">+ Anotar cesión</button>
-    </div>
-    <div class="section-block" style="overflow-x:auto;">
-      <table id="table-cesiones">
-        <thead>
-          <tr>
-            <th>Tipo</th><th>Jugador</th><th>Club</th><th>Duración</th><th>Opción de Compra</th><th>Cargo / Sueldo %</th><th>Fecha</th><th></th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </section>
-
-  <section class="tab" id="tab-lideres">
-    <h1 class="panel-title">Líderes y Estadísticas de Plantilla</h1>
-    <div class="panel-sub">Sincronizado automáticamente con los jugadores de plantilla. Edita las celdas para reordenar dinámicamente.</div>
-    
-    <div class="field-row" style="align-items:flex-start;">
-      <div class="section-block" style="flex:1; min-width:300px; overflow-x:auto;">
-        <h3>Máximos Goleadores</h3>
-        <table id="table-top-scorers">
-          <thead>
-            <tr>
-              <th>N°</th><th>Jugador</th><th>Goles</th><th>PJ</th><th>Años</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-
-      <div class="section-block" style="flex:1; min-width:300px; overflow-x:auto;">
-        <h3>Máximos Asistidores</h3>
-        <table id="table-top-assists">
-          <thead>
-            <tr>
-              <th>N°</th><th>Jugador</th><th>Asistencias</th><th>PJ</th><th>Años</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-
-      <div class="section-block" style="flex:1; min-width:300px; overflow-x:auto;">
-        <h3>Más Partidos Jugados</h3>
-        <table id="table-top-matches">
-          <thead>
-            <tr>
-              <th>N°</th><th>Jugador</th><th>Partidos</th><th>Goles</th><th>Asist.</th><th>Años</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <section class="tab" id="tab-titulos">
-    <h1 class="panel-title">Títulos</h1>
-    <div class="panel-sub">Vitrina de trofeos ganados con el club.</div>
-    <div class="toolbar">
-      <button class="action primary" id="add-trophy">+ Agregar título</button>
-    </div>
-    <div class="trophy-grid" id="trophy-grid"></div>
-  </section>
-
-  <footer class="credit">cuaderno de carrera · datos guardados localmente en este navegador</footer>
-</main>
-
-<div class="modal-overlay" id="scorer-modal">
-  <div class="modal-card">
-    <h3>Goleadores del partido</h3>
-    <div class="modal-sub" id="scorer-modal-sub"></div>
-    <div class="scorer-list" id="scorer-list"></div>
-    <div class="add-scorer-row">
-      <div class="field">
-        <label>Jugador</label>
-        <select id="scorer-player-select"></select>
-      </div>
-      <div class="field">
-        <label>Goles</label>
-        <input type="number" id="scorer-goals-input" value="1" min="1">
-      </div>
-      <button class="action ghost" id="scorer-add-btn">+ Agregar</button>
-    </div>
-    <div class="field">
-      <label>Otro (ej: gol en contra rival)</label>
-      <div style="display:flex; gap:8px;">
-        <input type="text" id="scorer-other-name" placeholder="Nombre libre" style="flex:1;">
-        <button class="action ghost" id="scorer-add-other-btn">+ Agregar</button>
-      </div>
-    </div>
-    <div class="modal-actions">
-      <button class="action primary" id="scorer-close-btn">Listo</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="exit-modal">
-  <div class="modal-card">
-    <h3>Registrar Salida de Jugador</h3>
-    <div class="modal-sub">Elegí el jugador que deja el club. Se registrará la salida y se quitará de la plantilla.</div>
-    <div class="field" style="margin-bottom:14px;">
-      <label>Jugador de Plantilla</label>
-      <select id="exit-player-select"></select>
-    </div>
-    <div class="field-row" style="margin-bottom:14px;">
-      <div class="field"><label>Monto</label><input type="text" id="exit-monto" placeholder="Ej: €15.000.000"></div>
-      <div class="field"><label>Club Destino</label><input type="text" id="exit-club" placeholder="Ej: Real Madrid"></div>
-    </div>
-    <div class="field" style="margin-bottom:14px;">
-      <label>Fecha</label>
-      <input type="text" id="exit-fecha" placeholder="Ej: 01/07/2026">
-    </div>
-    <div class="modal-actions">
-      <button class="action ghost" id="exit-cancel-btn">Cancelar</button>
-      <button class="action primary" id="exit-confirm-btn">Confirmar Salida</button>
-    </div>
-  </div>
-</div>
-
-<script>
-(function(){
-
-const STORAGE_KEY = 'fc26_career_data_v3';
-
-const POSITIONS = [
-  'Arquero',
-  'Lateral Izquierdo',
-  'Lateral Derecho',
-  'Defensor Central',
-  'Mediocentro',
-  'Mediocentro Defensivo',
-  'Mediocentro Ofensivo',
-  'Mediocentro Izquierdo',
-  'Mediocentro Derecho',
-  'Extremo Izquierdo',
-  'Extremo Derecho',
-  'Delantero Centro'
-];
-
-function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
-
-function defaultData(){
-  return {
-    club: { nombre:'', liga:'', temporada:'', division:'' },
-    players: [],
-    youth: [],
-    matches: [],
-    transfers: [],
-    renewals: [],
-    loans: [],
-    topScorers: [],
-    topAssists: [],
-    topMatches: [],
-    trophies: [],
-    tactics: { formacion:'4-4-2', porFormacion:{}, presets:[] }
-  };
-}
-
-let data = loadData();
-
-function loadData(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('fc26_career_data_v2') || localStorage.getItem('fc26_career_data_v1');
-    if(!raw) return defaultData();
-    const parsed = JSON.parse(raw);
-    const merged = Object.assign(defaultData(), parsed);
-    merged.youth = Array.isArray(parsed.youth) ? parsed.youth : [];
-    merged.renewals = Array.isArray(parsed.renewals) ? parsed.renewals : [];
-    merged.loans = Array.isArray(parsed.loans) ? parsed.loans : [];
-    merged.topScorers = Array.isArray(parsed.topScorers) ? parsed.topScorers : [];
-    merged.topAssists = Array.isArray(parsed.topAssists) ? parsed.topAssists : [];
-    merged.topMatches = Array.isArray(parsed.topMatches) ? parsed.topMatches : [];
-    merged.tactics = Object.assign({ formacion:'4-4-2', porFormacion:{}, presets:[] }, parsed.tactics || {});
-    merged.matches = (merged.matches || []).map(m=>{
-      if(typeof m.goleadores === 'string'){
-        m.goleadores = m.goleadores.trim() ? [{ id:uid(), playerId:null, nombre:m.goleadores, goles:1 }] : [];
-      } else if(!Array.isArray(m.goleadores)){
-        m.goleadores = [];
-      }
-      return m;
-    });
-    merged.transfers = (merged.transfers || []).map(t=>{
-      if(!t.nombre && t.jugador) t.nombre = t.jugador;
-      return t;
-    });
-    return merged;
-  }catch(e){
-    console.error('Error al leer datos guardados', e);
-    return defaultData();
-  }
-}
-
-function saveData(){
-  try{
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }catch(e){
-    console.error('Error al guardar', e);
-    alert('No se pudieron guardar los cambios. Puede que el almacenamiento esté lleno.');
-  }
-}
-
-function escapeHtml(str){
-  return String(str ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-
-function getPosOptionsHtml(selectedPos){
-  return POSITIONS.map(p => `<option value="${escapeHtml(p)}" ${p === selectedPos ? 'selected' : ''}>${escapeHtml(p)}</option>`).join('');
-}
-
-const navButtons = document.querySelectorAll('nav button');
-navButtons.forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    navButtons.forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
-    if(btn.dataset.tab === 'tactica') renderTactica();
-    if(btn.dataset.tab === 'lideres') renderLideres();
-  });
-});
-
-const cfgClub = document.getElementById('cfg-club');
-const cfgLiga = document.getElementById('cfg-liga');
-const cfgTemporada = document.getElementById('cfg-temporada');
-const cfgDivision = document.getElementById('cfg-division');
-
-function fillClubForm(){
-  cfgClub.value = data.club.nombre || '';
-  cfgLiga.value = data.club.liga || '';
-  cfgTemporada.value = data.club.temporada || '';
-  cfgDivision.value = data.club.division || '';
-  updateSidebarClub();
-}
-[cfgClub,cfgLiga,cfgTemporada,cfgDivision].forEach(input=>{
-  input.addEventListener('input', ()=>{
-    data.club.nombre = cfgClub.value;
-    data.club.liga = cfgLiga.value;
-    data.club.temporada = cfgTemporada.value;
-    data.club.division = cfgDivision.value;
-    saveData();
-    updateSidebarClub();
-  });
-});
-
-function updateSidebarClub(){
-  document.getElementById('club-name-display').textContent = data.club.nombre || 'Mi club';
-  const parts = [data.club.temporada, data.club.division].filter(Boolean);
-  document.getElementById('club-season-display').textContent = parts.length ? parts.join(' · ').toUpperCase() : 'SIN TEMPORADA';
-  const initials = (data.club.nombre || 'FC').trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase() || 'FC';
-  document.getElementById('crest-initials').textContent = initials;
-}
-
-const tbodyPlantilla = document.querySelector('#table-plantilla tbody');
-
-function renderPlantilla(){
-  tbodyPlantilla.innerHTML = '';
-  if(data.players.length === 0){
-    tbodyPlantilla.innerHTML = '<tr class="empty-row"><td colspan="9">No hay jugadores cargados. Agregá el primero con el botón de arriba.</td></tr>';
-  }
-  data.players.forEach(p=>{
-    const tr = document.createElement('tr');
-    tr.dataset.id = p.id;
-    tr.innerHTML = `
-      <td contenteditable="true" data-field="nombre">${escapeHtml(p.nombre)}</td>
-      <td>
-        <select class="pos-select" data-field="pos">
-          ${getPosOptionsHtml(p.pos)}
-        </select>
-      </td>
-      <td contenteditable="true" data-field="edad" class="num">${escapeHtml(p.edad)}</td>
-      <td contenteditable="true" data-field="nacionalidad">${escapeHtml(p.nacionalidad)}</td>
-      <td contenteditable="true" data-field="media" class="num">${escapeHtml(p.media)}</td>
-      <td contenteditable="true" data-field="potencial" class="num">${escapeHtml(p.potencial)}</td>
-      <td contenteditable="true" data-field="valor">${escapeHtml(p.valor)}</td>
-      <td contenteditable="true" data-field="salario">${escapeHtml(p.salario)}</td>
-      <td><button class="danger-ghost" data-action="del-player">Borrar</button></td>
-    `;
-    tbodyPlantilla.appendChild(tr);
-  });
-  document.getElementById('count-plantilla').textContent = data.players.length;
-}
-
-tbodyPlantilla.addEventListener('input', e=>{
-  const td = e.target.closest('td[contenteditable]');
-  if(!td) return;
-  const tr = td.closest('tr');
-  const player = data.players.find(p=>p.id === tr.dataset.id);
-  if(!player) return;
-  const field = td.dataset.field;
-  const val = td.textContent.trim();
-  player[field] = val;
-
-  const linkedTransfer = data.transfers.find(t => t.playerId === player.id && t.tipo === 'in');
-  if(linkedTransfer){
-    linkedTransfer[field] = val;
-    renderFichajes();
-  }
-  saveData();
-});
-
-tbodyPlantilla.addEventListener('change', e=>{
-  if(e.target.dataset.field === 'pos'){
-    const tr = e.target.closest('tr');
-    const player = data.players.find(p=>p.id === tr.dataset.id);
-    if(player){
-      player.pos = e.target.value;
-      const linkedTransfer = data.transfers.find(t => t.playerId === player.id && t.tipo === 'in');
-      if(linkedTransfer){
-        linkedTransfer.pos = player.pos;
-        renderFichajes();
-      }
-      saveData();
-    }
-  }
-});
-
-tbodyPlantilla.addEventListener('click', e=>{
-  if(e.target.dataset.action === 'del-player'){
-    const tr = e.target.closest('tr');
-    if(confirm('¿Borrar este jugador de la plantilla?')){
-      removePlayerAndClean(tr.dataset.id);
-    }
-  }
-});
-
-function removePlayerAndClean(playerId){
-  data.players = data.players.filter(p=>p.id !== playerId);
-  Object.values(data.tactics.porFormacion).forEach(asig=>{
-    if(asig.starters){
-      Object.keys(asig.starters).forEach(slotId=>{ if(asig.starters[slotId] === playerId) asig.starters[slotId] = ''; });
-    }
-    if(asig.subs){
-      asig.subs = asig.subs.map(id => id === playerId ? '' : id);
-    }
-  });
-  saveData();
-  renderAll();
-}
-
-document.getElementById('add-player').addEventListener('click', ()=>{
-  data.players.push({ id:uid(), nombre:'Nuevo jugador', pos:'Delantero Centro', edad:'', nacionalidad:'', media:'', potencial:'', valor:'', salario:'' });
-  saveData();
-  renderPlantilla();
-  renderResumen();
-});
-
-document.getElementById('sort-posicion').addEventListener('click', ()=>{
-  data.players.sort((a,b)=>{
-    const idxA = POSITIONS.indexOf(a.pos);
-    const idxB = POSITIONS.indexOf(b.pos);
-    return (idxA === -1 ? 99 : idxA) - (idxB === -1 ? 99 : idxB);
-  });
-  saveData();
-  renderPlantilla();
-});
-
-document.getElementById('sort-potencial').addEventListener('click', ()=>{
-  data.players.sort((a,b)=> (parseInt(b.potencial)||0) - (parseInt(a.potencial)||0));
-  saveData();
-  renderPlantilla();
-});
-
-document.getElementById('sort-media').addEventListener('click', ()=>{
-  data.players.sort((a,b)=> (parseInt(b.media)||0) - (parseInt(a.media)||0));
-  saveData();
-  renderPlantilla();
-});
-
-const tbodyInferiores = document.querySelector('#table-inferiores tbody');
-
-function renderInferiores(){
-  tbodyInferiores.innerHTML = '';
-  if(data.youth.length === 0){
-    tbodyInferiores.innerHTML = '<tr class="empty-row"><td colspan="10">No hay juveniles cargados. Agregá el primero con el botón de arriba.</td></tr>';
-  }
-  data.youth.forEach(p=>{
-    const tr = document.createElement('tr');
-    tr.dataset.id = p.id;
-    tr.innerHTML = `
-      <td contenteditable="true" data-field="nombre">${escapeHtml(p.nombre)}</td>
-      <td>
-        <select class="pos-select" data-field="pos">
-          ${getPosOptionsHtml(p.pos)}
-        </select>
-      </td>
-      <td contenteditable="true" data-field="edad" class="num">${escapeHtml(p.edad)}</td>
-      <td contenteditable="true" data-field="nacionalidad">${escapeHtml(p.nacionalidad)}</td>
-      <td contenteditable="true" data-field="media" class="num">${escapeHtml(p.media)}</td>
-      <td contenteditable="true" data-field="potencial" class="num">${escapeHtml(p.potencial)}</td>
-      <td contenteditable="true" data-field="valor">${escapeHtml(p.valor)}</td>
-      <td contenteditable="true" data-field="salario">${escapeHtml(p.salario)}</td>
-      <td><button class="action ghost" data-action="promote-youth">↑ Promover</button></td>
-      <td><button class="danger-ghost" data-action="del-youth">Borrar</button></td>
-    `;
-    tbodyInferiores.appendChild(tr);
-  });
-  document.getElementById('count-inferiores').textContent = data.youth.length;
-}
-
-tbodyInferiores.addEventListener('input', e=>{
-  const td = e.target.closest('td[contenteditable]');
-  if(!td) return;
-  const tr = td.closest('tr');
-  const player = data.youth.find(p=>p.id === tr.dataset.id);
-  if(!player) return;
-  player[td.dataset.field] = td.textContent.trim();
-  saveData();
-});
-
-tbodyInferiores.addEventListener('change', e=>{
-  if(e.target.dataset.field === 'pos'){
-    const tr = e.target.closest('tr');
-    const player = data.youth.find(p=>p.id === tr.dataset.id);
-    if(player){ player.pos = e.target.value; saveData(); }
-  }
-});
-
-tbodyInferiores.addEventListener('click', e=>{
-  if(e.target.dataset.action === 'del-youth'){
-    const tr = e.target.closest('tr');
-    if(confirm('¿Borrar este juvenil de inferiores?')){
-      data.youth = data.youth.filter(p=>p.id !== tr.dataset.id);
-      saveData();
-      renderInferiores();
-    }
-  }
-  if(e.target.dataset.action === 'promote-youth'){
-    const tr = e.target.closest('tr');
-    const player = data.youth.find(p=>p.id === tr.dataset.id);
-    if(!player) return;
-    if(confirm(`¿Promover a ${player.nombre || 'este jugador'} al plantel principal?`)){
-      data.youth = data.youth.filter(p=>p.id !== player.id);
-      data.players.push(player);
-      saveData();
-      renderInferiores();
-      renderPlantilla();
-      renderResumen();
-    }
-  }
-});
-
-document.getElementById('add-youth').addEventListener('click', ()=>{
-  data.youth.push({ id:uid(), nombre:'Nuevo juvenil', pos:'Delantero Centro', edad:'', nacionalidad:'', media:'', potencial:'', valor:'', salario:'' });
-  saveData();
-  renderInferiores();
-});
-
-const FORMATIONS = {
-  '4-4-2':[
-    {id:'por',label:'POR',top:92,left:50},
-    {id:'li',label:'LI',top:72,left:15},{id:'dfc1',label:'DFC',top:76,left:38},{id:'dfc2',label:'DFC',top:76,left:62},{id:'ld',label:'LD',top:72,left:85},
-    {id:'mi',label:'MI',top:42,left:15},{id:'mc1',label:'MC',top:46,left:38},{id:'mc2',label:'MC',top:46,left:62},{id:'md',label:'MD',top:42,left:85},
-    {id:'dc1',label:'DC',top:16,left:38},{id:'dc2',label:'DC',top:16,left:62}
-  ],
-  '4-3-3':[
-    {id:'por',label:'POR',top:92,left:50},
-    {id:'li',label:'LI',top:72,left:15},{id:'dfc1',label:'DFC',top:76,left:38},{id:'dfc2',label:'DFC',top:76,left:62},{id:'ld',label:'LD',top:72,left:85},
-    {id:'mc1',label:'MC',top:48,left:28},{id:'mc2',label:'MC',top:52,left:50},{id:'mc3',label:'MC',top:48,left:72},
-    {id:'ei',label:'EI',top:18,left:18},{id:'dc',label:'DC',top:14,left:50},{id:'ed',label:'ED',top:18,left:82}
-  ],
-  '4-2-3-1':[
-    {id:'por',label:'POR',top:92,left:50},
-    {id:'li',label:'LI',top:72,left:15},{id:'dfc1',label:'DFC',top:76,left:38},{id:'dfc2',label:'DFC',top:76,left:62},{id:'ld',label:'LD',top:72,left:85},
-    {id:'mcd1',label:'MCD',top:54,left:38},{id:'mcd2',label:'MCD',top:54,left:62},
-    {id:'mco1',label:'MCO',top:32,left:20},{id:'mco2',label:'MCO',top:28,left:50},{id:'mco3',label:'MCO',top:32,left:80},
-    {id:'dc',label:'DC',top:12,left:50}
-  ],
-  '3-5-2':[
-    {id:'por',label:'POR',top:92,left:50},
-    {id:'dfc1',label:'DFC',top:76,left:28},{id:'dfc2',label:'DFC',top:78,left:50},{id:'dfc3',label:'DFC',top:76,left:72},
-    {id:'cli',label:'CLI',top:50,left:8},{id:'mc1',label:'MC',top:48,left:32},{id:'mc2',label:'MC',top:52,left:50},{id:'mc3',label:'MC',top:48,left:68},{id:'cld',label:'CLD',top:50,left:92},
-    {id:'dc1',label:'DC',top:16,left:38},{id:'dc2',label:'DC',top:16,left:62}
-  ],
-  '4-1-4-1':[
-    {id:'por',label:'POR',top:92,left:50},
-    {id:'li',label:'LI',top:72,left:15},{id:'dfc1',label:'DFC',top:76,left:38},{id:'dfc2',label:'DFC',top:76,left:62},{id:'ld',label:'LD',top:72,left:85},
-    {id:'mcd',label:'MCD',top:58,left:50},
-    {id:'mi',label:'MI',top:36,left:15},{id:'mc1',label:'MC',top:38,left:38},{id:'mc2',label:'MC',top:38,left:62},{id:'md',label:'MD',top:36,left:85},
-    {id:'dc',label:'DC',top:12,left:50}
-  ],
-  '5-3-2':[
-    {id:'por',label:'POR',top:92,left:50},
-    {id:'cli',label:'CLI',top:74,left:10},{id:'dfc1',label:'DFC',top:78,left:32},{id:'dfc2',label:'DFC',top:80,left:50},{id:'dfc3',label:'DFC',top:78,left:68},{id:'cld',label:'CLD',top:74,left:90},
-    {id:'mc1',label:'MC',top:46,left:30},{id:'mc2',label:'MC',top:48,left:50},{id:'mc3',label:'MC',top:46,left:70},
-    {id:'dc1',label:'DC',top:16,left:38},{id:'dc2',label:'DC',top:16,left:62}
-  ]
-};
-
-const formationSelect = document.getElementById('formation-select');
-Object.keys(FORMATIONS).forEach(f=>{
-  const opt = document.createElement('option');
-  opt.value = f; opt.textContent = f;
-  formationSelect.appendChild(opt);
-});
-
-formationSelect.addEventListener('change', ()=>{
-  data.tactics.formacion = formationSelect.value;
-  saveData();
-  renderTactica();
-});
-
-function getTacticData(formacion){
-  if(!data.tactics.porFormacion[formacion]){
-    data.tactics.porFormacion[formacion] = { starters:{}, subs: Array(7).fill('') };
-  } else if(!data.tactics.porFormacion[formacion].starters){
-    const old = data.tactics.porFormacion[formacion];
-    data.tactics.porFormacion[formacion] = { starters: old, subs: Array(7).fill('') };
-  }
-  return data.tactics.porFormacion[formacion];
-}
-
-document.getElementById('clear-lineup').addEventListener('click', ()=>{
-  if(!confirm('¿Vaciar todos los titulares y suplentes de la alineación actual?')) return;
-  data.tactics.porFormacion[data.tactics.formacion] = { starters:{}, subs: Array(7).fill('') };
-  saveData();
-  renderTactica();
-});
-
-const presetSelect = document.getElementById('preset-select');
-const tacticPresetName = document.getElementById('tactic-preset-name');
-
-function renderPresetSelect(){
-  presetSelect.innerHTML = '<option value="">-- Seleccionar --</option>';
-  (data.tactics.presets || []).forEach(p=>{
-    const opt = document.createElement('option');
-    opt.value = p.id;
-    opt.textContent = `${p.nombre} (${p.formacion})`;
-    presetSelect.appendChild(opt);
-  });
-}
-
-document.getElementById('save-tactic-btn').addEventListener('click', ()=>{
-  const name = tacticPresetName.value.trim();
-  if(!name){ alert('Ingresá un nombre para la variante táctica.'); return; }
-  const currentF = data.tactics.formacion;
-  const currentData = getTacticData(currentF);
-  data.tactics.presets.push({
-    id: uid(),
-    nombre: name,
-    formacion: currentF,
-    starters: Object.assign({}, currentData.starters),
-    subs: [...currentData.subs]
-  });
-  tacticPresetName.value = '';
-  saveData();
-  renderPresetSelect();
-  alert('Táctica guardada correctamente.');
-});
-
-document.getElementById('load-tactic-btn').addEventListener('click', ()=>{
-  const presetId = presetSelect.value;
-  if(!presetId) return;
-  const preset = data.tactics.presets.find(p=>p.id === presetId);
-  if(!preset) return;
-  data.tactics.formacion = preset.formacion;
-  data.tactics.porFormacion[preset.formacion] = {
-    starters: Object.assign({}, preset.starters),
-    subs: [...preset.subs]
-  };
-  saveData();
-  renderTactica();
-});
-
-document.getElementById('delete-tactic-btn').addEventListener('click', ()=>{
-  const presetId = presetSelect.value;
-  if(!presetId) return;
-  if(confirm('¿Borrar esta táctica guardada?')){
-    data.tactics.presets = data.tactics.presets.filter(p=>p.id !== presetId);
-    saveData();
-    renderPresetSelect();
-  }
-});
-
-function renderTactica(){
-  formationSelect.value = data.tactics.formacion || '4-4-2';
-  renderPresetSelect();
-  const slots = FORMATIONS[formationSelect.value] || FORMATIONS['4-4-2'];
-  const tacticData = getTacticData(formationSelect.value);
-
-  const usedIds = new Set([
-    ...Object.values(tacticData.starters).filter(Boolean),
-    ...tacticData.subs.filter(Boolean)
-  ]);
-
-  const pitchContainer = document.getElementById('slots-container');
-  pitchContainer.innerHTML = '';
-  slots.forEach(slot=>{
-    const div = document.createElement('div');
-    div.className = 'slot';
-    div.style.top = slot.top + '%';
-    div.style.left = slot.left + '%';
-    const currentId = tacticData.starters[slot.id] || '';
-    const options = data.players
-      .filter(p => p.id === currentId || !usedIds.has(p.id))
-      .map(p => `<option value="${p.id}" ${p.id===currentId?'selected':''}>${escapeHtml(p.nombre || 'Sin nombre')}</option>`)
-      .join('');
-    div.innerHTML = `
-      <span class="slot-label">${slot.label}</span>
-      <select data-slot="${slot.id}" class="${currentId?'':'unfilled'}">
-        <option value="">— vacío —</option>
-        ${options}
+  <div class="pitch">
+    <div class="area-top"></div>
+    <div class="center-circle"></div>
+    <div class="area-bottom"></div>
+
+    <!-- DC -->
+    <div class="player-node pos-dc">
+      <span class="position-badge">DC</span>
+      <select class="player-select">
+        <option>José Manuel</option>
       </select>
-    `;
-    pitchContainer.appendChild(div);
-  });
-
-  pitchContainer.querySelectorAll('select[data-slot]').forEach(sel=>{
-    sel.addEventListener('change', ()=>{
-      const slotId = sel.dataset.slot;
-      const playerId = sel.value;
-      if(playerId){
-        Object.keys(tacticData.starters).forEach(s=>{ if(s !== slotId && tacticData.starters[s] === playerId) tacticData.starters[s] = ''; });
-        tacticData.subs = tacticData.subs.map(id => id === playerId ? '' : id);
-      }
-      tacticData.starters[slotId] = playerId;
-      saveData();
-      renderTactica();
-    });
-  });
-
-  const subsContainer = document.getElementById('subs-container');
-  subsContainer.innerHTML = '';
-  for(let i=0; i<7; i++){
-    const subId = tacticData.subs[i] || '';
-    const options = data.players
-      .filter(p => p.id === subId || !usedIds.has(p.id))
-      .map(p => `<option value="${p.id}" ${p.id===subId?'selected':''}>${escapeHtml(p.nombre || 'Sin nombre')}</option>`)
-      .join('');
-    const div = document.createElement('div');
-    div.className = 'sub-row';
-    div.innerHTML = `
-      <label>SUP ${i+1}</label>
-      <select data-sub-index="${i}">
-        <option value="">— vacío —</option>
-        ${options}
-      </select>
-    `;
-    subsContainer.appendChild(div);
-  }
-
-  subsContainer.querySelectorAll('select[data-sub-index]').forEach(sel=>{
-    sel.addEventListener('change', ()=>{
-      const idx = parseInt(sel.dataset.subIndex);
-      const playerId = sel.value;
-      if(playerId){
-        Object.keys(tacticData.starters).forEach(s=>{ if(tacticData.starters[s] === playerId) tacticData.starters[s] = ''; });
-        tacticData.subs = tacticData.subs.map((id, i) => i !== idx && id === playerId ? '' : id);
-      }
-      tacticData.subs[idx] = playerId;
-      saveData();
-      renderTactica();
-    });
-  });
-
-  const reservesContainer = document.getElementById('reserves-container');
-  const reserves = data.players.filter(p => !usedIds.has(p.id));
-  if(reserves.length === 0){
-    reservesContainer.innerHTML = '<span style="font-size:12px; color:var(--text-faint); font-style:italic;">Todos los jugadores están convocados.</span>';
-  } else {
-    reservesContainer.innerHTML = reserves.map(p => `<span class="reserve-tag">${escapeHtml(p.nombre)} (${p.pos})</span>`).join('');
-  }
-}
-
-const tbodyPartidos = document.querySelector('#table-partidos tbody');
-
-function resultOf(m){
-  const gf = parseInt(m.gf), gc = parseInt(m.gc);
-  if(isNaN(gf) || isNaN(gc)) return null;
-  if(gf > gc) return 'V';
-  if(gf < gc) return 'D';
-  return 'E';
-}
-
-function scorersSummary(m){
-  if(!m.goleadores || m.goleadores.length === 0) return '';
-  return m.goleadores.map(s => s.goles > 1 ? `${s.nombre} x${s.goles}` : s.nombre).join(', ');
-}
-
-function renderPartidos(){
-  tbodyPartidos.innerHTML = '';
-  if(data.matches.length === 0){
-    tbodyPartidos.innerHTML = '<tr class="empty-row"><td colspan="10">No hay partidos cargados todavía.</td></tr>';
-  }
-  data.matches.forEach(m=>{
-    const res = resultOf(m);
-    const summary = scorersSummary(m);
-    const tr = document.createElement('tr');
-    tr.dataset.id = m.id;
-    tr.innerHTML = `
-      <td contenteditable="true" data-field="jornada" class="num">${escapeHtml(m.jornada)}</td>
-      <td contenteditable="true" data-field="competicion">${escapeHtml(m.competicion)}</td>
-      <td contenteditable="true" data-field="rival">${escapeHtml(m.rival)}</td>
-      <td>
-        <select class="pill" data-field="local_visitante">
-          <option value="L" ${m.local_visitante==='L'?'selected':''}>Local</option>
-          <option value="V" ${m.local_visitante==='V'?'selected':''}>Visitante</option>
-        </select>
-      </td>
-      <td contenteditable="true" data-field="gf" class="num">${escapeHtml(m.gf)}</td>
-      <td contenteditable="true" data-field="gc" class="num">${escapeHtml(m.gc)}</td>
-      <td>${res ? `<span class="badge ${res}">${res}</span>` : '—'}</td>
-      <td>
-        <div class="scorers-cell">
-          <span class="scorers-summary ${summary?'':'empty'}" title="${escapeHtml(summary)}">${summary ? escapeHtml(summary) : 'sin cargar'}</span>
-          <button class="edit-scorers" data-action="edit-scorers">Editar</button>
-        </div>
-      </td>
-      <td contenteditable="true" data-field="fecha">${escapeHtml(m.fecha)}</td>
-      <td><button class="danger-ghost" data-action="del-match">Borrar</button></td>
-    `;
-    tbodyPartidos.appendChild(tr);
-  });
-  document.getElementById('count-partidos').textContent = data.matches.length;
-}
-
-tbodyPartidos.addEventListener('input', e=>{
-  const td = e.target.closest('td[contenteditable]');
-  if(!td) return;
-  const tr = td.closest('tr');
-  const match = data.matches.find(m=>m.id === tr.dataset.id);
-  if(!match) return;
-  match[td.dataset.field] = td.textContent.trim();
-  saveData();
-  if(td.dataset.field === 'gf' || td.dataset.field === 'gc'){
-    renderPartidos();
-    renderResumen();
-  }
-});
-
-tbodyPartidos.addEventListener('change', e=>{
-  if(e.target.dataset.field === 'local_visitante'){
-    const tr = e.target.closest('tr');
-    const match = data.matches.find(m=>m.id === tr.dataset.id);
-    if(match){ match.local_visitante = e.target.value; saveData(); }
-  }
-});
-
-tbodyPartidos.addEventListener('click', e=>{
-  if(e.target.dataset.action === 'del-match'){
-    const tr = e.target.closest('tr');
-    if(confirm('¿Borrar este partido?')){
-      data.matches = data.matches.filter(m=>m.id !== tr.dataset.id);
-      saveData();
-      renderPartidos();
-      renderResumen();
-    }
-  }
-  if(e.target.dataset.action === 'edit-scorers'){
-    const tr = e.target.closest('tr');
-    openScorerModal(tr.dataset.id);
-  }
-});
-
-document.getElementById('add-match').addEventListener('click', ()=>{
-  data.matches.push({ id:uid(), jornada:'', competicion:'', rival:'', local_visitante:'L', gf:'', gc:'', goleadores:[], fecha:'' });
-  saveData();
-  renderPartidos();
-  renderResumen();
-});
-
-let currentScorerMatchId = null;
-const scorerModal = document.getElementById('scorer-modal');
-const scorerPlayerSelect = document.getElementById('scorer-player-select');
-const scorerGoalsInput = document.getElementById('scorer-goals-input');
-const scorerOtherName = document.getElementById('scorer-other-name');
-const scorerList = document.getElementById('scorer-list');
-
-function openScorerModal(matchId){
-  currentScorerMatchId = matchId;
-  const match = data.matches.find(m=>m.id === matchId);
-  if(!match) return;
-  document.getElementById('scorer-modal-sub').textContent = `${match.rival ? 'vs ' + match.rival : 'Partido'}${match.jornada ? ' · jornada ' + match.jornada : ''}`;
-  scorerPlayerSelect.innerHTML = data.players.length
-    ? data.players.map(p=>`<option value="${p.id}">${escapeHtml(p.nombre || 'Sin nombre')}</option>`).join('')
-    : '<option value="">No hay jugadores en la plantilla</option>';
-  scorerGoalsInput.value = 1;
-  scorerOtherName.value = '';
-  renderScorerList();
-  scorerModal.classList.add('open');
-}
-
-function renderScorerList(){
-  const match = data.matches.find(m=>m.id === currentScorerMatchId);
-  if(!match) return;
-  if(!match.goleadores || match.goleadores.length === 0){
-    scorerList.innerHTML = '<div class="empty-hint">Todavía no cargaste goleadores para este partido.</div>';
-    return;
-  }
-  scorerList.innerHTML = match.goleadores.map(s=>`
-    <div class="scorer-row" data-sid="${s.id}">
-      <span class="sr-name">${escapeHtml(s.nombre)}</span>
-      <span class="sr-goals">${s.goles} ${s.goles===1?'gol':'goles'}</span>
-      <button data-action="remove-scorer" title="Quitar">✕</button>
     </div>
-  `).join('');
-}
 
-scorerList.addEventListener('click', e=>{
-  if(e.target.dataset.action === 'remove-scorer'){
-    const row = e.target.closest('.scorer-row');
-    const match = data.matches.find(m=>m.id === currentScorerMatchId);
-    if(!match) return;
-    match.goleadores = match.goleadores.filter(s=>s.id !== row.dataset.sid);
-    saveData();
-    renderScorerList();
-  }
-});
+    <!-- MCOs -->
+    <div class="player-node pos-mco-l">
+      <span class="position-badge">MCO</span>
+      <select class="player-select">
+        <option>Josias Palma</option>
+      </select>
+    </div>
+    <div class="player-node pos-mco-c">
+      <span class="position-badge">MCO</span>
+      <select class="player-select">
+        <option>Agustin Delgado</option>
+      </select>
+    </div>
+    <div class="player-node pos-mco-r">
+      <span class="position-badge">MCO</span>
+      <select class="player-select">
+        <option>Cristian Cruz</option>
+      </select>
+    </div>
 
-document.getElementById('scorer-add-btn').addEventListener('click', ()=>{
-  const match = data.matches.find(m=>m.id === currentScorerMatchId);
-  if(!match) return;
-  const playerId = scorerPlayerSelect.value;
-  if(!playerId) return;
-  const player = data.players.find(p=>p.id === playerId);
-  const goles = Math.max(1, parseInt(scorerGoalsInput.value) || 1);
-  match.goleadores.push({ id:uid(), playerId, nombre: player ? player.nombre : 'Jugador', goles });
-  saveData();
-  renderScorerList();
-});
+    <!-- MCDs -->
+    <div class="player-node pos-mcd-l">
+      <span class="position-badge">MCD</span>
+      <select class="player-select">
+        <option>Patrik Mendoza</option>
+      </select>
+    </div>
+    <div class="player-node pos-mcd-r">
+      <span class="position-badge">MCD</span>
+      <select class="player-select">
+        <option>Fabricio Acosta</option>
+      </select>
+    </div>
 
-document.getElementById('scorer-add-other-btn').addEventListener('click', ()=>{
-  const match = data.matches.find(m=>m.id === currentScorerMatchId);
-  if(!match) return;
-  const nombre = scorerOtherName.value.trim();
-  if(!nombre) return;
-  match.goleadores.push({ id:uid(), playerId:null, nombre, goles:1 });
-  scorerOtherName.value = '';
-  saveData();
-  renderScorerList();
-});
+    <!-- Defensas -->
+    <div class="player-node pos-li">
+      <span class="position-badge">LI</span>
+      <select class="player-select">
+        <option>Lautaro de la Cruz</option>
+      </select>
+    </div>
+    <div class="player-node pos-dfc-l">
+      <span class="position-badge">DFC</span>
+      <select class="player-select">
+        <option>Gonzalo Benítez</option>
+      </select>
+    </div>
+    <div class="player-node pos-dfc-r">
+      <span class="position-badge">DFC</span>
+      <select class="player-select">
+        <option>Juan Arraya</option>
+      </select>
+    </div>
+    <div class="player-node pos-ld">
+      <span class="position-badge">LD</span>
+      <select class="player-select">
+        <option>Maximilian Schmidt</option>
+      </select>
+    </div>
 
-document.getElementById('scorer-close-btn').addEventListener('click', ()=>{
-  scorerModal.classList.remove('open');
-  currentScorerMatchId = null;
-  renderPartidos();
-});
+    <!-- POR -->
+    <div class="player-node pos-por">
+      <span class="position-badge">POR</span>
+      <select class="player-select">
+        <option>Francisco</option>
+      </select>
+    </div>
+  </div>
 
-scorerModal.addEventListener('click', e=>{
-  if(e.target === scorerModal){
-    scorerModal.classList.remove('open');
-    currentScorerMatchId = null;
-    renderPartidos();
-  }
-});
-
-const tbodyFichajes = document.querySelector('#table-fichajes tbody');
-
-function renderFichajes(){
-  tbodyFichajes.innerHTML = '';
-  if(data.transfers.length === 0){
-    tbodyFichajes.innerHTML = '<tr class="empty-row"><td colspan="13">No hay movimientos de mercado cargados.</td></tr>';
-  }
-  data.transfers.forEach(t=>{
-    const tr = document.createElement('tr');
-    tr.dataset.id = t.id;
-    tr.innerHTML = `
-      <td><span class="badge ${t.tipo==='in'?'in':'out'}">${t.tipo==='in'?'Entrada':'Salida'}</span></td>
-      <td contenteditable="true" data-field="nombre">${escapeHtml(t.nombre || t.jugador || '')}</td>
-      <td>
-        <select class="pos-select" data-field="pos">
-          ${getPosOptionsHtml(t.pos || 'Delantero Centro')}
-        </select>
-      </td>
-      <td contenteditable="true" data-field="edad" class="num">${escapeHtml(t.edad)}</td>
-      <td contenteditable="true" data-field="nacionalidad">${escapeHtml(t.nacionalidad)}</td>
-      <td contenteditable="true" data-field="media" class="num">${escapeHtml(t.media)}</td>
-      <td contenteditable="true" data-field="potencial" class="num">${escapeHtml(t.potencial)}</td>
-      <td contenteditable="true" data-field="valor">${escapeHtml(t.valor)}</td>
-      <td contenteditable="true" data-field="salario">${escapeHtml(t.salario)}</td>
-      <td contenteditable="true" data-field="monto">${escapeHtml(t.monto)}</td>
-      <td contenteditable="true" data-field="club">${escapeHtml(t.club)}</td>
-      <td contenteditable="true" data-field="fecha">${escapeHtml(t.fecha)}</td>
-      <td><button class="danger-ghost" data-action="del-transfer">Borrar</button></td>
-    `;
-    tbodyFichajes.appendChild(tr);
-  });
-  document.getElementById('count-fichajes').textContent = data.transfers.length;
-}
-
-tbodyFichajes.addEventListener('input', e=>{
-  const td = e.target.closest('td[contenteditable]');
-  if(!td) return;
-  const tr = td.closest('tr');
-  const t = data.transfers.find(x=>x.id === tr.dataset.id);
-  if(!t) return;
-  const field = td.dataset.field;
-  const val = td.textContent.trim();
-  t[field] = val;
-
-  if(t.tipo === 'in' && t.playerId){
-    const player = data.players.find(p=>p.id === t.playerId);
-    if(player && field in player){
-      player[field] = val;
-      renderPlantilla();
-    }
-  }
-  saveData();
-});
-
-tbodyFichajes.addEventListener('change', e=>{
-  if(e.target.dataset.field === 'pos'){
-    const tr = e.target.closest('tr');
-    const t = data.transfers.find(x=>x.id === tr.dataset.id);
-    if(t){
-      t.pos = e.target.value;
-      if(t.tipo === 'in' && t.playerId){
-        const player = data.players.find(p=>p.id === t.playerId);
-        if(player){ player.pos = t.pos; renderPlantilla(); }
-      }
-      saveData();
-    }
-  }
-});
-
-tbodyFichajes.addEventListener('click', e=>{
-  if(e.target.dataset.action === 'del-transfer'){
-    const tr = e.target.closest('tr');
-    if(confirm('¿Borrar este registro de fichaje?')){
-      data.transfers = data.transfers.filter(x=>x.id !== tr.dataset.id);
-      saveData();
-      renderFichajes();
-      renderResumen();
-    }
-  }
-});
-
-document.getElementById('add-transfer-in').addEventListener('click', ()=>{
-  const newId = uid();
-  const player = {
-    id: newId,
-    nombre: 'Nuevo Fichaje',
-    pos: 'Delantero Centro',
-    edad: '',
-    nacionalidad: '',
-    media: '',
-    potencial: '',
-    valor: '',
-    salario: ''
-  };
-  data.players.push(player);
-  data.transfers.push({
-    id: uid(),
-    playerId: newId,
-    tipo: 'in',
-    nombre: player.nombre,
-    pos: player.pos,
-    edad: '',
-    nacionalidad: '',
-    media: '',
-    potencial: '',
-    valor: '',
-    salario: '',
-    monto: '',
-    club: '',
-    fecha: ''
-  });
-  saveData();
-  renderAll();
-});
-
-const exitModal = document.getElementById('exit-modal');
-const exitPlayerSelect = document.getElementById('exit-player-select');
-const exitMonto = document.getElementById('exit-monto');
-const exitClub = document.getElementById('exit-club');
-const exitFecha = document.getElementById('exit-fecha');
-
-document.getElementById('add-transfer-out').addEventListener('click', ()=>{
-  if(data.players.length === 0){
-    alert('No hay jugadores en la plantilla para dar de baja.');
-    return;
-  }
-  exitPlayerSelect.innerHTML = data.players.map(p=>`<option value="${p.id}">${escapeHtml(p.nombre || 'Sin nombre')} (${p.pos})</option>`).join('');
-  exitMonto.value = '';
-  exitClub.value = '';
-  exitFecha.value = '';
-  exitModal.classList.add('open');
-});
-
-document.getElementById('exit-cancel-btn').addEventListener('click', ()=>{ exitModal.classList.remove('open'); });
-
-document.getElementById('exit-confirm-btn').addEventListener('click', ()=>{
-  const pId = exitPlayerSelect.value;
-  const player = data.players.find(p=>p.id === pId);
-  if(!player) return;
-
-  data.transfers.push({
-    id: uid(),
-    playerId: player.id,
-    tipo: 'out',
-    nombre: player.nombre,
-    pos: player.pos,
-    edad: player.edad,
-    nacionalidad: player.nacionalidad,
-    media: player.media,
-    potencial: player.potencial,
-    valor: player.valor,
-    salario: player.salario,
-    monto: exitMonto.value.trim(),
-    club: exitClub.value.trim(),
-    fecha: exitFecha.value.trim()
-  });
-
-  removePlayerAndClean(player.id);
-  exitModal.classList.remove('open');
-});
-
-const tbodyRenovaciones = document.querySelector('#table-renovaciones tbody');
-
-function renderRenovaciones(){
-  tbodyRenovaciones.innerHTML = '';
-  if(data.renewals.length === 0){
-    tbodyRenovaciones.innerHTML = '<tr class="empty-row"><td colspan="7">No hay renovaciones registradas.</td></tr>';
-  }
-  data.renewals.forEach(r=>{
-    const tr = document.createElement('tr');
-    tr.dataset.id = r.id;
-    tr.innerHTML = `
-      <td contenteditable="true" data-field="jugador">${escapeHtml(r.jugador)}</td>
-      <td contenteditable="true" data-field="sueldoAnterior">${escapeHtml(r.sueldoAnterior)}</td>
-      <td contenteditable="true" data-field="sueldoNuevo">${escapeHtml(r.sueldoNuevo)}</td>
-      <td contenteditable="true" data-field="duracion">${escapeHtml(r.duracion)}</td>
-      <td contenteditable="true" data-field="clausula">${escapeHtml(r.clausula)}</td>
-      <td contenteditable="true" data-field="fecha">${escapeHtml(r.fecha)}</td>
-      <td><button class="danger-ghost" data-action="del-renewal">Borrar</button></td>
-    `;
-    tbodyRenovaciones.appendChild(tr);
-  });
-  document.getElementById('count-renovaciones').textContent = data.renewals.length;
-}
-
-tbodyRenovaciones.addEventListener('input', e=>{
-  const td = e.target.closest('td[contenteditable]');
-  if(!td) return;
-  const tr = td.closest('tr');
-  const item = data.renewals.find(x=>x.id === tr.dataset.id);
-  if(item){ item[td.dataset.field] = td.textContent.trim(); saveData(); }
-});
-
-tbodyRenovaciones.addEventListener('click', e=>{
-  if(e.target.dataset.action === 'del-renewal'){
-    const tr = e.target.closest('tr');
-    if(confirm('¿Borrar este registro?')){
-      data.renewals = data.renewals.filter(x=>x.id !== tr.dataset.id);
-      saveData();
-      renderRenovaciones();
-    }
-  }
-});
-
-document.getElementById('add-renewal').addEventListener('click', ()=>{
-  data.renewals.push({ id:uid(), jugador:'Nuevo Jugador', sueldoAnterior:'', sueldoNuevo:'', duracion:'', clausula:'', fecha:'' });
-  saveData();
-  renderRenovaciones();
-});
-
-const tbodyCesiones = document.querySelector('#table-cesiones tbody');
-
-function renderCesiones(){
-  tbodyCesiones.innerHTML = '';
-  if(data.loans.length === 0){
-    tbodyCesiones.innerHTML = '<tr class="empty-row"><td colspan="8">No hay cesiones registradas.</td></tr>';
-  }
-  data.loans.forEach(l=>{
-    const tr = document.createElement('tr');
-    tr.dataset.id = l.id;
-    tr.innerHTML = `
-      <td>
-        <select class="pill" data-field="tipo">
-          <option value="cedido" ${l.tipo==='cedido'?'selected':''}>Cedido</option>
-          <option value="recibido" ${l.tipo==='recibido'?'selected':''}>A préstamo</option>
-        </select>
-      </td>
-      <td contenteditable="true" data-field="jugador">${escapeHtml(l.jugador)}</td>
-      <td contenteditable="true" data-field="club">${escapeHtml(l.club)}</td>
-      <td contenteditable="true" data-field="duracion">${escapeHtml(l.duracion)}</td>
-      <td contenteditable="true" data-field="opcionCompra">${escapeHtml(l.opcionCompra)}</td>
-      <td contenteditable="true" data-field="monto">${escapeHtml(l.monto)}</td>
-      <td contenteditable="true" data-field="fecha">${escapeHtml(l.fecha)}</td>
-      <td><button class="danger-ghost" data-action="del-loan">Borrar</button></td>
-    `;
-    tbodyCesiones.appendChild(tr);
-  });
-  document.getElementById('count-cesiones').textContent = data.loans.length;
-}
-
-tbodyCesiones.addEventListener('input', e=>{
-  const td = e.target.closest('td[contenteditable]');
-  if(!td) return;
-  const tr = td.closest('tr');
-  const item = data.loans.find(x=>x.id === tr.dataset.id);
-  if(item){ item[td.dataset.field] = td.textContent.trim(); saveData(); }
-});
-
-tbodyCesiones.addEventListener('change', e=>{
-  if(e.target.dataset.field === 'tipo'){
-    const tr = e.target.closest('tr');
-    const item = data.loans.find(x=>x.id === tr.dataset.id);
-    if(item){ item.tipo = e.target.value; saveData(); }
-  }
-});
-
-tbodyCesiones.addEventListener('click', e=>{
-  if(e.target.dataset.action === 'del-loan'){
-    const tr = e.target.closest('tr');
-    if(confirm('¿Borrar este registro?')){
-      data.loans = data.loans.filter(x=>x.id !== tr.dataset.id);
-      saveData();
-      renderCesiones();
-    }
-  }
-});
-
-document.getElementById('add-loan').addEventListener('click', ()=>{
-  data.loans.push({ id:uid(), tipo:'cedido', jugador:'Nuevo Jugador', club:'', duracion:'1 año', opcionCompra:'No', monto:'', fecha:'' });
-  saveData();
-  renderCesiones();
-});
-
-const tbodyTopScorers = document.querySelector('#table-top-scorers tbody');
-const tbodyTopAssists = document.querySelector('#table-top-assists tbody');
-const tbodyTopMatches = document.querySelector('#table-top-matches tbody');
-
-function syncLideresData(){
-  data.players.forEach(p=>{
-    let scorer = data.topScorers.find(x => x.playerId === p.id || x.jugador === p.nombre);
-    if(!scorer){
-      data.topScorers.push({ id: uid(), playerId: p.id, jugador: p.nombre, goles: '0', partidos: '0', anios: '' });
-    } else {
-      scorer.playerId = p.id; scorer.jugador = p.nombre;
-    }
-
-    let assist = data.topAssists.find(x => x.playerId === p.id || x.jugador === p.nombre);
-    if(!assist){
-      data.topAssists.push({ id: uid(), playerId: p.id, jugador: p.nombre, asistencias: '0', partidos: '0', anios: '' });
-    } else {
-      assist.playerId = p.id; assist.jugador = p.nombre;
-    }
-
-    let matchP = data.topMatches.find(x => x.playerId === p.id || x.jugador === p.nombre);
-    if(!matchP){
-      data.topMatches.push({ id: uid(), playerId: p.id, jugador: p.nombre, partidos: '0', goles: '0', asistencias: '0', anios: '' });
-    } else {
-      matchP.playerId = p.id; matchP.jugador = p.nombre;
-    }
-  });
-
-  const activeIds = new Set(data.players.map(p=>p.id));
-  data.topScorers = data.topScorers.filter(x => !x.playerId || activeIds.has(x.playerId));
-  data.topAssists = data.topAssists.filter(x => !x.playerId || activeIds.has(x.playerId));
-  data.topMatches = data.topMatches.filter(x => !x.playerId || activeIds.has(x.playerId));
-
-  data.topScorers.sort((a,b)=>(parseInt(b.goles)||0) - (parseInt(a.goles)||0));
-  data.topAssists.sort((a,b)=>(parseInt(b.asistencias)||0) - (parseInt(a.asistencias)||0));
-  data.topMatches.sort((a,b)=>(parseInt(b.partidos)||0) - (parseInt(a.partidos)||0));
-}
-
-function renderLideres(){
-  syncLideresData();
-
-  tbodyTopScorers.innerHTML = '';
-  if(data.topScorers.length === 0){
-    tbodyTopScorers.innerHTML = '<tr class="empty-row"><td colspan="5">Sin jugadores cargados.</td></tr>';
-  } else {
-    data.topScorers.forEach((s, i)=>{
-      const tr = document.createElement('tr');
-      tr.dataset.id = s.id;
-      tr.innerHTML = `
-        <td class="num">${i+1}</td>
-        <td>${escapeHtml(s.jugador)}</td>
-        <td contenteditable="true" data-field="goles" class="num">${escapeHtml(s.goles)}</td>
-        <td contenteditable="true" data-field="partidos" class="num">${escapeHtml(s.partidos)}</td>
-        <td contenteditable="true" data-field="anios">${escapeHtml(s.anios)}</td>
-      `;
-      tbodyTopScorers.appendChild(tr);
-    });
-  }
-
-  tbodyTopAssists.innerHTML = '';
-  if(data.topAssists.length === 0){
-    tbodyTopAssists.innerHTML = '<tr class="empty-row"><td colspan="5">Sin jugadores cargados.</td></tr>';
-  } else {
-    data.topAssists.forEach((a, i)=>{
-      const tr = document.createElement('tr');
-      tr.dataset.id = a.id;
-      tr.innerHTML = `
-        <td class="num">${i+1}</td>
-        <td>${escapeHtml(a.jugador)}</td>
-        <td contenteditable="true" data-field="asistencias" class="num">${escapeHtml(a.asistencias)}</td>
-        <td contenteditable="true" data-field="partidos" class="num">${escapeHtml(a.partidos)}</td>
-        <td contenteditable="true" data-field="anios">${escapeHtml(a.anios)}</td>
-      `;
-      tbodyTopAssists.appendChild(tr);
-    });
-  }
-
-  tbodyTopMatches.innerHTML = '';
-  if(data.topMatches.length === 0){
-    tbodyTopMatches.innerHTML = '<tr class="empty-row"><td colspan="6">Sin jugadores cargados.</td></tr>';
-  } else {
-    data.topMatches.forEach((m, i)=>{
-      const tr = document.createElement('tr');
-      tr.dataset.id = m.id;
-      tr.innerHTML = `
-        <td class="num">${i+1}</td>
-        <td>${escapeHtml(m.jugador)}</td>
-        <td contenteditable="true" data-field="partidos" class="num">${escapeHtml(m.partidos)}</td>
-        <td contenteditable="true" data-field="goles" class="num">${escapeHtml(m.goles)}</td>
-        <td contenteditable="true" data-field="asistencias" class="num">${escapeHtml(m.asistencias)}</td>
-        <td contenteditable="true" data-field="anios">${escapeHtml(m.anios)}</td>
-      `;
-      tbodyTopMatches.appendChild(tr);
-    });
-  }
-}
-
-function handleLideresInput(list, tbody, sortField){
-  tbody.addEventListener('focusout', e=>{
-    const td = e.target.closest('td[contenteditable]');
-    if(!td) return;
-    const tr = td.closest('tr');
-    const item = list.find(x=>x.id === tr.dataset.id);
-    if(item){
-      item[td.dataset.field] = td.textContent.trim();
-      saveData();
-      renderLideres();
-    }
-  });
-}
-
-handleLideresInput(data.topScorers, tbodyTopScorers);
-handleLideresInput(data.topAssists, tbodyTopAssists);
-handleLideresInput(data.topMatches, tbodyTopMatches);
-
-const trophyGrid = document.getElementById('trophy-grid');
-
-function renderTitulos(){
-  trophyGrid.innerHTML = '';
-  if(data.trophies.length === 0){
-    trophyGrid.innerHTML = '<div style="color:var(--text-faint); font-style:italic; font-size:13px;">Todavía no ganaste ningún título. ¡Vamos que se puede!</div>';
-  }
-  data.trophies.forEach(t=>{
-    const card = document.createElement('div');
-    card.className = 'trophy-card';
-    card.innerHTML = `
-      <button class="danger-ghost rm" data-id="${t.id}">✕</button>
-      <div class="comp" contenteditable="true" data-field="competicion">${escapeHtml(t.competicion)}</div>
-      <div class="season" contenteditable="true" data-field="temporada">${escapeHtml(t.temporada)}</div>
-    `;
-    trophyGrid.appendChild(card);
-  });
-  document.getElementById('count-titulos').textContent = data.trophies.length;
-}
-
-trophyGrid.addEventListener('input', e=>{
-  const el = e.target.closest('[data-field]');
-  if(!el) return;
-  const card = el.closest('.trophy-card');
-  const id = card.querySelector('.rm').dataset.id;
-  const t = data.trophies.find(x=>x.id === id);
-  if(!t) return;
-  t[el.dataset.field] = el.textContent.trim();
-  saveData();
-});
-
-trophyGrid.addEventListener('click', e=>{
-  if(e.target.classList.contains('rm')){
-    if(confirm('¿Borrar este título?')){
-      data.trophies = data.trophies.filter(t=>t.id !== e.target.dataset.id);
-      saveData();
-      renderTitulos();
-    }
-  }
-});
-
-document.getElementById('add-trophy').addEventListener('click', ()=>{
-  data.trophies.push({ id:uid(), competicion:'Nuevo título', temporada: data.club.temporada || '' });
-  saveData();
-  renderTitulos();
-});
-
-function renderResumen(){
-  const total = data.matches.length;
-  let v=0,e=0,d=0,gf=0,gc=0;
-  data.matches.forEach(m=>{
-    const r = resultOf(m);
-    if(r==='V') v++; else if(r==='E') e++; else if(r==='D') d++;
-    gf += parseInt(m.gf)||0;
-    gc += parseInt(m.gc)||0;
-  });
-  const dif = gf-gc;
-
-  let gastoIn=0, ingresoOut=0;
-  data.transfers.forEach(t=>{
-    const monto = parseFloat(String(t.monto).replace(/[^\d.-]/g,'')) || 0;
-    if(t.tipo === 'in') gastoIn += monto; else ingresoOut += monto;
-  });
-  const balance = ingresoOut - gastoIn;
-
-  const avgMedia = data.players.length ? Math.round(data.players.reduce((s,p)=>s+(parseInt(p.media)||0),0)/data.players.length) : 0;
-
-  const statGrid = document.getElementById('stat-grid');
-  statGrid.innerHTML = `
-    <div class="stat-card"><div class="label">Partidos jugados</div><div class="value">${total}</div></div>
-    <div class="stat-card"><div class="label">Récord V-E-D</div><div class="value">${v}-${e}-${d}</div></div>
-    <div class="stat-card"><div class="label">Goles a favor</div><div class="value win">${gf}</div></div>
-    <div class="stat-card"><div class="label">Goles en contra</div><div class="value loss">${gc}</div></div>
-    <div class="stat-card"><div class="label">Diferencia de gol</div><div class="value ${dif>=0?'win':'loss'}">${dif>=0?'+':''}${dif}</div></div>
-    <div class="stat-card"><div class="label">Jugadores en plantilla</div><div class="value gold">${data.players.length}</div></div>
-    <div class="stat-card"><div class="label">Media de plantilla</div><div class="value gold">${avgMedia||'—'}</div></div>
-    <div class="stat-card"><div class="label">Títulos ganados</div><div class="value gold">${data.trophies.length}</div></div>
-    <div class="stat-card"><div class="label">Balance de mercado</div><div class="value ${balance>=0?'win':'loss'}">${balance>=0?'+':''}${balance.toLocaleString('es-AR')}</div></div>
-  `;
-
-  const last5 = data.matches.slice(-5).map(resultOf).filter(Boolean);
-  const ticker = document.getElementById('form-ticker');
-  ticker.innerHTML = last5.length
-    ? last5.map(r=>`<span class="form-dot ${r}">${r}</span>`).join('')
-    : '<span style="font-size:12px; color:var(--text-faint);">Sin partidos aún</span>';
-
-  renderTopList('top-potencial', 'potencial');
-  renderTopList('top-media', 'media');
-}
-
-function renderTopList(containerId, field){
-  const container = document.getElementById(containerId);
-  const sorted = [...data.players]
-    .filter(p=>p.nombre && !isNaN(parseInt(p[field])))
-    .sort((a,b)=>(parseInt(b[field])||0)-(parseInt(a[field])||0))
-    .slice(0,5);
-  if(sorted.length === 0){
-    container.innerHTML = '<div style="color:var(--text-faint); font-style:italic; font-size:13px;">Cargá jugadores con media y potencial para verlos acá.</div>';
-    return;
-  }
-  const max = parseInt(sorted[0][field]) || 1;
-  container.innerHTML = sorted.map((p,i)=>{
-    const val = parseInt(p[field]) || 0;
-    const pct = Math.max(6, Math.round((val/max)*100));
-    return `
-      <div class="top-player-row">
-        <span class="rank">${i+1}</span>
-        <span style="width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(p.nombre)}</span>
-        <span class="bar-wrap"><span class="bar" style="width:${pct}%"></span></span>
-        <span class="val">${val}</span>
-      </div>
-    `;
-  }).join('');
-}
-
-document.getElementById('btn-export').addEventListener('click', ()=>{
-  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  const nombreArchivo = (data.club.nombre || 'carrera_fc26').replace(/\s+/g,'_').toLowerCase();
-  a.href = url;
-  a.download = `${nombreArchivo}_backup.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-});
-
-const fileImport = document.getElementById('file-import');
-document.getElementById('btn-import').addEventListener('click', ()=> fileImport.click());
-fileImport.addEventListener('change', ()=>{
-  const file = fileImport.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    try{
-      const parsed = JSON.parse(reader.result);
-      if(!confirm('Esto va a reemplazar todos los datos actuales por los del archivo. ¿Continuar?')) return;
-      data = Object.assign(defaultData(), parsed);
-      data.youth = Array.isArray(parsed.youth) ? parsed.youth : [];
-      data.renewals = Array.isArray(parsed.renewals) ? parsed.renewals : [];
-      data.loans = Array.isArray(parsed.loans) ? parsed.loans : [];
-      data.topScorers = Array.isArray(parsed.topScorers) ? parsed.topScorers : [];
-      data.topAssists = Array.isArray(parsed.topAssists) ? parsed.topAssists : [];
-      data.topMatches = Array.isArray(parsed.topMatches) ? parsed.topMatches : [];
-      data.tactics = Object.assign({ formacion:'4-4-2', porFormacion:{}, presets:[] }, parsed.tactics || {});
-      data.matches = (data.matches || []).map(m=>{
-        if(typeof m.goleadores === 'string'){
-          m.goleadores = m.goleadores.trim() ? [{ id:uid(), playerId:null, nombre:m.goleadores, goles:1 }] : [];
-        } else if(!Array.isArray(m.goleadores)){
-          m.goleadores = [];
-        }
-        return m;
-      });
-      data.transfers = (data.transfers || []).map(t=>{
-        if(!t.nombre && t.jugador) t.nombre = t.jugador;
-        return t;
-      });
-      saveData();
-      renderAll();
-    }catch(err){
-      alert('El archivo no es un backup válido.');
-    }
-  };
-  reader.readAsText(file);
-  fileImport.value = '';
-});
-
-document.getElementById('btn-reset').addEventListener('click', ()=>{
-  if(confirm('Esto borra TODOS los datos guardados. No se puede deshacer. ¿Seguro?')){
-    data = defaultData();
-    saveData();
-    renderAll();
-  }
-});
-
-function renderAll(){
-  fillClubForm();
-  renderPlantilla();
-  renderInferiores();
-  renderPartidos();
-  renderFichajes();
-  renderRenovaciones();
-  renderCesiones();
-  renderLideres();
-  renderTitulos();
-  renderResumen();
-  renderTactica();
-}
-renderAll();
-
-})();
-</script>
 </body>
 </html>
