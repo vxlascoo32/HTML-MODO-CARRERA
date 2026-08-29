@@ -162,6 +162,8 @@
   .badge.out{ background:var(--red-out-bg); color:var(--red-out); }
   .badge.loan-out{ background:var(--draw-bg); color:var(--draw); }
   .badge.loan-in{ background:rgba(95,168,211,0.12); color:var(--blue-in); }
+  .badge.campeon{ background:rgba(232,182,76,0.2); color:var(--gold-text); border:1px solid var(--gold-dim); }
+  .badge.participacion{ background:var(--surface-3); color:var(--text-dim); }
   .player-loan-tag{ display:block; font-size:10px; font-weight:600; margin-top:3px; letter-spacing:0.02em; }
   .player-loan-tag.saliente{ color:var(--draw); }
   .player-loan-tag.entrante{ color:var(--blue-in); }
@@ -183,12 +185,6 @@
   .top-player-row .bar-wrap{ flex:1; background:var(--surface-2); border-radius:4px; height:8px; overflow:hidden; }
   .top-player-row .bar{ height:100%; background:var(--gold-dim); }
   .top-player-row .val{ font-family:'Roboto Mono',monospace; color:var(--gold-text); width:26px; text-align:right; }
-
-  .trophy-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:12px; }
-  .trophy-card{ background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius); padding:14px; position:relative; }
-  .trophy-card .comp{ font-family:'Oswald',sans-serif; font-size:14px; color:var(--gold-text); }
-  .trophy-card .season{ font-size:11px; color:var(--text-dim); margin-top:2px; }
-  .trophy-card .rm{ position:absolute; top:8px; right:8px; }
 
   footer.credit{ margin-top:30px; font-size:10px; color:var(--text-faint); text-align:center; letter-spacing:0.05em; }
 
@@ -568,7 +564,7 @@
 
   <section class="tab" id="tab-cesiones">
     <h1 class="panel-title">Cesiones</h1>
-    <div class="panel-sub">Cedido = tu jugador se va a préstamo (se mantiene en Plantilla, marcado). Recibido = un jugador llega a préstamo (se suma a Plantilla, marcado).</div>
+    <div class="panel-sub">Cedido = tu jugador se va a préstamo (se mantiene en Plantilla, marked). Recibido = un jugador llega a préstamo (se suma a Plantilla, marked).</div>
     <div class="toolbar">
       <button class="action primary" id="add-loan-out">+ Cesión Saliente</button>
       <button class="action ghost" id="add-loan-in" style="color:var(--blue-in); border-color:var(--blue-in);">+ Cesión Recibida (préstamo)</button>
@@ -629,12 +625,21 @@
   </section>
 
   <section class="tab" id="tab-titulos">
-    <h1 class="panel-title">Títulos</h1>
-    <div class="panel-sub">Vitrina de trofeos ganados con el club.</div>
+    <h1 class="panel-title">Competencias y Títulos</h1>
+    <div class="panel-sub">Registro de todas las competencias disputadas (campeonatos, copas, ligas), con sus resultados, posición/fase alcanzada y estado final.</div>
     <div class="toolbar">
-      <button class="action primary" id="add-trophy">+ Agregar título</button>
+      <button class="action primary" id="add-trophy">+ Agregar Competencia</button>
     </div>
-    <div class="trophy-grid" id="trophy-grid"></div>
+    <div class="section-block" style="overflow-x:auto;">
+      <table id="table-titulos">
+        <thead>
+          <tr>
+            <th>Competencia</th><th>Temporada</th><th>Resultado / Fase</th><th>¿Campeón?</th><th>PJ</th><th>PG</th><th>PE</th><th>PP</th><th>GF</th><th>GC</th><th>DIF</th><th></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
   </section>
 
   <section class="tab" id="tab-historial">
@@ -829,7 +834,7 @@
 <script>
 (function(){
 
-const STORAGE_KEY = 'fc26_career_data_v3'; // clave legacy (una sola carrera), se usa solo para migrar
+const STORAGE_KEY = 'fc26_career_data_v3';
 const CAREERS_INDEX_KEY = 'fc26_careers_index_v1';
 const ACTIVE_CAREER_KEY = 'fc26_active_career_id';
 
@@ -899,6 +904,24 @@ function normalizeData(parsed){
   merged.topMatches = Array.isArray(parsed.topMatches) ? parsed.topMatches : [];
   merged.tactics = Object.assign({ formacion:'4-4-2', porFormacion:{}, presets:[] }, parsed.tactics || {});
   merged.seasonHistory = Array.isArray(parsed.seasonHistory) ? parsed.seasonHistory : [];
+  
+  // Normalizar trofeos/competencias
+  merged.trophies = (Array.isArray(parsed.trophies) ? parsed.trophies : []).map(t => {
+    return {
+      id: t.id || uid(),
+      competicion: t.competicion || t.comp || 'Competencia',
+      temporada: t.temporada || t.season || '',
+      fase: t.fase || (t.campeon === false ? 'Eliminado' : 'Campeón'),
+      campeon: t.campeon !== undefined ? Boolean(t.campeon) : true,
+      pj: t.pj || '',
+      pg: t.pg || '',
+      pe: t.pe || '',
+      pp: t.pp || '',
+      gf: t.gf || '',
+      gc: t.gc || ''
+    };
+  });
+
   merged.matches = (merged.matches || []).map(m=>{
     if(typeof m.goleadores === 'string'){
       m.goleadores = m.goleadores.trim() ? [{ id:uid(), playerId:null, nombre:m.goleadores, goles:1 }] : [];
@@ -914,8 +937,6 @@ function normalizeData(parsed){
   return merged;
 }
 
-// Migra la carrera vieja (guardada bajo una sola clave) al nuevo sistema de multi-carrera,
-// solo si todavía no existe ningún índice de carreras.
 function migrateLegacyCareerIfNeeded(){
   const idx = loadCareersIndex();
   if(idx.length > 0) return;
@@ -1112,6 +1133,7 @@ navButtons.forEach(btn=>{
     document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
     if(btn.dataset.tab === 'tactica') renderTactica();
     if(btn.dataset.tab === 'lideres') renderLideres();
+    if(btn.dataset.tab === 'titulos') renderTitulos();
     if(btn.dataset.tab === 'historial') renderHistorial();
   });
 });
@@ -1391,23 +1413,6 @@ const FORMATIONS = {
   ]
 };
 
-const FORM_POS_MAP = {
-  'POR': 'Arquero',
-  'LI': 'Lateral Izquierdo',
-  'LD': 'Lateral Derecho',
-  'DFC': 'Defensor Central',
-  'MC': 'Mediocentro',
-  'MCD': 'Mediocentro Defensivo',
-  'MCO': 'Mediocentro Ofensivo',
-  'MI': 'Mediocentro Izquierdo',
-  'MD': 'Mediocentro Derecho',
-  'EI': 'Extremo Izquierdo',
-  'ED': 'Extremo Derecho',
-  'DC': 'Delantero Centro',
-  'CLI': 'Lateral Izquierdo',
-  'CLD': 'Lateral Derecho'
-};
-
 const formationSelect = document.getElementById('formation-select');
 Object.keys(FORMATIONS).forEach(f=>{
   const opt = document.createElement('option');
@@ -1545,7 +1550,6 @@ function renderTactica(){
     });
   });
 
-  // Render Starters Panel
   const startersContainer = document.getElementById('starters-container');
   startersContainer.innerHTML = '';
   slots.forEach(slot => {
@@ -1578,7 +1582,6 @@ function renderTactica(){
     });
   });
 
-  // Render Subs Panel
   const subsContainer = document.getElementById('subs-container');
   subsContainer.innerHTML = '';
   for(let i=0; i<7; i++){
@@ -1611,7 +1614,6 @@ function renderTactica(){
     });
   });
 
-  // Render Reserves Panel
   const reservesContainer = document.getElementById('reserves-container');
   const reserves = data.players.filter(p => !usedIds.has(p.id));
   if(reserves.length === 0){
@@ -1791,45 +1793,38 @@ document.getElementById('scorer-add-other-btn').addEventListener('click', ()=>{
 
 document.getElementById('scorer-close-btn').addEventListener('click', ()=>{
   scorerModal.classList.remove('open');
-  currentScorerMatchId = null;
   renderPartidos();
 });
 
-scorerModal.addEventListener('click', e=>{
-  if(e.target === scorerModal){
-    scorerModal.classList.remove('open');
-    currentScorerMatchId = null;
-    renderPartidos();
-  }
-});
-
+// FICHAJES
 const tbodyFichajes = document.querySelector('#table-fichajes tbody');
 
 function renderFichajes(){
   tbodyFichajes.innerHTML = '';
   if(data.transfers.length === 0){
-    tbodyFichajes.innerHTML = '<tr class="empty-row"><td colspan="13">No hay movimientos de mercado cargados.</td></tr>';
+    tbodyFichajes.innerHTML = '<tr class="empty-row"><td colspan="13">No hay fichajes registrados. Usá los botones de arriba.</td></tr>';
   }
   data.transfers.forEach(t=>{
     const tr = document.createElement('tr');
     tr.dataset.id = t.id;
+    const isOut = t.tipo === 'out';
     tr.innerHTML = `
-      <td><span class="badge ${t.tipo==='in'?'in':'out'}">${t.tipo==='in'?'Entrada':'Salida'}</span></td>
-      <td contenteditable="true" data-field="nombre">${escapeHtml(t.nombre || t.jugador || '')}</td>
+      <td><span class="badge ${isOut ? 'out' : 'in'}">${isOut ? 'Salida' : 'Entrada'}</span></td>
+      <td contenteditable="true" data-field="nombre">${escapeHtml(t.nombre || '')}</td>
       <td>
         <select class="pos-select" data-field="pos">
-          ${getPosOptionsHtml(t.pos || 'Delantero Centro')}
+          ${getPosOptionsHtml(t.pos)}
         </select>
       </td>
-      <td contenteditable="true" data-field="edad" class="num">${escapeHtml(t.edad)}</td>
-      <td contenteditable="true" data-field="nacionalidad">${escapeHtml(t.nacionalidad)}</td>
-      <td contenteditable="true" data-field="media" class="num">${escapeHtml(t.media)}</td>
-      <td contenteditable="true" data-field="potencial" class="num">${escapeHtml(t.potencial)}</td>
-      <td contenteditable="true" data-field="valor">${escapeHtml(t.valor)}</td>
-      <td contenteditable="true" data-field="salario">${escapeHtml(t.salario)}</td>
-      <td contenteditable="true" data-field="monto">${escapeHtml(t.monto)}</td>
-      <td contenteditable="true" data-field="club">${escapeHtml(t.club)}</td>
-      <td contenteditable="true" data-field="fecha">${escapeHtml(t.fecha)}</td>
+      <td contenteditable="true" data-field="edad" class="num">${escapeHtml(t.edad || '')}</td>
+      <td contenteditable="true" data-field="nacionalidad">${escapeHtml(t.nacionalidad || '')}</td>
+      <td contenteditable="true" data-field="media" class="num">${escapeHtml(t.media || '')}</td>
+      <td contenteditable="true" data-field="potencial" class="num">${escapeHtml(t.potencial || '')}</td>
+      <td contenteditable="true" data-field="valor">${escapeHtml(t.valor || '')}</td>
+      <td contenteditable="true" data-field="salario">${escapeHtml(t.salario || '')}</td>
+      <td contenteditable="true" data-field="monto">${escapeHtml(t.monto || '')}</td>
+      <td contenteditable="true" data-field="club">${escapeHtml(t.club || '')}</td>
+      <td contenteditable="true" data-field="fecha">${escapeHtml(t.fecha || '')}</td>
       <td><button class="danger-ghost" data-action="del-transfer">Borrar</button></td>
     `;
     tbodyFichajes.appendChild(tr);
@@ -1841,15 +1836,15 @@ tbodyFichajes.addEventListener('input', e=>{
   const td = e.target.closest('td[contenteditable]');
   if(!td) return;
   const tr = td.closest('tr');
-  const t = data.transfers.find(x=>x.id === tr.dataset.id);
-  if(!t) return;
+  const transfer = data.transfers.find(t=>t.id === tr.dataset.id);
+  if(!transfer) return;
   const field = td.dataset.field;
   const val = td.textContent.trim();
-  t[field] = val;
+  transfer[field] = val;
 
-  if(t.tipo === 'in' && t.playerId){
-    const player = data.players.find(p=>p.id === t.playerId);
-    if(player && field in player){
+  if(transfer.tipo === 'in' && transfer.playerId){
+    const player = data.players.find(p=>p.id === transfer.playerId);
+    if(player){
       player[field] = val;
       renderPlantilla();
     }
@@ -1860,12 +1855,12 @@ tbodyFichajes.addEventListener('input', e=>{
 tbodyFichajes.addEventListener('change', e=>{
   if(e.target.dataset.field === 'pos'){
     const tr = e.target.closest('tr');
-    const t = data.transfers.find(x=>x.id === tr.dataset.id);
-    if(t){
-      t.pos = e.target.value;
-      if(t.tipo === 'in' && t.playerId){
-        const player = data.players.find(p=>p.id === t.playerId);
-        if(player){ player.pos = t.pos; renderPlantilla(); }
+    const transfer = data.transfers.find(t=>t.id === tr.dataset.id);
+    if(transfer){
+      transfer.pos = e.target.value;
+      if(transfer.tipo === 'in' && transfer.playerId){
+        const player = data.players.find(p=>p.id === transfer.playerId);
+        if(player){ player.pos = transfer.pos; renderPlantilla(); }
       }
       saveData();
     }
@@ -1875,63 +1870,53 @@ tbodyFichajes.addEventListener('change', e=>{
 tbodyFichajes.addEventListener('click', e=>{
   if(e.target.dataset.action === 'del-transfer'){
     const tr = e.target.closest('tr');
-    if(confirm('¿Borrar este registro de fichaje?')){
-      data.transfers = data.transfers.filter(x=>x.id !== tr.dataset.id);
+    if(confirm('¿Borrar este registro de fichaje? (Nota: no alterará el plantel actual automáticamente)')){
+      data.transfers = data.transfers.filter(t=>t.id !== tr.dataset.id);
       saveData();
       renderFichajes();
-      renderResumen();
     }
   }
 });
 
+// Modal Fichaje Entrada
 const entryModal = document.getElementById('entry-modal');
-const entryNombre = document.getElementById('entry-nombre');
 const entryPos = document.getElementById('entry-pos');
-const entryEdad = document.getElementById('entry-edad');
-const entryNacionalidad = document.getElementById('entry-nacionalidad');
-const entryMedia = document.getElementById('entry-media');
-const entryPotencial = document.getElementById('entry-potencial');
-const entryValor = document.getElementById('entry-valor');
-const entrySalario = document.getElementById('entry-salario');
-const entryMonto = document.getElementById('entry-monto');
-const entryClub = document.getElementById('entry-club');
-const entryFecha = document.getElementById('entry-fecha');
+entryPos.innerHTML = POSITIONS.map(p=>`<option value="${p}">${p}</option>`).join('');
 
 document.getElementById('add-transfer-in').addEventListener('click', ()=>{
-  entryNombre.value = '';
-  entryPos.innerHTML = getPosOptionsHtml('Delantero Centro');
-  entryEdad.value = '';
-  entryNacionalidad.value = '';
-  entryMedia.value = '';
-  entryPotencial.value = '';
-  entryValor.value = '';
-  entrySalario.value = '';
-  entryMonto.value = '';
-  entryClub.value = '';
-  entryFecha.value = '';
+  document.getElementById('entry-nombre').value = '';
+  document.getElementById('entry-edad').value = '';
+  document.getElementById('entry-nacionalidad').value = '';
+  document.getElementById('entry-media').value = '';
+  document.getElementById('entry-potencial').value = '';
+  document.getElementById('entry-valor').value = '';
+  document.getElementById('entry-salario').value = '';
+  document.getElementById('entry-monto').value = '';
+  document.getElementById('entry-club').value = '';
+  document.getElementById('entry-fecha').value = '';
   entryModal.classList.add('open');
 });
-
-document.getElementById('entry-cancel-btn').addEventListener('click', ()=>{ entryModal.classList.remove('open'); });
-
+document.getElementById('entry-cancel-btn').addEventListener('click', ()=> entryModal.classList.remove('open'));
 document.getElementById('entry-confirm-btn').addEventListener('click', ()=>{
-  const newId = uid();
+  const nombre = document.getElementById('entry-nombre').value.trim();
+  if(!nombre){ alert('Ingresá el nombre del jugador.'); return; }
+  const newPlayerId = uid();
   const player = {
-    id: newId,
-    nombre: entryNombre.value.trim() || 'Nuevo Fichaje',
+    id: newPlayerId,
+    nombre,
     pos: entryPos.value,
-    edad: entryEdad.value.trim(),
-    nacionalidad: entryNacionalidad.value.trim(),
-    media: entryMedia.value.trim(),
-    potencial: entryPotencial.value.trim(),
-    valor: entryValor.value.trim(),
-    salario: entrySalario.value.trim()
+    edad: document.getElementById('entry-edad').value.trim(),
+    nacionalidad: document.getElementById('entry-nacionalidad').value.trim(),
+    media: document.getElementById('entry-media').value.trim(),
+    potencial: document.getElementById('entry-potencial').value.trim(),
+    valor: document.getElementById('entry-valor').value.trim(),
+    salario: document.getElementById('entry-salario').value.trim()
   };
   data.players.push(player);
   data.transfers.push({
     id: uid(),
-    playerId: newId,
     tipo: 'in',
+    playerId: newPlayerId,
     nombre: player.nombre,
     pos: player.pos,
     edad: player.edad,
@@ -1940,44 +1925,37 @@ document.getElementById('entry-confirm-btn').addEventListener('click', ()=>{
     potencial: player.potencial,
     valor: player.valor,
     salario: player.salario,
-    monto: entryMonto.value.trim(),
-    club: entryClub.value.trim(),
-    fecha: entryFecha.value.trim()
+    monto: document.getElementById('entry-monto').value.trim(),
+    club: document.getElementById('entry-club').value.trim(),
+    fecha: document.getElementById('entry-fecha').value.trim()
   });
   saveData();
-  renderAll();
   entryModal.classList.remove('open');
+  renderPlantilla();
+  renderFichajes();
+  renderResumen();
 });
 
+// Modal Fichaje Salida
 const exitModal = document.getElementById('exit-modal');
-const exitPlayerSelect = document.getElementById('exit-player-select');
-const exitMonto = document.getElementById('exit-monto');
-const exitClub = document.getElementById('exit-club');
-const exitFecha = document.getElementById('exit-fecha');
-
+const exitSelect = document.getElementById('exit-player-select');
 document.getElementById('add-transfer-out').addEventListener('click', ()=>{
-  if(data.players.length === 0){
-    alert('No hay jugadores en la plantilla para dar de baja.');
-    return;
-  }
-  exitPlayerSelect.innerHTML = data.players.map(p=>`<option value="${p.id}">${escapeHtml(p.nombre || 'Sin nombre')} (${p.pos})</option>`).join('');
-  exitMonto.value = '';
-  exitClub.value = '';
-  exitFecha.value = '';
+  if(data.players.length === 0){ alert('No hay jugadores en la plantilla para dar de baja.'); return; }
+  exitSelect.innerHTML = data.players.map(p => `<option value="${p.id}">${escapeHtml(p.nombre)} (${p.pos})</option>`).join('');
+  document.getElementById('exit-monto').value = '';
+  document.getElementById('exit-club').value = '';
+  document.getElementById('exit-fecha').value = '';
   exitModal.classList.add('open');
 });
-
-document.getElementById('exit-cancel-btn').addEventListener('click', ()=>{ exitModal.classList.remove('open'); });
-
+document.getElementById('exit-cancel-btn').addEventListener('click', ()=> exitModal.classList.remove('open'));
 document.getElementById('exit-confirm-btn').addEventListener('click', ()=>{
-  const pId = exitPlayerSelect.value;
-  const player = data.players.find(p=>p.id === pId);
+  const pId = exitSelect.value;
+  const player = data.players.find(p => p.id === pId);
   if(!player) return;
-
   data.transfers.push({
     id: uid(),
-    playerId: player.id,
     tipo: 'out',
+    playerId: player.id,
     nombre: player.nombre,
     pos: player.pos,
     edad: player.edad,
@@ -1986,21 +1964,22 @@ document.getElementById('exit-confirm-btn').addEventListener('click', ()=>{
     potencial: player.potencial,
     valor: player.valor,
     salario: player.salario,
-    monto: exitMonto.value.trim(),
-    club: exitClub.value.trim(),
-    fecha: exitFecha.value.trim()
+    monto: document.getElementById('exit-monto').value.trim(),
+    club: document.getElementById('exit-club').value.trim(),
+    fecha: document.getElementById('exit-fecha').value.trim()
   });
-
+  data.loans = data.loans.filter(l => l.playerId !== player.id);
   removePlayerAndClean(player.id);
   exitModal.classList.remove('open');
+  renderFichajes();
 });
 
+// RENOVACIONES
 const tbodyRenovaciones = document.querySelector('#table-renovaciones tbody');
-
 function renderRenovaciones(){
   tbodyRenovaciones.innerHTML = '';
   if(data.renewals.length === 0){
-    tbodyRenovaciones.innerHTML = '<tr class="empty-row"><td colspan="7">No hay renovaciones registradas.</td></tr>';
+    tbodyRenovaciones.innerHTML = '<tr class="empty-row"><td colspan="7">No hay renovaciones anotadas todavía.</td></tr>';
   }
   data.renewals.forEach(r=>{
     const tr = document.createElement('tr');
@@ -2023,15 +2002,17 @@ tbodyRenovaciones.addEventListener('input', e=>{
   const td = e.target.closest('td[contenteditable]');
   if(!td) return;
   const tr = td.closest('tr');
-  const item = data.renewals.find(x=>x.id === tr.dataset.id);
-  if(item){ item[td.dataset.field] = td.textContent.trim(); saveData(); }
+  const renewal = data.renewals.find(r=>r.id === tr.dataset.id);
+  if(!renewal) return;
+  renewal[td.dataset.field] = td.textContent.trim();
+  saveData();
 });
 
 tbodyRenovaciones.addEventListener('click', e=>{
   if(e.target.dataset.action === 'del-renewal'){
     const tr = e.target.closest('tr');
-    if(confirm('¿Borrar este registro?')){
-      data.renewals = data.renewals.filter(x=>x.id !== tr.dataset.id);
+    if(confirm('¿Borrar esta renovación?')){
+      data.renewals = data.renewals.filter(r=>r.id !== tr.dataset.id);
       saveData();
       renderRenovaciones();
     }
@@ -2039,32 +2020,29 @@ tbodyRenovaciones.addEventListener('click', e=>{
 });
 
 document.getElementById('add-renewal').addEventListener('click', ()=>{
-  data.renewals.push({ id:uid(), jugador:'Nuevo Jugador', sueldoAnterior:'', sueldoNuevo:'', duracion:'', clausula:'', fecha:'' });
+  data.renewals.push({ id:uid(), jugador:'', sueldoAnterior:'', sueldoNuevo:'', duracion:'', clausula:'', fecha:'' });
   saveData();
   renderRenovaciones();
 });
 
+// CESIONES
 const tbodyCesiones = document.querySelector('#table-cesiones tbody');
 
 function renderCesiones(){
   tbodyCesiones.innerHTML = '';
   if(data.loans.length === 0){
-    tbodyCesiones.innerHTML = '<tr class="empty-row"><td colspan="8">No hay cesiones registradas.</td></tr>';
+    tbodyCesiones.innerHTML = '<tr class="empty-row"><td colspan="8">No hay cesiones registradas. Usá los botones de arriba.</td></tr>';
   }
   data.loans.forEach(l=>{
     const tr = document.createElement('tr');
     tr.dataset.id = l.id;
+    const isOut = l.tipo === 'saliente';
     tr.innerHTML = `
-      <td>
-        <select class="pill" data-field="tipo">
-          <option value="cedido" ${l.tipo==='cedido'?'selected':''}>Cedido</option>
-          <option value="recibido" ${l.tipo==='recibido'?'selected':''}>A préstamo</option>
-        </select>
-      </td>
+      <td><span class="badge ${isOut ? 'loan-out' : 'loan-in'}">${isOut ? 'Cedido' : 'Recibido'}</span></td>
       <td contenteditable="true" data-field="jugador">${escapeHtml(l.jugador)}</td>
       <td contenteditable="true" data-field="club">${escapeHtml(l.club)}</td>
       <td contenteditable="true" data-field="duracion">${escapeHtml(l.duracion)}</td>
-      <td contenteditable="true" data-field="opcionCompra">${escapeHtml(l.opcionCompra)}</td>
+      <td contenteditable="true" data-field="opcion">${escapeHtml(l.opcion)}</td>
       <td contenteditable="true" data-field="monto">${escapeHtml(l.monto)}</td>
       <td contenteditable="true" data-field="fecha">${escapeHtml(l.fecha)}</td>
       <td><button class="danger-ghost" data-action="del-loan">Borrar</button></td>
@@ -2078,14 +2056,14 @@ tbodyCesiones.addEventListener('input', e=>{
   const td = e.target.closest('td[contenteditable]');
   if(!td) return;
   const tr = td.closest('tr');
-  const item = data.loans.find(x=>x.id === tr.dataset.id);
-  if(!item) return;
+  const loan = data.loans.find(l=>l.id === tr.dataset.id);
+  if(!loan) return;
   const field = td.dataset.field;
   const val = td.textContent.trim();
-  item[field] = val;
+  loan[field] = val;
 
-  if(item.playerId){
-    const player = data.players.find(p=>p.id === item.playerId);
+  if(loan.playerId){
+    const player = data.players.find(p=>p.id === loan.playerId);
     if(player){
       if(field === 'jugador') player.nombre = val;
       if(field === 'club' && player.cesion) player.cesion.club = val;
@@ -2095,338 +2073,394 @@ tbodyCesiones.addEventListener('input', e=>{
   saveData();
 });
 
-tbodyCesiones.addEventListener('change', e=>{
-  if(e.target.dataset.field === 'tipo'){
-    const tr = e.target.closest('tr');
-    const item = data.loans.find(x=>x.id === tr.dataset.id);
-    if(item){ item.tipo = e.target.value; saveData(); }
-  }
-});
-
 tbodyCesiones.addEventListener('click', e=>{
   if(e.target.dataset.action === 'del-loan'){
     const tr = e.target.closest('tr');
-    const item = data.loans.find(x=>x.id === tr.dataset.id);
-    if(!item) return;
-    if(item.tipo === 'recibido' && item.playerId){
-      if(confirm('¿Borrar esta cesión recibida? Como el jugador llegó a préstamo, también se va a quitar de la Plantilla.')){
-        data.loans = data.loans.filter(x=>x.id !== item.id);
-        removePlayerAndClean(item.playerId);
-        saveData();
-        renderCesiones();
+    const loan = data.loans.find(l=>l.id === tr.dataset.id);
+    if(confirm('¿Borrar esta cesión? Si el jugador está en la plantilla, perderá la marca de préstamo.')){
+      if(loan && loan.playerId){
+        const player = data.players.find(p=>p.id === loan.playerId);
+        if(player) delete player.cesion;
       }
-    } else {
-      if(confirm('¿Borrar este registro de cesión? El jugador deja de figurar como cedido en la Plantilla.')){
-        if(item.playerId){
-          const player = data.players.find(p=>p.id === item.playerId);
-          if(player) delete player.cesion;
-        }
-        data.loans = data.loans.filter(x=>x.id !== item.id);
-        saveData();
-        renderCesiones();
-        renderPlantilla();
-      }
+      data.loans = data.loans.filter(l=>l.id !== tr.dataset.id);
+      saveData();
+      renderCesiones();
+      renderPlantilla();
     }
   }
 });
 
+// Modal Cesión Saliente
 const loanOutModal = document.getElementById('loan-out-modal');
-const loanOutPlayerSelect = document.getElementById('loan-out-player-select');
-const loanOutClub = document.getElementById('loan-out-club');
-const loanOutDuracion = document.getElementById('loan-out-duracion');
-const loanOutOpcion = document.getElementById('loan-out-opcion');
-const loanOutMonto = document.getElementById('loan-out-monto');
-const loanOutFecha = document.getElementById('loan-out-fecha');
+const loanOutSelect = document.getElementById('loan-out-player-select');
 
 document.getElementById('add-loan-out').addEventListener('click', ()=>{
-  if(data.players.length === 0){
-    alert('No hay jugadores en la plantilla para ceder.');
-    return;
-  }
-  loanOutPlayerSelect.innerHTML = data.players.map(p=>`<option value="${p.id}">${escapeHtml(p.nombre || 'Sin nombre')} (${p.pos})</option>`).join('');
-  loanOutClub.value = '';
-  loanOutDuracion.value = '1 año';
-  loanOutOpcion.value = 'No';
-  loanOutMonto.value = '';
-  loanOutFecha.value = '';
+  if(data.players.length === 0){ alert('No hay jugadores en la plantilla.'); return; }
+  loanOutSelect.innerHTML = data.players.map(p => `<option value="${p.id}">${escapeHtml(p.nombre)} (${p.pos})</option>`).join('');
+  document.getElementById('loan-out-club').value = '';
+  document.getElementById('loan-out-duracion').value = '';
+  document.getElementById('loan-out-opcion').value = 'No';
+  document.getElementById('loan-out-monto').value = '';
+  document.getElementById('loan-out-fecha').value = '';
   loanOutModal.classList.add('open');
 });
 
-document.getElementById('loan-out-cancel-btn').addEventListener('click', ()=>{ loanOutModal.classList.remove('open'); });
-
+document.getElementById('loan-out-cancel-btn').addEventListener('click', ()=> loanOutModal.classList.remove('open'));
 document.getElementById('loan-out-confirm-btn').addEventListener('click', ()=>{
-  const pId = loanOutPlayerSelect.value;
-  const player = data.players.find(p=>p.id === pId);
+  const pId = loanOutSelect.value;
+  const player = data.players.find(p => p.id === pId);
   if(!player) return;
-  const club = loanOutClub.value.trim();
+
+  const club = document.getElementById('loan-out-club').value.trim();
+  player.cesion = { direccion:'saliente', club };
 
   data.loans.push({
     id: uid(),
+    tipo: 'saliente',
     playerId: player.id,
-    tipo: 'cedido',
     jugador: player.nombre,
-    club: club,
-    duracion: loanOutDuracion.value.trim(),
-    opcionCompra: loanOutOpcion.value,
-    monto: loanOutMonto.value.trim(),
-    fecha: loanOutFecha.value.trim()
+    club,
+    duracion: document.getElementById('loan-out-duracion').value.trim(),
+    opcion: document.getElementById('loan-out-opcion').value,
+    monto: document.getElementById('loan-out-monto').value.trim(),
+    fecha: document.getElementById('loan-out-fecha').value.trim()
   });
 
-  player.cesion = { direccion: 'saliente', club: club };
-
   saveData();
-  renderAll();
   loanOutModal.classList.remove('open');
+  renderCesiones();
+  renderPlantilla();
 });
 
+// Modal Cesión Recibida
 const loanInModal = document.getElementById('loan-in-modal');
-const loanInNombre = document.getElementById('loan-in-nombre');
 const loanInPos = document.getElementById('loan-in-pos');
-const loanInEdad = document.getElementById('loan-in-edad');
-const loanInNacionalidad = document.getElementById('loan-in-nacionalidad');
-const loanInMedia = document.getElementById('loan-in-media');
-const loanInPotencial = document.getElementById('loan-in-potencial');
-const loanInClub = document.getElementById('loan-in-club');
-const loanInDuracion = document.getElementById('loan-in-duracion');
-const loanInOpcion = document.getElementById('loan-in-opcion');
-const loanInMonto = document.getElementById('loan-in-monto');
-const loanInFecha = document.getElementById('loan-in-fecha');
+loanInPos.innerHTML = POSITIONS.map(p=>`<option value="${p}">${p}</option>`).join('');
 
 document.getElementById('add-loan-in').addEventListener('click', ()=>{
-  loanInNombre.value = '';
-  loanInPos.innerHTML = getPosOptionsHtml('Delantero Centro');
-  loanInEdad.value = '';
-  loanInNacionalidad.value = '';
-  loanInMedia.value = '';
-  loanInPotencial.value = '';
-  loanInClub.value = '';
-  loanInDuracion.value = '1 año';
-  loanInOpcion.value = 'No';
-  loanInMonto.value = '';
-  loanInFecha.value = '';
+  document.getElementById('loan-in-nombre').value = '';
+  document.getElementById('loan-in-edad').value = '';
+  document.getElementById('loan-in-nacionalidad').value = '';
+  document.getElementById('loan-in-media').value = '';
+  document.getElementById('loan-in-potencial').value = '';
+  document.getElementById('loan-in-club').value = '';
+  document.getElementById('loan-in-duracion').value = '';
+  document.getElementById('loan-in-opcion').value = 'No';
+  document.getElementById('loan-in-monto').value = '';
+  document.getElementById('loan-in-fecha').value = '';
   loanInModal.classList.add('open');
 });
 
-document.getElementById('loan-in-cancel-btn').addEventListener('click', ()=>{ loanInModal.classList.remove('open'); });
-
+document.getElementById('loan-in-cancel-btn').addEventListener('click', ()=> loanInModal.classList.remove('open'));
 document.getElementById('loan-in-confirm-btn').addEventListener('click', ()=>{
-  const newId = uid();
-  const club = loanInClub.value.trim();
+  const nombre = document.getElementById('loan-in-nombre').value.trim();
+  if(!nombre){ alert('Ingresá el nombre del jugador.'); return; }
+  
+  const club = document.getElementById('loan-in-club').value.trim();
+  const newPlayerId = uid();
   const player = {
-    id: newId,
-    nombre: loanInNombre.value.trim() || 'Nuevo Jugador',
+    id: newPlayerId,
+    nombre,
     pos: loanInPos.value,
-    edad: loanInEdad.value.trim(),
-    nacionalidad: loanInNacionalidad.value.trim(),
-    media: loanInMedia.value.trim(),
-    potencial: loanInPotencial.value.trim(),
+    edad: document.getElementById('loan-in-edad').value.trim(),
+    nacionalidad: document.getElementById('loan-in-nacionalidad').value.trim(),
+    media: document.getElementById('loan-in-media').value.trim(),
+    potencial: document.getElementById('loan-in-potencial').value.trim(),
     valor: '',
     salario: '',
-    cesion: { direccion: 'entrante', club: club }
+    cesion: { direccion:'entrante', club }
   };
   data.players.push(player);
+
   data.loans.push({
     id: uid(),
-    playerId: newId,
-    tipo: 'recibido',
+    tipo: 'recibida',
+    playerId: newPlayerId,
     jugador: player.nombre,
-    club: club,
-    duracion: loanInDuracion.value.trim(),
-    opcionCompra: loanInOpcion.value,
-    monto: loanInMonto.value.trim(),
-    fecha: loanInFecha.value.trim()
+    club,
+    duracion: document.getElementById('loan-in-duracion').value.trim(),
+    opcion: document.getElementById('loan-in-opcion').value,
+    monto: document.getElementById('loan-in-monto').value.trim(),
+    fecha: document.getElementById('loan-in-fecha').value.trim()
   });
 
   saveData();
-  renderAll();
   loanInModal.classList.remove('open');
+  renderPlantilla();
+  renderCesiones();
+  renderResumen();
 });
 
-const tbodyTopScorers = document.querySelector('#table-top-scorers tbody');
-const tbodyTopAssists = document.querySelector('#table-top-assists tbody');
-const tbodyTopMatches = document.querySelector('#table-top-matches tbody');
-
+// LÍDERES
 function syncLideresData(){
-  data.players.forEach(p=>{
-    let scorer = data.topScorers.find(x => x.playerId === p.id || x.jugador === p.nombre);
-    if(!scorer){
-      data.topScorers.push({ id: uid(), playerId: p.id, jugador: p.nombre, goles: '0', partidos: '0', anios: '' });
-    } else {
-      scorer.playerId = p.id; scorer.jugador = p.nombre;
-    }
-
-    let assist = data.topAssists.find(x => x.playerId === p.id || x.jugador === p.nombre);
-    if(!assist){
-      data.topAssists.push({ id: uid(), playerId: p.id, jugador: p.nombre, asistencias: '0', partidos: '0', anios: '' });
-    } else {
-      assist.playerId = p.id; assist.jugador = p.nombre;
-    }
-
-    let matchP = data.topMatches.find(x => x.playerId === p.id || x.jugador === p.nombre);
-    if(!matchP){
-      data.topMatches.push({ id: uid(), playerId: p.id, jugador: p.nombre, partidos: '0', goles: '0', asistencias: '0', anios: '' });
-    } else {
-      matchP.playerId = p.id; matchP.jugador = p.nombre;
-    }
+  const playerMap = {};
+  data.players.forEach(p => {
+    playerMap[p.id] = p.nombre;
   });
 
-  const activeIds = new Set(data.players.map(p=>p.id));
-  data.topScorers = data.topScorers.filter(x => !x.playerId || activeIds.has(x.playerId));
-  data.topAssists = data.topAssists.filter(x => !x.playerId || activeIds.has(x.playerId));
-  data.topMatches = data.topMatches.filter(x => !x.playerId || activeIds.has(x.playerId));
-
-  data.topScorers.sort((a,b)=>(parseInt(b.goles)||0) - (parseInt(a.goles)||0));
-  data.topAssists.sort((a,b)=>(parseInt(b.asistencias)||0) - (parseInt(a.asistencias)||0));
-  data.topMatches.sort((a,b)=>(parseInt(b.partidos)||0) - (parseInt(a.partidos)||0));
+  ['topScorers', 'topAssists', 'topMatches'].forEach(key => {
+    data[key] = data[key].filter(item => playerMap[item.playerId]);
+    data.players.forEach(p => {
+      let existing = data[key].find(item => item.playerId === p.id);
+      if(!existing){
+        existing = { id: uid(), playerId: p.id, nombre: p.nombre, val1: 0, val2: 0, val3: 0, anos: '' };
+        data[key].push(existing);
+      } else {
+        existing.nombre = p.nombre;
+      }
+    });
+  });
 }
 
 function renderLideres(){
   syncLideresData();
 
-  tbodyTopScorers.innerHTML = '';
-  if(data.topScorers.length === 0){
-    tbodyTopScorers.innerHTML = '<tr class="empty-row"><td colspan="5">Sin jugadores cargados.</td></tr>';
-  } else {
-    data.topScorers.forEach((s, i)=>{
-      const tr = document.createElement('tr');
-      tr.dataset.id = s.id;
-      tr.innerHTML = `
-        <td class="num">${i+1}</td>
-        <td>${escapeHtml(s.jugador)}</td>
-        <td contenteditable="true" data-field="goles" class="num">${escapeHtml(s.goles)}</td>
-        <td contenteditable="true" data-field="partidos" class="num">${escapeHtml(s.partidos)}</td>
-        <td contenteditable="true" data-field="anios">${escapeHtml(s.anios)}</td>
-      `;
-      tbodyTopScorers.appendChild(tr);
-    });
-  }
+  // Sort lists
+  data.topScorers.sort((a,b) => (parseInt(b.val1)||0) - (parseInt(a.val1)||0));
+  data.topAssists.sort((a,b) => (parseInt(b.val1)||0) - (parseInt(a.val1)||0));
+  data.topMatches.sort((a,b) => (parseInt(b.val1)||0) - (parseInt(a.val1)||0));
 
-  tbodyTopAssists.innerHTML = '';
-  if(data.topAssists.length === 0){
-    tbodyTopAssists.innerHTML = '<tr class="empty-row"><td colspan="5">Sin jugadores cargados.</td></tr>';
-  } else {
-    data.topAssists.forEach((a, i)=>{
-      const tr = document.createElement('tr');
-      tr.dataset.id = a.id;
-      tr.innerHTML = `
-        <td class="num">${i+1}</td>
-        <td>${escapeHtml(a.jugador)}</td>
-        <td contenteditable="true" data-field="asistencias" class="num">${escapeHtml(a.asistencias)}</td>
-        <td contenteditable="true" data-field="partidos" class="num">${escapeHtml(a.partidos)}</td>
-        <td contenteditable="true" data-field="anios">${escapeHtml(a.anios)}</td>
-      `;
-      tbodyTopAssists.appendChild(tr);
-    });
-  }
-
-  tbodyTopMatches.innerHTML = '';
-  if(data.topMatches.length === 0){
-    tbodyTopMatches.innerHTML = '<tr class="empty-row"><td colspan="6">Sin jugadores cargados.</td></tr>';
-  } else {
-    data.topMatches.forEach((m, i)=>{
-      const tr = document.createElement('tr');
-      tr.dataset.id = m.id;
-      tr.innerHTML = `
-        <td class="num">${i+1}</td>
-        <td>${escapeHtml(m.jugador)}</td>
-        <td contenteditable="true" data-field="partidos" class="num">${escapeHtml(m.partidos)}</td>
-        <td contenteditable="true" data-field="goles" class="num">${escapeHtml(m.goles)}</td>
-        <td contenteditable="true" data-field="asistencias" class="num">${escapeHtml(m.asistencias)}</td>
-        <td contenteditable="true" data-field="anios">${escapeHtml(m.anios)}</td>
-      `;
-      tbodyTopMatches.appendChild(tr);
-    });
-  }
+  renderLideresTable('table-top-scorers', data.topScorers, ['val1', 'val2', 'anos'], ['Goles', 'PJ', 'Años']);
+  renderLideresTable('table-top-assists', data.topAssists, ['val1', 'val2', 'anos'], ['Asistencias', 'PJ', 'Años']);
+  renderLideresTable('table-top-matches', data.topMatches, ['val1', 'val2', 'val3', 'anos'], ['Partidos', 'Goles', 'Asist.', 'Años']);
 }
 
-function handleLideresInput(list, tbody, sortField){
-  tbody.addEventListener('focusout', e=>{
+function renderLideresTable(tableId, list, fields, headers){
+  const tbody = document.querySelector(`#${tableId} tbody`);
+  tbody.innerHTML = '';
+  if(list.length === 0){
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="${fields.length + 2}">No hay datos en la plantilla.</td></tr>`;
+    return;
+  }
+  list.forEach((item, index) => {
+    const tr = document.createElement('tr');
+    tr.dataset.id = item.id;
+    let fieldsHtml = '';
+    fields.forEach(f => {
+      fieldsHtml += `<td contenteditable="true" data-field="${f}" class="num">${escapeHtml(item[f] || 0)}</td>`;
+    });
+    tr.innerHTML = `
+      <td class="num">${index + 1}</td>
+      <td><strong>${escapeHtml(item.nombre)}</strong></td>
+      ${fieldsHtml}
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+['table-top-scorers', 'table-top-assists', 'table-top-matches'].forEach(tableId => {
+  const tbody = document.querySelector(`#${tableId} tbody`);
+  tbody.addEventListener('input', e => {
     const td = e.target.closest('td[contenteditable]');
     if(!td) return;
     const tr = td.closest('tr');
-    const item = list.find(x=>x.id === tr.dataset.id);
+    let key = '';
+    if(tableId === 'table-top-scorers') key = 'topScorers';
+    if(tableId === 'table-top-assists') key = 'topAssists';
+    if(tableId === 'table-top-matches') key = 'topMatches';
+
+    const item = data[key].find(i => i.id === tr.dataset.id);
     if(item){
       item[td.dataset.field] = td.textContent.trim();
       saveData();
-      renderLideres();
     }
   });
-}
-
-handleLideresInput(data.topScorers, tbodyTopScorers);
-handleLideresInput(data.topAssists, tbodyTopAssists);
-handleLideresInput(data.topMatches, tbodyTopMatches);
-
-const trophyGrid = document.getElementById('trophy-grid');
-
-function renderTitulos(){
-  trophyGrid.innerHTML = '';
-  if(data.trophies.length === 0){
-    trophyGrid.innerHTML = '<div style="color:var(--text-faint); font-style:italic; font-size:13px;">Todavía no ganaste ningún título. ¡Vamos que se puede!</div>';
-  }
-  data.trophies.forEach(t=>{
-    const card = document.createElement('div');
-    card.className = 'trophy-card';
-    card.innerHTML = `
-      <button class="danger-ghost rm" data-id="${t.id}">✕</button>
-      <div class="comp" contenteditable="true" data-field="competicion">${escapeHtml(t.competicion)}</div>
-      <div class="season" contenteditable="true" data-field="temporada">${escapeHtml(t.temporada)}</div>
-    `;
-    trophyGrid.appendChild(card);
-  });
-  document.getElementById('count-titulos').textContent = data.trophies.length;
-}
-
-trophyGrid.addEventListener('input', e=>{
-  const el = e.target.closest('[data-field]');
-  if(!el) return;
-  const card = el.closest('.trophy-card');
-  const id = card.querySelector('.rm').dataset.id;
-  const t = data.trophies.find(x=>x.id === id);
-  if(!t) return;
-  t[el.dataset.field] = el.textContent.trim();
-  saveData();
 });
 
-trophyGrid.addEventListener('click', e=>{
-  if(e.target.classList.contains('rm')){
-    if(confirm('¿Borrar este título?')){
-      data.trophies = data.trophies.filter(t=>t.id !== e.target.dataset.id);
+// TABLA DE COMPETENCIAS Y TÍTULOS
+const tbodyTitulos = document.querySelector('#table-titulos tbody');
+
+function renderTitulos(){
+  tbodyTitulos.innerHTML = '';
+  if(data.trophies.length === 0){
+    tbodyTitulos.innerHTML = '<tr class="empty-row"><td colspan="12">No hay competencias registradas. Usá el botón de arriba para agregar una.</td></tr>';
+  }
+  
+  let totalTitulos = 0;
+
+  data.trophies.forEach(t=>{
+    if(t.campeon) totalTitulos++;
+
+    const pj = parseInt(t.pj) || 0;
+    const gf = parseInt(t.gf) || 0;
+    const gc = parseInt(t.gc) || 0;
+    const dif = gf - gc;
+    const difStr = dif > 0 ? `+${dif}` : `${dif}`;
+
+    const tr = document.createElement('tr');
+    tr.dataset.id = t.id;
+    tr.innerHTML = `
+      <td contenteditable="true" data-field="competicion"><strong>${escapeHtml(t.competicion)}</strong></td>
+      <td contenteditable="true" data-field="temporada" class="num">${escapeHtml(t.temporada)}</td>
+      <td contenteditable="true" data-field="fase">${escapeHtml(t.fase)}</td>
+      <td>
+        <select class="pill" data-field="campeon">
+          <option value="true" ${t.campeon ? 'selected' : ''}>🏆 Sí (Campeón)</option>
+          <option value="false" ${!t.campeon ? 'selected' : ''}>No</option>
+        </select>
+      </td>
+      <td contenteditable="true" data-field="pj" class="num">${escapeHtml(t.pj)}</td>
+      <td contenteditable="true" data-field="pg" class="num">${escapeHtml(t.pg)}</td>
+      <td contenteditable="true" data-field="pe" class="num">${escapeHtml(t.pe)}</td>
+      <td contenteditable="true" data-field="pp" class="num">${escapeHtml(t.pp)}</td>
+      <td contenteditable="true" data-field="gf" class="num">${escapeHtml(t.gf)}</td>
+      <td contenteditable="true" data-field="gc" class="num">${escapeHtml(t.gc)}</td>
+      <td class="num" style="font-weight:600; color:${dif > 0 ? 'var(--win)' : dif < 0 ? 'var(--loss)' : 'var(--text-dim)'};">${(t.gf || t.gc) ? difStr : '—'}</td>
+      <td><button class="danger-ghost" data-action="del-trophy">Borrar</button></td>
+    `;
+    tbodyTitulos.appendChild(tr);
+  });
+
+  document.getElementById('count-titulos').textContent = totalTitulos;
+}
+
+tbodyTitulos.addEventListener('input', e=>{
+  const td = e.target.closest('td[contenteditable]');
+  if(!td) return;
+  const tr = td.closest('tr');
+  const trophy = data.trophies.find(t=>t.id === tr.dataset.id);
+  if(!trophy) return;
+  trophy[td.dataset.field] = td.textContent.trim();
+  saveData();
+  if(['pj','gf','gc'].includes(td.dataset.field)){
+    renderTitulos();
+  }
+});
+
+tbodyTitulos.addEventListener('change', e=>{
+  if(e.target.dataset.field === 'campeon'){
+    const tr = e.target.closest('tr');
+    const trophy = data.trophies.find(t=>t.id === tr.dataset.id);
+    if(trophy){ 
+      trophy.campeon = e.target.value === 'true'; 
+      saveData(); 
+      renderTitulos();
+      renderResumen();
+    }
+  }
+});
+
+tbodyTitulos.addEventListener('click', e=>{
+  if(e.target.dataset.action === 'del-trophy'){
+    const tr = e.target.closest('tr');
+    if(confirm('¿Borrar esta competencia del registro?')){
+      data.trophies = data.trophies.filter(t=>t.id !== tr.dataset.id);
       saveData();
       renderTitulos();
+      renderResumen();
     }
   }
 });
 
 document.getElementById('add-trophy').addEventListener('click', ()=>{
-  data.trophies.push({ id:uid(), competicion:'Nuevo título', temporada: data.club.temporada || '' });
+  data.trophies.push({ 
+    id: uid(), 
+    competicion: 'Nueva Competencia', 
+    temporada: data.club.temporada || '', 
+    fase: 'Campeón', 
+    campeon: true,
+    pj: '', pg: '', pe: '', pp: '', gf: '', gc: ''
+  });
   saveData();
   renderTitulos();
+  renderResumen();
 });
 
-function closeSeason(){
-  const currentTemp = (data.club.temporada || '').trim();
-  if(!currentTemp){
-    alert('Primero cargá el nombre de la temporada actual en "Datos del club" (Resumen) antes de cerrarla.');
-    return;
-  }
-  const yaExiste = data.seasonHistory.some(s => s.temporada === currentTemp);
-  if(yaExiste && !confirm(`Ya existe un historial guardado para la temporada "${currentTemp}". Si seguís, se va a reemplazar. ¿Continuar?`)){
-    return;
-  }
-  if(!confirm(`Esto archiva en el Historial todo lo de la temporada "${currentTemp}": partidos, fichajes, renovaciones, cesiones, líderes, plantilla y títulos de esa temporada. Después vacía partidos, fichajes, renovaciones, cesiones y líderes para arrancar la temporada nueva.\n\nLa plantilla actual, inferiores y el resto de los títulos NO se borran.\n\n¿Cerrar la temporada "${currentTemp}"?`)){
-    return;
-  }
-  const nueva = prompt('Nombre de la nueva temporada (ej: 2026/27):', '');
-  if(nueva === null) return;
+// RESUMEN
+function renderResumen(){
+  fillClubForm();
 
-  const snapshot = {
+  let pj=0, pg=0, pe=0, pp=0, gf=0, gc=0;
+  data.matches.forEach(m=>{
+    const res = resultOf(m);
+    if(!res) return;
+    pj++;
+    if(res === 'V') pg++;
+    if(res === 'E') pe++;
+    if(res === 'D') pp++;
+    gf += parseInt(m.gf)||0;
+    gc += parseInt(m.gc)||0;
+  });
+
+  const dif = gf - gc;
+  const titulosCount = data.trophies.filter(t => t.campeon).length;
+
+  const statGrid = document.getElementById('stat-grid');
+  statGrid.innerHTML = `
+    <div class="stat-card"><div class="label">Jugadores</div><div class="value">${data.players.length}</div></div>
+    <div class="stat-card"><div class="label">Partidos</div><div class="value">${pj}</div></div>
+    <div class="stat-card"><div class="label">Victorias</div><div class="value win">${pg}</div></div>
+    <div class="stat-card"><div class="label">Empates</div><div class="value">${pe}</div></div>
+    <div class="stat-card"><div class="label">Derrotas</div><div class="value loss">${pp}</div></div>
+    <div class="stat-card"><div class="label">Goles a favor</div><div class="value">${gf}</div></div>
+    <div class="stat-card"><div class="label">Goles en contra</div><div class="value">${gc}</div></div>
+    <div class="stat-card"><div class="label">Diferencia</div><div class="value">${dif > 0 ? '+'+dif : dif}</div></div>
+    <div class="stat-card"><div class="label">Títulos</div><div class="value gold">${titulosCount}</div></div>
+  `;
+
+  const formTicker = document.getElementById('form-ticker');
+  const lastMatches = [...data.matches].reverse().filter(m=>resultOf(m)).slice(0,5);
+  if(lastMatches.length === 0){
+    formTicker.innerHTML = '<span style="font-size:11px; color:var(--text-faint); font-style:italic;">Sin partidos</span>';
+  } else {
+    formTicker.innerHTML = lastMatches.map(m=>{
+      const r = resultOf(m);
+      return `<span class="form-dot ${r}" title="${escapeHtml(m.rival)} (${m.gf}-${m.gc})">${r}</span>`;
+    }).join('');
+  }
+
+  const sortedByPot = [...data.players].sort((a,b)=>(parseInt(b.potencial)||0) - (parseInt(a.potencial)||0)).slice(0,5);
+  const topPotContainer = document.getElementById('top-potencial');
+  if(sortedByPot.length === 0){
+    topPotContainer.innerHTML = '<div style="font-size:12px; color:var(--text-faint); font-style:italic;">No hay jugadores en la plantilla</div>';
+  } else {
+    const maxPot = parseInt(sortedByPot[0].potencial) || 99;
+    topPotContainer.innerHTML = sortedByPot.map((p,i)=>{
+      const pot = parseInt(p.potencial)||0;
+      const pct = Math.max(10, Math.round((pot / maxPot) * 100));
+      return `
+        <div class="top-player-row">
+          <span class="rank">${i+1}</span>
+          <span style="width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(p.nombre)}</span>
+          <div class="bar-wrap"><div class="bar" style="width:${pct}%"></div></div>
+          <span class="val">${pot || '—'}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  const sortedByMed = [...data.players].sort((a,b)=>(parseInt(b.media)||0) - (parseInt(a.media)||0)).slice(0,5);
+  const topMedContainer = document.getElementById('top-media');
+  if(sortedByMed.length === 0){
+    topMedContainer.innerHTML = '<div style="font-size:12px; color:var(--text-faint); font-style:italic;">No hay jugadores en la plantilla</div>';
+  } else {
+    const maxMed = parseInt(sortedByMed[0].media) || 99;
+    topMedContainer.innerHTML = sortedByMed.map((p,i)=>{
+      const med = parseInt(p.media)||0;
+      const pct = Math.max(10, Math.round((med / maxMed) * 100));
+      return `
+        <div class="top-player-row">
+          <span class="rank">${i+1}</span>
+          <span style="width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(p.nombre)}</span>
+          <div class="bar-wrap"><div class="bar" style="width:${pct}%"></div></div>
+          <span class="val">${med || '—'}</span>
+        </div>
+      `;
+    }).join('');
+  }
+}
+
+// CERRAR TEMPORADA Y HISTORIAL
+document.getElementById('btn-cerrar-temporada').addEventListener('click', ()=>{
+  const tempNombre = data.club.temporada || 'Temporada sin nombre';
+  if(!confirm(`¿Cerrar la temporada "${tempNombre}"? Se guardará una copia de tus partidos, fichajes, renovaciones, cesiones, líderes y plantilla en el Historial y podrás arrancar la siguiente.`)) return;
+  
+  syncLideresData();
+
+  const archive = {
     id: uid(),
-    temporada: currentTemp,
-    liga: data.club.liga || '',
-    division: data.club.division || '',
-    cerradaEl: new Date().toISOString(),
-    players: JSON.parse(JSON.stringify(data.players)),
+    fechaCierre: new Date().toLocaleDateString('es-AR'),
+    club: Object.assign({}, data.club),
     matches: JSON.parse(JSON.stringify(data.matches)),
     transfers: JSON.parse(JSON.stringify(data.transfers)),
     renewals: JSON.parse(JSON.stringify(data.renewals)),
@@ -2434,182 +2468,111 @@ function closeSeason(){
     topScorers: JSON.parse(JSON.stringify(data.topScorers)),
     topAssists: JSON.parse(JSON.stringify(data.topAssists)),
     topMatches: JSON.parse(JSON.stringify(data.topMatches)),
-    trophies: data.trophies.filter(t => t.temporada === currentTemp).map(t => JSON.parse(JSON.stringify(t))),
-    tactics: JSON.parse(JSON.stringify(data.tactics))
+    players: JSON.parse(JSON.stringify(data.players)),
+    trophies: JSON.parse(JSON.stringify(data.trophies))
   };
 
-  data.seasonHistory = data.seasonHistory.filter(s => s.temporada !== currentTemp);
-  data.seasonHistory.unshift(snapshot);
-
+  data.seasonHistory.push(archive);
   data.matches = [];
   data.transfers = [];
   data.renewals = [];
   data.loans = [];
-  data.topScorers = [];
-  data.topAssists = [];
-  data.topMatches = [];
-  data.club.temporada = nueva.trim();
+
+  const parts = data.club.temporada.split('/');
+  if(parts.length === 2){
+    const a1 = parseInt(parts[0]), a2 = parseInt(parts[1]);
+    if(!isNaN(a1) && !isNaN(a2)) data.club.temporada = `${a1+1}/${a2+1}`;
+  }
 
   saveData();
   renderAll();
-  alert(`Temporada "${currentTemp}" archivada en el Historial. ¡Arrancó la ${data.club.temporada || 'nueva temporada'}!`);
-}
+  alert(`La temporada fue archivada en el Historial. Se avanzó la temporada a ${data.club.temporada}.`);
+});
 
-document.getElementById('btn-cerrar-temporada').addEventListener('click', closeSeason);
+const historialList = document.getElementById('historial-list');
 
 function renderHistorial(){
-  const list = document.getElementById('historial-list');
+  historialList.innerHTML = '';
   document.getElementById('count-historial').textContent = data.seasonHistory.length;
   if(data.seasonHistory.length === 0){
-    list.innerHTML = '<div style="color:var(--text-faint); font-style:italic; font-size:13px;">Todavía no cerraste ninguna temporada. Cuando lo hagas desde el botón "Cerrar temporada" en Resumen, vas a poder consultar acá todo lo que guardaste.</div>';
+    historialList.innerHTML = '<div class="section-block" style="color:var(--text-faint); font-style:italic;">No hay temporadas archivadas todavía. Cerrá la temporada actual desde el Resumen para crear el primer registro.</div>';
     return;
   }
-  list.innerHTML = data.seasonHistory.map(s=>{
-    let v=0,e=0,d=0;
-    s.matches.forEach(m=>{
-      const r = resultOf(m);
-      if(r==='V') v++; else if(r==='E') e++; else if(r==='D') d++;
-    });
-    return `
-      <div class="section-block historial-card" data-id="${s.id}">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-          <div>
-            <h3 style="margin-bottom:2px; border:none; padding:0;">${escapeHtml(s.temporada || 'Temporada')}</h3>
-            <div style="font-size:11px; color:var(--text-dim);">${escapeHtml([s.liga, s.division].filter(Boolean).join(' · ')) || 'Sin datos de liga/división'}</div>
-          </div>
-          <div style="display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
-            <span class="mono" style="font-size:13px;">${s.matches.length} PJ · ${v}-${e}-${d}</span>
-            <span class="mono" style="font-size:13px; color:var(--gold-text);">${s.trophies.length} título${s.trophies.length===1?'':'s'}</span>
-            <button class="action ghost" data-action="ver-historial" data-id="${s.id}">Ver detalle</button>
-            <button class="danger-ghost" data-action="del-historial" data-id="${s.id}">Borrar</button>
-          </div>
+  [...data.seasonHistory].reverse().forEach(h=>{
+    const div = document.createElement('div');
+    div.className = 'section-block historial-card';
+    div.dataset.id = h.id;
+    const titulosTemp = (h.trophies || []).filter(t => t.campeon).length;
+
+    div.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <div>
+          <h3 style="margin-bottom:2px; border:none; padding:0;">${escapeHtml(h.club.nombre || 'Club')} — TEMPORADA ${escapeHtml(h.club.temporada || 'S/N')}</h3>
+          <div style="font-size:11px; color:var(--text-dim);">${escapeHtml(h.club.liga || '')} ${h.club.division ? '· ' + escapeHtml(h.club.division) : ''} · Archivado el ${h.fechaCierre || ''}</div>
+        </div>
+        <div style="display:flex; gap:12px; font-family:'Roboto Mono',monospace; font-size:12px;">
+          <span>Partidos: <strong>${h.matches.length}</strong></span>
+          <span>Fichajes: <strong>${h.transfers.length}</strong></span>
+          <span>Títulos: <strong style="color:var(--gold-text);">${titulosTemp}</strong></span>
+          <button class="action ghost" style="padding:3px 8px; font-size:11px;" data-action="view-historial">Ver detalle</button>
+          <button class="danger-ghost" style="padding:3px 8px; font-size:11px;" data-action="del-historial">Borrar</button>
         </div>
       </div>
     `;
-  }).join('');
+    historialList.appendChild(div);
+  });
 }
 
-document.getElementById('historial-list').addEventListener('click', e=>{
-  const btn = e.target.closest('button');
-  if(btn && btn.dataset.action === 'del-historial'){
-    if(confirm('¿Borrar este historial de temporada? No se puede deshacer.')){
-      data.seasonHistory = data.seasonHistory.filter(s => s.id !== btn.dataset.id);
+historialList.addEventListener('click', e=>{
+  const card = e.target.closest('.historial-card');
+  if(!card) return;
+  const hId = card.dataset.id;
+  const archive = data.seasonHistory.find(h=>h.id === hId);
+  if(!archive) return;
+
+  if(e.target.dataset.action === 'del-historial'){
+    e.stopPropagation();
+    if(confirm('¿Borrar esta temporada del historial permanentemente?')){
+      data.seasonHistory = data.seasonHistory.filter(h=>h.id !== hId);
       saveData();
       renderHistorial();
     }
     return;
   }
-  if(btn && btn.dataset.action === 'ver-historial'){
-    openHistorialDetail(btn.dataset.id);
-    return;
-  }
-  const card = e.target.closest('.historial-card');
-  if(card) openHistorialDetail(card.dataset.id);
+
+  openHistorialDetail(archive);
 });
 
-function openHistorialDetail(id){
-  const s = data.seasonHistory.find(x => x.id === id);
-  if(!s) return;
+function openHistorialDetail(h){
+  document.getElementById('historial-detail-title').textContent = `${h.club.nombre || 'Club'} — Temporada ${h.club.temporada || ''}`;
+  document.getElementById('historial-detail-sub').textContent = `Archivado el ${h.fechaCierre} · Liga: ${h.club.liga || '-'} · División: ${h.club.division || '-'}`;
+  
+  const body = document.getElementById('historial-detail-body');
+  
+  const competicionesHtml = (h.trophies && h.trophies.length)
+    ? h.trophies.map(t=> `<li><strong>${escapeHtml(t.competicion)}:</strong> ${escapeHtml(t.fase)} ${t.campeon ? '🏆 (Campeón)' : ''}</li>`).join('')
+    : '<li style="color:var(--text-faint); font-style:italic;">No se registraron competencias</li>';
 
-  let v=0,e=0,d=0,gf=0,gc=0;
-  s.matches.forEach(m=>{
-    const r = resultOf(m);
-    if(r==='V') v++; else if(r==='E') e++; else if(r==='D') d++;
-    gf += parseInt(m.gf)||0;
-    gc += parseInt(m.gc)||0;
-  });
+  const partidosHtml = (h.matches && h.matches.length)
+    ? h.matches.map(m=>`<tr><td>${escapeHtml(m.jornada)}</td><td>${escapeHtml(m.competicion)}</td><td>${escapeHtml(m.rival)}</td><td class="num">${m.gf}-${m.gc}</td><td>${scorersSummary(m)}</td></tr>`).join('')
+    : '<tr><td colspan="5" style="color:var(--text-faint); font-style:italic;">Sin partidos</td></tr>';
 
-  const matchesHtml = s.matches.length ? s.matches.map(m=>{
-    const r = resultOf(m);
-    const summary = scorersSummary(m);
-    return `<tr>
-      <td class="num">${escapeHtml(m.jornada)}</td>
-      <td>${escapeHtml(m.competicion)}</td>
-      <td>${escapeHtml(m.rival)}</td>
-      <td>${m.local_visitante==='V' ? 'Visitante' : 'Local'}</td>
-      <td class="num">${escapeHtml(m.gf)}-${escapeHtml(m.gc)}</td>
-      <td>${r ? `<span class="badge ${r}">${r}</span>` : '—'}</td>
-      <td>${escapeHtml(summary) || '—'}</td>
-      <td>${escapeHtml(m.fecha)}</td>
-    </tr>`;
-  }).join('') : '<tr class="empty-row"><td colspan="8">Sin partidos registrados esa temporada.</td></tr>';
-
-  const transfersHtml = s.transfers.length ? s.transfers.map(t=>`<tr>
-      <td><span class="badge ${t.tipo==='in'?'in':'out'}">${t.tipo==='in'?'Entrada':'Salida'}</span></td>
-      <td>${escapeHtml(t.nombre || t.jugador || '')}</td>
-      <td>${escapeHtml(t.pos)}</td>
-      <td>${escapeHtml(t.monto)}</td>
-      <td>${escapeHtml(t.club)}</td>
-      <td>${escapeHtml(t.fecha)}</td>
-    </tr>`).join('') : '<tr class="empty-row"><td colspan="6">Sin movimientos de mercado.</td></tr>';
-
-  const renewalsHtml = s.renewals.length ? s.renewals.map(r=>`<tr>
-      <td>${escapeHtml(r.jugador)}</td>
-      <td>${escapeHtml(r.sueldoAnterior)}</td>
-      <td>${escapeHtml(r.sueldoNuevo)}</td>
-      <td>${escapeHtml(r.duracion)}</td>
-      <td>${escapeHtml(r.fecha)}</td>
-    </tr>`).join('') : '<tr class="empty-row"><td colspan="5">Sin renovaciones registradas.</td></tr>';
-
-  const loansHtml = s.loans.length ? s.loans.map(l=>`<tr>
-      <td>${l.tipo==='cedido' ? 'Cedido' : 'A préstamo'}</td>
-      <td>${escapeHtml(l.jugador)}</td>
-      <td>${escapeHtml(l.club)}</td>
-      <td>${escapeHtml(l.duracion)}</td>
-      <td>${escapeHtml(l.fecha)}</td>
-    </tr>`).join('') : '<tr class="empty-row"><td colspan="5">Sin cesiones registradas.</td></tr>';
-
-  const trophiesHtml = s.trophies.length ? s.trophies.map(t=>`
-      <div class="trophy-card"><div class="comp">${escapeHtml(t.competicion)}</div><div class="season">${escapeHtml(t.temporada)}</div></div>
-    `).join('') : '<div style="color:var(--text-faint); font-style:italic; font-size:13px;">Sin títulos esa temporada.</div>';
-
-  const squadHtml = s.players.length ? s.players.map(p=>`<tr>
-      <td>${escapeHtml(p.nombre)}</td>
-      <td>${escapeHtml(p.pos)}</td>
-      <td class="num">${escapeHtml(p.edad)}</td>
-      <td class="num">${escapeHtml(p.media)}</td>
-      <td class="num">${escapeHtml(p.potencial)}</td>
-    </tr>`).join('') : '<tr class="empty-row"><td colspan="5">Sin plantilla guardada para esta temporada.</td></tr>';
-
-  document.getElementById('historial-detail-title').textContent = s.temporada || 'Temporada';
-  document.getElementById('historial-detail-sub').textContent = [s.liga, s.division].filter(Boolean).join(' · ') || 'Sin datos de liga/división';
-  document.getElementById('historial-detail-body').innerHTML = `
-    <div class="stat-grid" style="margin-bottom:18px;">
-      <div class="stat-card"><div class="label">Partidos jugados</div><div class="value">${s.matches.length}</div></div>
-      <div class="stat-card"><div class="label">Récord V-E-D</div><div class="value">${v}-${e}-${d}</div></div>
-      <div class="stat-card"><div class="label">GF / GC</div><div class="value">${gf} / ${gc}</div></div>
-      <div class="stat-card"><div class="label">Títulos</div><div class="value gold">${s.trophies.length}</div></div>
+  body.innerHTML = `
+    <div style="margin-bottom:16px;">
+      <h4 style="font-family:'Oswald',sans-serif; color:var(--gold-text); margin-bottom:6px;">Competencias disputadas</h4>
+      <ul style="padding-left:18px; margin:0; font-size:13px;">${competicionesHtml}</ul>
     </div>
-
-    <div class="section-block"><h3>Títulos de la temporada</h3>
-      <div class="trophy-grid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px;">${trophiesHtml}</div>
-    </div>
-
-    <div class="section-block" style="overflow-x:auto;"><h3>Partidos (${s.matches.length})</h3>
-      <table><thead><tr><th>J</th><th>Comp.</th><th>Rival</th><th>Cond.</th><th>Resultado</th><th>R</th><th>Goleadores</th><th>Fecha</th></tr></thead>
-      <tbody>${matchesHtml}</tbody></table>
-    </div>
-
-    <div class="section-block" style="overflow-x:auto;"><h3>Fichajes (${s.transfers.length})</h3>
-      <table><thead><tr><th>Tipo</th><th>Jugador</th><th>Pos</th><th>Monto</th><th>Club</th><th>Fecha</th></tr></thead>
-      <tbody>${transfersHtml}</tbody></table>
-    </div>
-
-    <div class="section-block" style="overflow-x:auto;"><h3>Renovaciones (${s.renewals.length})</h3>
-      <table><thead><tr><th>Jugador</th><th>Sueldo ant.</th><th>Sueldo nuevo</th><th>Duración</th><th>Fecha</th></tr></thead>
-      <tbody>${renewalsHtml}</tbody></table>
-    </div>
-
-    <div class="section-block" style="overflow-x:auto;"><h3>Cesiones (${s.loans.length})</h3>
-      <table><thead><tr><th>Tipo</th><th>Jugador</th><th>Club</th><th>Duración</th><th>Fecha</th></tr></thead>
-      <tbody>${loansHtml}</tbody></table>
-    </div>
-
-    <div class="section-block" style="overflow-x:auto;"><h3>Plantilla al cierre (${s.players.length})</h3>
-      <table><thead><tr><th>Jugador</th><th>Pos</th><th>Edad</th><th>Media</th><th>Potencial</th></tr></thead>
-      <tbody>${squadHtml}</tbody></table>
+    <div>
+      <h4 style="font-family:'Oswald',sans-serif; color:var(--gold-text); margin-bottom:6px;">Partidos disputados (${h.matches.length})</h4>
+      <div style="max-height:220px; overflow-y:auto; background:var(--surface-2); border:1px solid var(--border); border-radius:6px;">
+        <table>
+          <thead><tr><th>Jornada</th><th>Competición</th><th>Rival</th><th>Score</th><th>Goleadores</th></tr></thead>
+          <tbody>${partidosHtml}</tbody>
+        </table>
+      </div>
     </div>
   `;
+
   document.getElementById('historial-detail-modal').classList.add('open');
 }
 
@@ -2617,154 +2580,79 @@ document.getElementById('historial-detail-close').addEventListener('click', ()=>
   document.getElementById('historial-detail-modal').classList.remove('open');
 });
 
-function renderResumen(){
-  const total = data.matches.length;
-  let v=0,e=0,d=0,gf=0,gc=0;
-  data.matches.forEach(m=>{
-    const r = resultOf(m);
-    if(r==='V') v++; else if(r==='E') e++; else if(r==='D') d++;
-    gf += parseInt(m.gf)||0;
-    gc += parseInt(m.gc)||0;
-  });
-  const dif = gf-gc;
-
-  let gastoIn=0, ingresoOut=0;
-  data.transfers.forEach(t=>{
-    const monto = parseFloat(String(t.monto).replace(/[^\d.-]/g,'')) || 0;
-    if(t.tipo === 'in') gastoIn += monto; else ingresoOut += monto;
-  });
-  const balance = ingresoOut - gastoIn;
-
-  const avgMedia = data.players.length ? Math.round(data.players.reduce((s,p)=>s+(parseInt(p.media)||0),0)/data.players.length) : 0;
-
-  const statGrid = document.getElementById('stat-grid');
-  statGrid.innerHTML = `
-    <div class="stat-card"><div class="label">Partidos jugados</div><div class="value">${total}</div></div>
-    <div class="stat-card"><div class="label">Récord V-E-D</div><div class="value">${v}-${e}-${d}</div></div>
-    <div class="stat-card"><div class="label">Goles a favor</div><div class="value win">${gf}</div></div>
-    <div class="stat-card"><div class="label">Goles en contra</div><div class="value loss">${gc}</div></div>
-    <div class="stat-card"><div class="label">Diferencia de gol</div><div class="value ${dif>=0?'win':'loss'}">${dif>=0?'+':''}${dif}</div></div>
-    <div class="stat-card"><div class="label">Jugadores en plantilla</div><div class="value gold">${data.players.length}</div></div>
-    <div class="stat-card"><div class="label">Media de plantilla</div><div class="value gold">${avgMedia||'—'}</div></div>
-    <div class="stat-card"><div class="label">Títulos ganados</div><div class="value gold">${data.trophies.length}</div></div>
-    <div class="stat-card"><div class="label">Balance de mercado</div><div class="value ${balance>=0?'win':'loss'}">${balance>=0?'+':''}${balance.toLocaleString('es-AR')}</div></div>
-  `;
-
-  const last5 = data.matches.slice(-5).map(resultOf).filter(Boolean);
-  const ticker = document.getElementById('form-ticker');
-  ticker.innerHTML = last5.length
-    ? last5.map(r=>`<span class="form-dot ${r}">${r}</span>`).join('')
-    : '<span style="font-size:12px; color:var(--text-faint);">Sin partidos aún</span>';
-
-  renderTopList('top-potencial', 'potencial');
-  renderTopList('top-media', 'media');
-}
-
-function renderTopList(containerId, field){
-  const container = document.getElementById(containerId);
-  const sorted = [...data.players]
-    .filter(p=>p.nombre && !isNaN(parseInt(p[field])))
-    .sort((a,b)=>(parseInt(b[field])||0)-(parseInt(a[field])||0))
-    .slice(0,5);
-  if(sorted.length === 0){
-    container.innerHTML = '<div style="color:var(--text-faint); font-style:italic; font-size:13px;">Cargá jugadores con media y potencial para verlos acá.</div>';
-    return;
-  }
-  const max = parseInt(sorted[0][field]) || 1;
-  container.innerHTML = sorted.map((p,i)=>{
-    const val = parseInt(p[field]) || 0;
-    const pct = Math.max(6, Math.round((val/max)*100));
-    return `
-      <div class="top-player-row">
-        <span class="rank">${i+1}</span>
-        <span style="width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(p.nombre)}</span>
-        <span class="bar-wrap"><span class="bar" style="width:${pct}%"></span></span>
-        <span class="val">${val}</span>
-      </div>
-    `;
-  }).join('');
-}
-
-function exportCurrentCareer(){
-  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
+// EXPORT / IMPORT
+function exportBackup(){
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
   const a = document.createElement('a');
-  const nombreArchivo = (data.club.nombre || 'carrera_fc26').replace(/\s+/g,'_').toLowerCase();
-  a.href = url;
-  a.download = `${nombreArchivo}_backup.json`;
+  a.href = URL.createObjectURL(blob);
+  const clubSafe = (data.club.nombre || 'carrera').toLowerCase().replace(/[^a-z0-9]/g, '_');
+  a.download = `cuaderno_carrera_${clubSafe}_${new Date().toISOString().slice(0,10)}.json`;
   a.click();
-  URL.revokeObjectURL(url);
 }
 
-function importBackupIntoCurrentCareer(file){
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    try{
-      const parsed = JSON.parse(reader.result);
-      if(!confirm('Esto va a reemplazar todos los datos actuales por los del archivo. ¿Continuar?')) return;
-      data = normalizeData(parsed);
-      saveData();
-      renderAll();
-    }catch(err){
-      alert('El archivo no es un backup válido.');
-    }
-  };
-  reader.readAsText(file);
+function triggerImport(fileInput){
+  fileInput.click();
 }
 
-function resetCurrentCareer(){
-  if(confirm('Esto borra TODOS los datos guardados de esta carrera. No se puede deshacer. ¿Seguro?')){
+function setupFileInput(fileInput){
+  fileInput.addEventListener('change', ()=>{
+    const file = fileInput.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try{
+        const parsed = JSON.parse(reader.result);
+        data = normalizeData(parsed);
+        saveData();
+        renderAll();
+        alert('Datos importados con éxito.');
+      }catch(err){
+        alert('El archivo no es un JSON válido de Cuaderno de Carrera.');
+      }
+    };
+    reader.readAsText(file);
+    fileInput.value = '';
+  });
+}
+
+const fileImport = document.getElementById('file-import');
+const mobileFileImport = document.getElementById('mobile-file-import');
+setupFileInput(fileImport);
+setupFileInput(mobileFileImport);
+
+document.getElementById('btn-export').addEventListener('click', exportBackup);
+document.getElementById('btn-import').addEventListener('click', ()=> triggerImport(fileImport));
+
+document.getElementById('btn-reset').addEventListener('click', ()=>{
+  if(confirm('¿Seguro que querés BORRAR TODOS LOS DATOS de esta carrera? Esta acción no se puede deshacer.')){
     data = defaultData();
     saveData();
     renderAll();
   }
-}
-
-document.getElementById('btn-export').addEventListener('click', exportCurrentCareer);
-
-const fileImport = document.getElementById('file-import');
-document.getElementById('btn-import').addEventListener('click', ()=> fileImport.click());
-fileImport.addEventListener('change', ()=>{
-  importBackupIntoCurrentCareer(fileImport.files[0]);
-  fileImport.value = '';
 });
 
-document.getElementById('btn-reset').addEventListener('click', resetCurrentCareer);
-
-// --- Accesos rápidos para mobile (botón flotante ⚙, ya que el pie del menú lateral se oculta en pantallas chicas) ---
+// Mobile tools modal
 const mobileToolsModal = document.getElementById('mobile-tools-modal');
-document.getElementById('mobile-tools-btn').addEventListener('click', ()=>{
-  mobileToolsModal.classList.add('open');
-});
-document.getElementById('mt-close').addEventListener('click', ()=>{
-  mobileToolsModal.classList.remove('open');
-});
+document.getElementById('mobile-tools-btn').addEventListener('click', ()=> mobileToolsModal.classList.add('open'));
+document.getElementById('mt-close').addEventListener('click', ()=> mobileToolsModal.classList.remove('open'));
+document.getElementById('mt-export').addEventListener('click', ()=>{ exportBackup(); mobileToolsModal.classList.remove('open'); });
+document.getElementById('mt-import').addEventListener('click', ()=>{ triggerImport(mobileFileImport); mobileToolsModal.classList.remove('open'); });
 document.getElementById('mt-switch-career').addEventListener('click', ()=>{
   mobileToolsModal.classList.remove('open');
   renderLauncherList();
   document.getElementById('launcher-overlay').classList.add('open');
 });
-document.getElementById('mt-export').addEventListener('click', ()=>{
-  mobileToolsModal.classList.remove('open');
-  exportCurrentCareer();
-});
-const mobileFileImport = document.getElementById('mobile-file-import');
-document.getElementById('mt-import').addEventListener('click', ()=>{
-  mobileFileImport.click();
-});
-mobileFileImport.addEventListener('change', ()=>{
-  mobileToolsModal.classList.remove('open');
-  importBackupIntoCurrentCareer(mobileFileImport.files[0]);
-  mobileFileImport.value = '';
-});
 document.getElementById('mt-reset').addEventListener('click', ()=>{
-  mobileToolsModal.classList.remove('open');
-  resetCurrentCareer();
+  if(confirm('¿Seguro que querés BORRAR TODOS LOS DATOS de esta carrera?')){
+    data = defaultData();
+    saveData();
+    renderAll();
+    mobileToolsModal.classList.remove('open');
+  }
 });
 
 function renderAll(){
-  fillClubForm();
+  renderResumen();
   renderPlantilla();
   renderInferiores();
   renderPartidos();
@@ -2773,14 +2661,24 @@ function renderAll(){
   renderCesiones();
   renderLideres();
   renderTitulos();
-  renderResumen();
-  renderTactica();
   renderHistorial();
 }
 
+// Inicialización
 migrateLegacyCareerIfNeeded();
-renderLauncherList();
-document.getElementById('launcher-overlay').classList.add('open');
+
+const idx = loadCareersIndex();
+const lastActiveId = localStorage.getItem(ACTIVE_CAREER_KEY);
+
+if(idx.length === 0){
+  renderLauncherList();
+  document.getElementById('launcher-overlay').classList.add('open');
+} else if(lastActiveId && idx.some(c=>c.id === lastActiveId)){
+  startCareer(lastActiveId);
+} else {
+  renderLauncherList();
+  document.getElementById('launcher-overlay').classList.add('open');
+}
 
 })();
 </script>
