@@ -152,6 +152,10 @@
   span.cell-edit[contenteditable="true"]{ display:inline-block; min-width:20px; }
   span.cell-edit[contenteditable="true"]:focus{ outline:1px solid var(--gold-dim); background:var(--surface-3); }
   td.num{ text-align:center; font-family:'Roboto Mono',monospace; }
+  th.sortable{ cursor:pointer; user-select:none; }
+  th.sortable:hover{ color:var(--gold-text); }
+  th.sortable.sorted{ color:var(--gold-text); }
+  .sort-arrow{ font-size:9px; margin-left:2px; display:inline-block; width:8px; }
   .empty-row td{ text-align:center; color:var(--text-faint); padding:20px; font-style:italic; }
 
   .badge{ display:inline-block; padding:2px 9px; border-radius:20px; font-size:11px; font-weight:600; font-family:'Oswald',sans-serif; letter-spacing:0.03em; }
@@ -583,44 +587,22 @@
 
   <section class="tab" id="tab-lideres">
     <h1 class="panel-title">Líderes y Estadísticas de Plantilla</h1>
-    <div class="panel-sub">Sincronizado automáticamente con los jugadores de plantilla. Edita las celdas para reordenar dinámicamente.</div>
-    
-    <div class="field-row" style="align-items:flex-start;">
-      <div class="section-block" style="flex:1; min-width:300px; overflow-x:auto;">
-        <h3>Máximos Goleadores</h3>
-        <table id="table-top-scorers">
-          <thead>
-            <tr>
-              <th>N°</th><th>Jugador</th><th>Goles</th><th>PJ</th><th>Años</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
+    <div class="panel-sub">Sincronizado automáticamente con los jugadores de plantilla. Tocá un encabezado para ordenar (y de nuevo para invertir el orden); editá las celdas para cargar los datos.</div>
 
-      <div class="section-block" style="flex:1; min-width:300px; overflow-x:auto;">
-        <h3>Máximos Asistidores</h3>
-        <table id="table-top-assists">
-          <thead>
-            <tr>
-              <th>N°</th><th>Jugador</th><th>Asistencias</th><th>PJ</th><th>Años</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-
-      <div class="section-block" style="flex:1; min-width:300px; overflow-x:auto;">
-        <h3>Más Partidos Jugados</h3>
-        <table id="table-top-matches">
-          <thead>
-            <tr>
-              <th>N°</th><th>Jugador</th><th>Partidos</th><th>Goles</th><th>Asist.</th><th>Años</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
+    <div class="section-block" style="overflow-x:auto;">
+      <table id="table-lideres">
+        <thead>
+          <tr>
+            <th>N°</th>
+            <th>Jugador</th>
+            <th class="sortable" data-sort="partidos">Partidos <span class="sort-arrow"></span></th>
+            <th class="sortable" data-sort="goles">Goles <span class="sort-arrow"></span></th>
+            <th class="sortable" data-sort="asistencias">Asistencias <span class="sort-arrow"></span></th>
+            <th>Años</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
   </section>
 
@@ -867,6 +849,7 @@ function defaultData(){
     topScorers: [],
     topAssists: [],
     topMatches: [],
+    leaders: [],
     trophies: [],
     tactics: { formacion:'4-4-2', porFormacion:{}, presets:[] },
     seasonHistory: []
@@ -902,6 +885,41 @@ function normalizeData(parsed){
   merged.topScorers = Array.isArray(parsed.topScorers) ? parsed.topScorers : [];
   merged.topAssists = Array.isArray(parsed.topAssists) ? parsed.topAssists : [];
   merged.topMatches = Array.isArray(parsed.topMatches) ? parsed.topMatches : [];
+
+  // Unificar las listas viejas de líderes (goleadores/asistidores/partidos por separado) en una sola tabla
+  if(Array.isArray(parsed.leaders)){
+    merged.leaders = parsed.leaders;
+  } else {
+    const map = {};
+    function ensureLeader(playerId, nombre){
+      if(!playerId) return null;
+      if(!map[playerId]) map[playerId] = { id: uid(), playerId, nombre: nombre || '', partidos:0, goles:0, asistencias:0, anos:'' };
+      return map[playerId];
+    }
+    (merged.topScorers || []).forEach(s=>{
+      const e = ensureLeader(s.playerId, s.nombre);
+      if(!e) return;
+      if(!e.goles && parseInt(s.val1)) e.goles = s.val1;
+      if(!e.partidos && parseInt(s.val2)) e.partidos = s.val2;
+      if(!e.anos && s.anos) e.anos = s.anos;
+    });
+    (merged.topAssists || []).forEach(a=>{
+      const e = ensureLeader(a.playerId, a.nombre);
+      if(!e) return;
+      if(!e.asistencias && parseInt(a.val1)) e.asistencias = a.val1;
+      if(!e.partidos && parseInt(a.val2)) e.partidos = a.val2;
+      if(!e.anos && a.anos) e.anos = a.anos;
+    });
+    (merged.topMatches || []).forEach(m=>{
+      const e = ensureLeader(m.playerId, m.nombre);
+      if(!e) return;
+      if(!e.partidos && parseInt(m.val1)) e.partidos = m.val1;
+      if(!e.goles && parseInt(m.val2)) e.goles = m.val2;
+      if(!e.asistencias && parseInt(m.val3)) e.asistencias = m.val3;
+      if(!e.anos && m.anos) e.anos = m.anos;
+    });
+    merged.leaders = Object.values(map);
+  }
   merged.tactics = Object.assign({ formacion:'4-4-2', porFormacion:{}, presets:[] }, parsed.tactics || {});
   merged.seasonHistory = Array.isArray(parsed.seasonHistory) ? parsed.seasonHistory : [];
   
@@ -2198,73 +2216,80 @@ function syncLideresData(){
     playerMap[p.id] = p.nombre;
   });
 
-  ['topScorers', 'topAssists', 'topMatches'].forEach(key => {
-    data[key] = data[key].filter(item => playerMap[item.playerId]);
-    data.players.forEach(p => {
-      let existing = data[key].find(item => item.playerId === p.id);
-      if(!existing){
-        existing = { id: uid(), playerId: p.id, nombre: p.nombre, val1: 0, val2: 0, val3: 0, anos: '' };
-        data[key].push(existing);
-      } else {
-        existing.nombre = p.nombre;
-      }
-    });
+  data.leaders = data.leaders.filter(item => playerMap[item.playerId]);
+  data.players.forEach(p => {
+    let existing = data.leaders.find(item => item.playerId === p.id);
+    if(!existing){
+      existing = { id: uid(), playerId: p.id, nombre: p.nombre, partidos: 0, goles: 0, asistencias: 0, anos: '' };
+      data.leaders.push(existing);
+    } else {
+      existing.nombre = p.nombre;
+    }
   });
 }
+
+let lideresSortField = 'goles';
+let lideresSortDir = 'desc';
 
 function renderLideres(){
   syncLideresData();
 
-  // Sort lists
-  data.topScorers.sort((a,b) => (parseInt(b.val1)||0) - (parseInt(a.val1)||0));
-  data.topAssists.sort((a,b) => (parseInt(b.val1)||0) - (parseInt(a.val1)||0));
-  data.topMatches.sort((a,b) => (parseInt(b.val1)||0) - (parseInt(a.val1)||0));
+  const sorted = [...data.leaders].sort((a,b)=>{
+    const av = parseInt(a[lideresSortField]) || 0;
+    const bv = parseInt(b[lideresSortField]) || 0;
+    return lideresSortDir === 'desc' ? bv - av : av - bv;
+  });
 
-  renderLideresTable('table-top-scorers', data.topScorers, ['val1', 'val2', 'anos'], ['Goles', 'PJ', 'Años']);
-  renderLideresTable('table-top-assists', data.topAssists, ['val1', 'val2', 'anos'], ['Asistencias', 'PJ', 'Años']);
-  renderLideresTable('table-top-matches', data.topMatches, ['val1', 'val2', 'val3', 'anos'], ['Partidos', 'Goles', 'Asist.', 'Años']);
-}
-
-function renderLideresTable(tableId, list, fields, headers){
-  const tbody = document.querySelector(`#${tableId} tbody`);
+  const tbody = document.querySelector('#table-lideres tbody');
   tbody.innerHTML = '';
-  if(list.length === 0){
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="${fields.length + 2}">No hay datos en la plantilla.</td></tr>`;
-    return;
-  }
-  list.forEach((item, index) => {
-    const tr = document.createElement('tr');
-    tr.dataset.id = item.id;
-    let fieldsHtml = '';
-    fields.forEach(f => {
-      fieldsHtml += `<td contenteditable="true" data-field="${f}" class="num">${escapeHtml(item[f] || 0)}</td>`;
+  if(sorted.length === 0){
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="6">No hay jugadores en la plantilla.</td></tr>';
+  } else {
+    sorted.forEach((item, index) => {
+      const tr = document.createElement('tr');
+      tr.dataset.id = item.id;
+      tr.innerHTML = `
+        <td class="num">${index + 1}</td>
+        <td><strong>${escapeHtml(item.nombre)}</strong></td>
+        <td contenteditable="true" data-field="partidos" class="num">${escapeHtml(item.partidos || 0)}</td>
+        <td contenteditable="true" data-field="goles" class="num">${escapeHtml(item.goles || 0)}</td>
+        <td contenteditable="true" data-field="asistencias" class="num">${escapeHtml(item.asistencias || 0)}</td>
+        <td contenteditable="true" data-field="anos">${escapeHtml(item.anos || '')}</td>
+      `;
+      tbody.appendChild(tr);
     });
-    tr.innerHTML = `
-      <td class="num">${index + 1}</td>
-      <td><strong>${escapeHtml(item.nombre)}</strong></td>
-      ${fieldsHtml}
-    `;
-    tbody.appendChild(tr);
+  }
+
+  document.querySelectorAll('#table-lideres thead th.sortable').forEach(th=>{
+    const active = th.dataset.sort === lideresSortField;
+    th.classList.toggle('sorted', active);
+    const arrow = th.querySelector('.sort-arrow');
+    if(arrow) arrow.textContent = active ? (lideresSortDir === 'desc' ? '▼' : '▲') : '';
   });
 }
 
-['table-top-scorers', 'table-top-assists', 'table-top-matches'].forEach(tableId => {
-  const tbody = document.querySelector(`#${tableId} tbody`);
-  tbody.addEventListener('input', e => {
-    const td = e.target.closest('td[contenteditable]');
-    if(!td) return;
-    const tr = td.closest('tr');
-    let key = '';
-    if(tableId === 'table-top-scorers') key = 'topScorers';
-    if(tableId === 'table-top-assists') key = 'topAssists';
-    if(tableId === 'table-top-matches') key = 'topMatches';
+document.querySelector('#table-lideres thead').addEventListener('click', e=>{
+  const th = e.target.closest('th.sortable');
+  if(!th) return;
+  const field = th.dataset.sort;
+  if(lideresSortField === field){
+    lideresSortDir = lideresSortDir === 'desc' ? 'asc' : 'desc';
+  } else {
+    lideresSortField = field;
+    lideresSortDir = 'desc';
+  }
+  renderLideres();
+});
 
-    const item = data[key].find(i => i.id === tr.dataset.id);
-    if(item){
-      item[td.dataset.field] = td.textContent.trim();
-      saveData();
-    }
-  });
+document.querySelector('#table-lideres tbody').addEventListener('input', e => {
+  const td = e.target.closest('td[contenteditable]');
+  if(!td) return;
+  const tr = td.closest('tr');
+  const item = data.leaders.find(i => i.id === tr.dataset.id);
+  if(item){
+    item[td.dataset.field] = td.textContent.trim();
+    saveData();
+  }
 });
 
 // TABLA DE COMPETENCIAS Y TÍTULOS
@@ -2465,9 +2490,7 @@ document.getElementById('btn-cerrar-temporada').addEventListener('click', ()=>{
     transfers: JSON.parse(JSON.stringify(data.transfers)),
     renewals: JSON.parse(JSON.stringify(data.renewals)),
     loans: JSON.parse(JSON.stringify(data.loans)),
-    topScorers: JSON.parse(JSON.stringify(data.topScorers)),
-    topAssists: JSON.parse(JSON.stringify(data.topAssists)),
-    topMatches: JSON.parse(JSON.stringify(data.topMatches)),
+    leaders: JSON.parse(JSON.stringify(data.leaders)),
     players: JSON.parse(JSON.stringify(data.players)),
     trophies: JSON.parse(JSON.stringify(data.trophies))
   };
