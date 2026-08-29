@@ -587,10 +587,28 @@
 
   <section class="tab" id="tab-lideres">
     <h1 class="panel-title">Líderes y Estadísticas de Plantilla</h1>
-    <div class="panel-sub">Sincronizado automáticamente con los jugadores de plantilla. Tocá un encabezado para ordenar (y de nuevo para invertir el orden); editá las celdas para cargar los datos.</div>
+    <div class="panel-sub">"Temporada Actual" se sincroniza con la plantilla y se reinicia al cerrar la temporada. "General" acumula los totales de toda la carrera del club, temporada tras temporada. Tocá un encabezado para ordenar (y de nuevo para invertir el orden); editá las celdas de Temporada Actual para cargar los datos.</div>
 
     <div class="section-block" style="overflow-x:auto;">
+      <h3>Temporada Actual</h3>
       <table id="table-lideres">
+        <thead>
+          <tr>
+            <th>N°</th>
+            <th>Jugador</th>
+            <th class="sortable" data-sort="partidos">Partidos <span class="sort-arrow"></span></th>
+            <th class="sortable" data-sort="goles">Goles <span class="sort-arrow"></span></th>
+            <th class="sortable" data-sort="asistencias">Asistencias <span class="sort-arrow"></span></th>
+            <th>Años</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="section-block" style="overflow-x:auto;">
+      <h3>General (histórico del club)</h3>
+      <table id="table-lideres-general">
         <thead>
           <tr>
             <th>N°</th>
@@ -850,6 +868,7 @@ function defaultData(){
     topAssists: [],
     topMatches: [],
     leaders: [],
+    leadersGeneral: [],
     trophies: [],
     tactics: { formacion:'4-4-2', porFormacion:{}, presets:[] },
     seasonHistory: []
@@ -920,6 +939,7 @@ function normalizeData(parsed){
     });
     merged.leaders = Object.values(map);
   }
+  merged.leadersGeneral = Array.isArray(parsed.leadersGeneral) ? parsed.leadersGeneral : [];
   merged.tactics = Object.assign({ formacion:'4-4-2', porFormacion:{}, presets:[] }, parsed.tactics || {});
   merged.seasonHistory = Array.isArray(parsed.seasonHistory) ? parsed.seasonHistory : [];
   
@@ -2228,44 +2248,79 @@ function syncLideresData(){
   });
 }
 
+// Combina los totales acumulados de temporadas ya cerradas (leadersGeneral) con lo que
+// lleva jugado en la temporada en curso (leaders), para mostrar el histórico completo del club.
+function computeLeadersGeneral(){
+  const map = {};
+  data.leadersGeneral.forEach(g=>{
+    map[g.playerId] = {
+      id: g.id || uid(),
+      playerId: g.playerId,
+      nombre: g.nombre,
+      partidos: parseInt(g.partidos) || 0,
+      goles: parseInt(g.goles) || 0,
+      asistencias: parseInt(g.asistencias) || 0,
+      anos: g.anos || ''
+    };
+  });
+  data.leaders.forEach(l=>{
+    if(!map[l.playerId]){
+      map[l.playerId] = { id: uid(), playerId: l.playerId, nombre: l.nombre, partidos:0, goles:0, asistencias:0, anos:'' };
+    }
+    const e = map[l.playerId];
+    e.nombre = l.nombre;
+    e.partidos += parseInt(l.partidos) || 0;
+    e.goles += parseInt(l.goles) || 0;
+    e.asistencias += parseInt(l.asistencias) || 0;
+  });
+  return Object.values(map);
+}
+
 let lideresSortField = 'goles';
 let lideresSortDir = 'desc';
+let generalSortField = 'goles';
+let generalSortDir = 'desc';
 
-function renderLideres(){
-  syncLideresData();
-
-  const sorted = [...data.leaders].sort((a,b)=>{
-    const av = parseInt(a[lideresSortField]) || 0;
-    const bv = parseInt(b[lideresSortField]) || 0;
-    return lideresSortDir === 'desc' ? bv - av : av - bv;
+function renderSortedLeadersTable(tableId, list, sortField, sortDir, editable){
+  const sorted = [...list].sort((a,b)=>{
+    const av = parseInt(a[sortField]) || 0;
+    const bv = parseInt(b[sortField]) || 0;
+    return sortDir === 'desc' ? bv - av : av - bv;
   });
 
-  const tbody = document.querySelector('#table-lideres tbody');
+  const tbody = document.querySelector(`#${tableId} tbody`);
   tbody.innerHTML = '';
   if(sorted.length === 0){
-    tbody.innerHTML = '<tr class="empty-row"><td colspan="6">No hay jugadores en la plantilla.</td></tr>';
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="6">No hay datos todavía.</td></tr>';
   } else {
     sorted.forEach((item, index) => {
       const tr = document.createElement('tr');
       tr.dataset.id = item.id;
+      const ed = editable ? 'contenteditable="true"' : '';
       tr.innerHTML = `
         <td class="num">${index + 1}</td>
         <td><strong>${escapeHtml(item.nombre)}</strong></td>
-        <td contenteditable="true" data-field="partidos" class="num">${escapeHtml(item.partidos || 0)}</td>
-        <td contenteditable="true" data-field="goles" class="num">${escapeHtml(item.goles || 0)}</td>
-        <td contenteditable="true" data-field="asistencias" class="num">${escapeHtml(item.asistencias || 0)}</td>
-        <td contenteditable="true" data-field="anos">${escapeHtml(item.anos || '')}</td>
+        <td ${ed} data-field="partidos" class="num">${escapeHtml(item.partidos || 0)}</td>
+        <td ${ed} data-field="goles" class="num">${escapeHtml(item.goles || 0)}</td>
+        <td ${ed} data-field="asistencias" class="num">${escapeHtml(item.asistencias || 0)}</td>
+        <td ${ed} data-field="anos">${escapeHtml(item.anos || '')}</td>
       `;
       tbody.appendChild(tr);
     });
   }
 
-  document.querySelectorAll('#table-lideres thead th.sortable').forEach(th=>{
-    const active = th.dataset.sort === lideresSortField;
+  document.querySelectorAll(`#${tableId} thead th.sortable`).forEach(th=>{
+    const active = th.dataset.sort === sortField;
     th.classList.toggle('sorted', active);
     const arrow = th.querySelector('.sort-arrow');
-    if(arrow) arrow.textContent = active ? (lideresSortDir === 'desc' ? '▼' : '▲') : '';
+    if(arrow) arrow.textContent = active ? (sortDir === 'desc' ? '▼' : '▲') : '';
   });
+}
+
+function renderLideres(){
+  syncLideresData();
+  renderSortedLeadersTable('table-lideres', data.leaders, lideresSortField, lideresSortDir, true);
+  renderSortedLeadersTable('table-lideres-general', computeLeadersGeneral(), generalSortField, generalSortDir, false);
 }
 
 document.querySelector('#table-lideres thead').addEventListener('click', e=>{
@@ -2281,6 +2336,19 @@ document.querySelector('#table-lideres thead').addEventListener('click', e=>{
   renderLideres();
 });
 
+document.querySelector('#table-lideres-general thead').addEventListener('click', e=>{
+  const th = e.target.closest('th.sortable');
+  if(!th) return;
+  const field = th.dataset.sort;
+  if(generalSortField === field){
+    generalSortDir = generalSortDir === 'desc' ? 'asc' : 'desc';
+  } else {
+    generalSortField = field;
+    generalSortDir = 'desc';
+  }
+  renderLideres();
+});
+
 document.querySelector('#table-lideres tbody').addEventListener('input', e => {
   const td = e.target.closest('td[contenteditable]');
   if(!td) return;
@@ -2289,6 +2357,8 @@ document.querySelector('#table-lideres tbody').addEventListener('input', e => {
   if(item){
     item[td.dataset.field] = td.textContent.trim();
     saveData();
+    // Refresca la tabla General en vivo (solo lectura, no molesta al que está tipeando en Temporada Actual)
+    renderSortedLeadersTable('table-lideres-general', computeLeadersGeneral(), generalSortField, generalSortDir, false);
   }
 });
 
@@ -2496,6 +2566,27 @@ document.getElementById('btn-cerrar-temporada').addEventListener('click', ()=>{
   };
 
   data.seasonHistory.push(archive);
+
+  // Acumular lo jugado esta temporada en el histórico general del club, antes de resetear
+  const generalMap = {};
+  data.leadersGeneral.forEach(g=>{ generalMap[g.playerId] = g; });
+  data.leaders.forEach(l=>{
+    let g = generalMap[l.playerId];
+    if(!g){
+      g = { id: uid(), playerId: l.playerId, nombre: l.nombre, partidos: 0, goles: 0, asistencias: 0, anos: '' };
+      generalMap[l.playerId] = g;
+      data.leadersGeneral.push(g);
+    }
+    g.nombre = l.nombre;
+    g.partidos = (parseInt(g.partidos) || 0) + (parseInt(l.partidos) || 0);
+    g.goles = (parseInt(g.goles) || 0) + (parseInt(l.goles) || 0);
+    g.asistencias = (parseInt(g.asistencias) || 0) + (parseInt(l.asistencias) || 0);
+    if(tempNombre && !(g.anos || '').includes(tempNombre)){
+      g.anos = g.anos ? `${g.anos}, ${tempNombre}` : tempNombre;
+    }
+  });
+  data.leaders = [];
+
   data.matches = [];
   data.transfers = [];
   data.renewals = [];
