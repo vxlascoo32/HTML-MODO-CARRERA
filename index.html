@@ -149,6 +149,8 @@
   tbody tr:hover{ background:var(--surface-2); }
   td[contenteditable="true"]{ cursor:text; border-radius:4px; }
   td[contenteditable="true"]:focus{ outline:1px solid var(--gold-dim); background:var(--surface-3); }
+  span.cell-edit[contenteditable="true"]{ display:inline-block; min-width:20px; }
+  span.cell-edit[contenteditable="true"]:focus{ outline:1px solid var(--gold-dim); background:var(--surface-3); }
   td.num{ text-align:center; font-family:'Roboto Mono',monospace; }
   .empty-row td{ text-align:center; color:var(--text-faint); padding:20px; font-style:italic; }
 
@@ -158,6 +160,11 @@
   .badge.D{ background:var(--loss-bg); color:var(--loss); }
   .badge.in{ background:var(--blue-in-bg); color:var(--blue-in); }
   .badge.out{ background:var(--red-out-bg); color:var(--red-out); }
+  .badge.loan-out{ background:var(--draw-bg); color:var(--draw); }
+  .badge.loan-in{ background:rgba(95,168,211,0.12); color:var(--blue-in); }
+  .player-loan-tag{ display:block; font-size:10px; font-weight:600; margin-top:3px; letter-spacing:0.02em; }
+  .player-loan-tag.saliente{ color:var(--draw); }
+  .player-loan-tag.entrante{ color:var(--blue-in); }
 
   select.pill{ background:var(--surface-3); border:1px solid var(--border); border-radius:20px; font-size:11px; padding:3px 8px; font-family:'Oswald',sans-serif; color:var(--text); }
 
@@ -273,6 +280,14 @@
 
   select.pos-select{ background:var(--surface-2); border:1px solid var(--border); color:var(--text); padding:4px 6px; border-radius:4px; font-size:12px; width:100%; }
 
+  #mobile-tools-btn{
+    display:none; position:fixed; bottom:18px; right:18px; width:52px; height:52px; border-radius:50%;
+    background:var(--gold); color:#1a1207; font-size:22px; align-items:center; justify-content:center;
+    box-shadow:0 4px 14px rgba(0,0,0,0.45); z-index:200; border:none; cursor:pointer;
+  }
+  .mobile-tools-list{ display:flex; flex-direction:column; gap:10px; margin-bottom:6px; }
+  .mobile-tools-list button{ width:100%; text-align:center; }
+
   @media (max-width:800px){
     body{ flex-direction:column; }
     #sidebar{ position:relative; width:100%; height:auto; flex:none; flex-direction:row; align-items:center; overflow-x:auto; }
@@ -280,10 +295,12 @@
     #club-name-display,#club-season-display{ display:none; }
     nav{ flex-direction:row; margin-top:0; }
     #sidebar-foot{ display:none; }
-    #main{ padding:18px; }
+    #main{ padding:18px; padding-bottom:90px; }
     .pitch{ max-width:100%; }
     .slot{ width:90px; }
     .slot select{ font-size:10px; }
+    #mobile-tools-btn{ display:flex; }
+    .launcher-box{ padding:22px 18px; }
   }
 </style>
 </head>
@@ -339,6 +356,25 @@
   </div>
 </aside>
 
+<button id="mobile-tools-btn" aria-label="Herramientas">⚙</button>
+
+<div class="modal-overlay" id="mobile-tools-modal">
+  <div class="modal-card" style="max-width:360px;">
+    <h3>Herramientas</h3>
+    <div class="modal-sub">Cambiá de carrera o hacé un backup de esta, sin salir de la vista mobile.</div>
+    <div class="mobile-tools-list">
+      <button class="action ghost" id="mt-switch-career">⇄ Cambiar de carrera</button>
+      <button class="action ghost" id="mt-export">↓ Exportar backup (.json)</button>
+      <button class="action ghost" id="mt-import">↑ Importar backup</button>
+      <button class="action danger-ghost" id="mt-reset">Borrar todos los datos de esta carrera</button>
+    </div>
+    <input type="file" id="mobile-file-import" accept="application/json" style="display:none;">
+    <div class="modal-actions">
+      <button class="action ghost" id="mt-close">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 <main id="main">
 
   <section class="tab active" id="tab-resumen">
@@ -356,10 +392,10 @@
     <div class="section-block">
       <h3>Datos del club</h3>
       <div class="field-row">
-        <div class="field"><label>Nombre del club</label><input id="cfg-club" placeholder="Ej: River Plate"></div>
-        <div class="field"><label>Liga / País</label><input id="cfg-liga" placeholder="Ej: Premier League"></div>
+        <div class="field"><label>Nombre del club</label><input id="cfg-club" placeholder="Ej: Deportes Iquique"></div>
+        <div class="field"><label>País</label><input id="cfg-liga" placeholder="Ej: Chile"></div>
         <div class="field"><label>Temporada</label><input id="cfg-temporada" placeholder="Ej: 2025/26"></div>
-        <div class="field"><label>División</label><input id="cfg-division" placeholder="Ej: 1ª división"></div>
+        <div class="field"><label>División</label><input id="cfg-division" placeholder="Ej: 2da División"></div>
       </div>
       <div class="toolbar" style="margin-top:14px; margin-bottom:0;">
         <button class="action ghost" id="btn-cerrar-temporada">📦 Cerrar temporada y archivar</button>
@@ -431,7 +467,7 @@
       </div>
       <div class="field" style="max-width:200px;">
         <label>Guardar táctica actual</label>
-        <input type="text" id="tactic-preset-name" placeholder="Ej: Ultra Ofensiva">
+        <input type="text" id="tactic-preset-name" placeholder="Ej: Titulares">
       </div>
       <button class="action primary" id="save-tactic-btn">Guardar</button>
       
@@ -532,9 +568,10 @@
 
   <section class="tab" id="tab-cesiones">
     <h1 class="panel-title">Cesiones</h1>
-    <div class="panel-sub">Registro de préstamos (jugadores cedidos a otros clubes o recibidos).</div>
+    <div class="panel-sub">Cedido = tu jugador se va a préstamo (se mantiene en Plantilla, marcado). Recibido = un jugador llega a préstamo (se suma a Plantilla, marcado).</div>
     <div class="toolbar">
-      <button class="action primary" id="add-loan">+ Anotar cesión</button>
+      <button class="action primary" id="add-loan-out">+ Cesión Saliente</button>
+      <button class="action ghost" id="add-loan-in" style="color:var(--blue-in); border-color:var(--blue-in);">+ Cesión Recibida (préstamo)</button>
     </div>
     <div class="section-block" style="overflow-x:auto;">
       <table id="table-cesiones">
@@ -657,6 +694,123 @@
     <div class="modal-actions">
       <button class="action ghost" id="exit-cancel-btn">Cancelar</button>
       <button class="action primary" id="exit-confirm-btn">Confirmar Salida</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="entry-modal">
+  <div class="modal-card">
+    <h3>Registrar Fichaje (Entrada)</h3>
+    <div class="modal-sub">Cargá los datos del jugador que llega. Se va a sumar a la Plantilla automáticamente.</div>
+    <div class="field-row" style="margin-bottom:14px;">
+      <div class="field"><label>Nombre</label><input type="text" id="entry-nombre" placeholder="Ej: Sebastián Lara"></div>
+      <div class="field">
+        <label>Posición</label>
+        <select id="entry-pos"></select>
+      </div>
+    </div>
+    <div class="field-row" style="margin-bottom:14px;">
+      <div class="field"><label>Edad</label><input type="text" id="entry-edad" placeholder="Ej: 15"></div>
+      <div class="field"><label>Nacionalidad</label><input type="text" id="entry-nacionalidad" placeholder="Ej: Colombiana"></div>
+    </div>
+    <div class="field-row" style="margin-bottom:14px;">
+      <div class="field"><label>Media</label><input type="text" id="entry-media" placeholder="Ej: 84"></div>
+      <div class="field"><label>Potencial</label><input type="text" id="entry-potencial" placeholder="Ej: 89"></div>
+    </div>
+    <div class="field-row" style="margin-bottom:14px;">
+      <div class="field"><label>Valor</label><input type="text" id="entry-valor" placeholder="Ej: €75.000.000"></div>
+      <div class="field"><label>Salario</label><input type="text" id="entry-salario" placeholder="Ej: €180.000"></div>
+    </div>
+    <div class="field-row" style="margin-bottom:14px;">
+      <div class="field"><label>Monto</label><input type="text" id="entry-monto" placeholder="Ej: €60.000.000"></div>
+      <div class="field"><label>Club de Origen</label><input type="text" id="entry-club" placeholder="Ej: Deportivo Cali"></div>
+    </div>
+    <div class="field" style="margin-bottom:14px;">
+      <label>Fecha</label>
+      <input type="text" id="entry-fecha" placeholder="Ej: 01/07/2026">
+    </div>
+    <div class="modal-actions">
+      <button class="action ghost" id="entry-cancel-btn">Cancelar</button>
+      <button class="action primary" id="entry-confirm-btn">Confirmar Fichaje</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="loan-out-modal">
+  <div class="modal-card">
+    <h3>Registrar Cesión Saliente</h3>
+    <div class="modal-sub">Elegí el jugador que se va a préstamo. Se mantiene en la Plantilla, marcado como cedido.</div>
+    <div class="field" style="margin-bottom:14px;">
+      <label>Jugador de Plantilla</label>
+      <select id="loan-out-player-select"></select>
+    </div>
+    <div class="field-row" style="margin-bottom:14px;">
+      <div class="field"><label>Club Destino</label><input type="text" id="loan-out-club" placeholder="Ej: Cobreloa"></div>
+      <div class="field"><label>Duración</label><input type="text" id="loan-out-duracion" placeholder="Ej: 1 año"></div>
+    </div>
+    <div class="field-row" style="margin-bottom:14px;">
+      <div class="field">
+        <label>Opción de Compra</label>
+        <select id="loan-out-opcion">
+          <option value="No">No</option>
+          <option value="Sí">Sí</option>
+          <option value="Obligación de compra">Obligación de compra</option>
+        </select>
+      </div>
+      <div class="field"><label>Cargo / Sueldo %</label><input type="text" id="loan-out-monto" placeholder="Ej: 50% del sueldo"></div>
+    </div>
+    <div class="field" style="margin-bottom:14px;">
+      <label>Fecha</label>
+      <input type="text" id="loan-out-fecha" placeholder="Ej: 01/07/2026">
+    </div>
+    <div class="modal-actions">
+      <button class="action ghost" id="loan-out-cancel-btn">Cancelar</button>
+      <button class="action primary" id="loan-out-confirm-btn">Confirmar Cesión</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="loan-in-modal">
+  <div class="modal-card">
+    <h3>Registrar Cesión Recibida</h3>
+    <div class="modal-sub">Cargá los datos del jugador que llega a préstamo. Se suma a la Plantilla, marcado como cedido.</div>
+    <div class="field-row" style="margin-bottom:14px;">
+      <div class="field"><label>Nombre</label><input type="text" id="loan-in-nombre" placeholder="Ej: Dino Zeta"></div>
+      <div class="field">
+        <label>Posición</label>
+        <select id="loan-in-pos"></select>
+      </div>
+    </div>
+    <div class="field-row" style="margin-bottom:14px;">
+      <div class="field"><label>Edad</label><input type="text" id="loan-in-edad" placeholder="Ej: 20"></div>
+      <div class="field"><label>Nacionalidad</label><input type="text" id="loan-in-nacionalidad" placeholder="Ej: Uruguaya"></div>
+    </div>
+    <div class="field-row" style="margin-bottom:14px;">
+      <div class="field"><label>Media</label><input type="text" id="loan-in-media" placeholder="Ej: 78"></div>
+      <div class="field"><label>Potencial</label><input type="text" id="loan-in-potencial" placeholder="Ej: 85"></div>
+    </div>
+    <div class="field-row" style="margin-bottom:14px;">
+      <div class="field"><label>Club de Origen</label><input type="text" id="loan-in-club" placeholder="Ej: Nacional"></div>
+      <div class="field"><label>Duración</label><input type="text" id="loan-in-duracion" placeholder="Ej: 1 año"></div>
+    </div>
+    <div class="field-row" style="margin-bottom:14px;">
+      <div class="field">
+        <label>Opción de Compra</label>
+        <select id="loan-in-opcion">
+          <option value="No">No</option>
+          <option value="Sí">Sí</option>
+          <option value="Obligación de compra">Obligación de compra</option>
+        </select>
+      </div>
+      <div class="field"><label>Cargo / Sueldo %</label><input type="text" id="loan-in-monto" placeholder="Ej: 50% del sueldo"></div>
+    </div>
+    <div class="field" style="margin-bottom:14px;">
+      <label>Fecha</label>
+      <input type="text" id="loan-in-fecha" placeholder="Ej: 01/07/2026">
+    </div>
+    <div class="modal-actions">
+      <button class="action ghost" id="loan-in-cancel-btn">Cancelar</button>
+      <button class="action primary" id="loan-in-confirm-btn">Confirmar Cesión</button>
     </div>
   </div>
 </div>
@@ -1003,8 +1157,11 @@ function renderPlantilla(){
   data.players.forEach(p=>{
     const tr = document.createElement('tr');
     tr.dataset.id = p.id;
+    const loanTag = p.cesion
+      ? `<span class="player-loan-tag ${p.cesion.direccion}">${p.cesion.direccion === 'saliente' ? '🔄 Cedido en ' + escapeHtml(p.cesion.club || 'otro club') : '🔄 A préstamo de ' + escapeHtml(p.cesion.club || 'otro club')}</span>`
+      : '';
     tr.innerHTML = `
-      <td contenteditable="true" data-field="nombre">${escapeHtml(p.nombre)}</td>
+      <td><span class="cell-edit" contenteditable="true" data-field="nombre">${escapeHtml(p.nombre)}</span>${loanTag}</td>
       <td>
         <select class="pos-select" data-field="pos">
           ${getPosOptionsHtml(p.pos)}
@@ -1024,19 +1181,24 @@ function renderPlantilla(){
 }
 
 tbodyPlantilla.addEventListener('input', e=>{
-  const td = e.target.closest('td[contenteditable]');
-  if(!td) return;
-  const tr = td.closest('tr');
+  const editable = e.target.closest('[contenteditable="true"]');
+  if(!editable) return;
+  const tr = editable.closest('tr');
   const player = data.players.find(p=>p.id === tr.dataset.id);
   if(!player) return;
-  const field = td.dataset.field;
-  const val = td.textContent.trim();
+  const field = editable.dataset.field;
+  const val = editable.textContent.trim();
   player[field] = val;
 
   const linkedTransfer = data.transfers.find(t => t.playerId === player.id && t.tipo === 'in');
   if(linkedTransfer){
     linkedTransfer[field] = val;
     renderFichajes();
+  }
+  const linkedLoan = data.loans.find(l => l.playerId === player.id);
+  if(linkedLoan && field === 'nombre'){
+    linkedLoan.jugador = val;
+    renderCesiones();
   }
   saveData();
 });
@@ -1722,18 +1884,48 @@ tbodyFichajes.addEventListener('click', e=>{
   }
 });
 
+const entryModal = document.getElementById('entry-modal');
+const entryNombre = document.getElementById('entry-nombre');
+const entryPos = document.getElementById('entry-pos');
+const entryEdad = document.getElementById('entry-edad');
+const entryNacionalidad = document.getElementById('entry-nacionalidad');
+const entryMedia = document.getElementById('entry-media');
+const entryPotencial = document.getElementById('entry-potencial');
+const entryValor = document.getElementById('entry-valor');
+const entrySalario = document.getElementById('entry-salario');
+const entryMonto = document.getElementById('entry-monto');
+const entryClub = document.getElementById('entry-club');
+const entryFecha = document.getElementById('entry-fecha');
+
 document.getElementById('add-transfer-in').addEventListener('click', ()=>{
+  entryNombre.value = '';
+  entryPos.innerHTML = getPosOptionsHtml('Delantero Centro');
+  entryEdad.value = '';
+  entryNacionalidad.value = '';
+  entryMedia.value = '';
+  entryPotencial.value = '';
+  entryValor.value = '';
+  entrySalario.value = '';
+  entryMonto.value = '';
+  entryClub.value = '';
+  entryFecha.value = '';
+  entryModal.classList.add('open');
+});
+
+document.getElementById('entry-cancel-btn').addEventListener('click', ()=>{ entryModal.classList.remove('open'); });
+
+document.getElementById('entry-confirm-btn').addEventListener('click', ()=>{
   const newId = uid();
   const player = {
     id: newId,
-    nombre: 'Nuevo Fichaje',
-    pos: 'Delantero Centro',
-    edad: '',
-    nacionalidad: '',
-    media: '',
-    potencial: '',
-    valor: '',
-    salario: ''
+    nombre: entryNombre.value.trim() || 'Nuevo Fichaje',
+    pos: entryPos.value,
+    edad: entryEdad.value.trim(),
+    nacionalidad: entryNacionalidad.value.trim(),
+    media: entryMedia.value.trim(),
+    potencial: entryPotencial.value.trim(),
+    valor: entryValor.value.trim(),
+    salario: entrySalario.value.trim()
   };
   data.players.push(player);
   data.transfers.push({
@@ -1742,18 +1934,19 @@ document.getElementById('add-transfer-in').addEventListener('click', ()=>{
     tipo: 'in',
     nombre: player.nombre,
     pos: player.pos,
-    edad: '',
-    nacionalidad: '',
-    media: '',
-    potencial: '',
-    valor: '',
-    salario: '',
-    monto: '',
-    club: '',
-    fecha: ''
+    edad: player.edad,
+    nacionalidad: player.nacionalidad,
+    media: player.media,
+    potencial: player.potencial,
+    valor: player.valor,
+    salario: player.salario,
+    monto: entryMonto.value.trim(),
+    club: entryClub.value.trim(),
+    fecha: entryFecha.value.trim()
   });
   saveData();
   renderAll();
+  entryModal.classList.remove('open');
 });
 
 const exitModal = document.getElementById('exit-modal');
@@ -1886,7 +2079,20 @@ tbodyCesiones.addEventListener('input', e=>{
   if(!td) return;
   const tr = td.closest('tr');
   const item = data.loans.find(x=>x.id === tr.dataset.id);
-  if(item){ item[td.dataset.field] = td.textContent.trim(); saveData(); }
+  if(!item) return;
+  const field = td.dataset.field;
+  const val = td.textContent.trim();
+  item[field] = val;
+
+  if(item.playerId){
+    const player = data.players.find(p=>p.id === item.playerId);
+    if(player){
+      if(field === 'jugador') player.nombre = val;
+      if(field === 'club' && player.cesion) player.cesion.club = val;
+      renderPlantilla();
+    }
+  }
+  saveData();
 });
 
 tbodyCesiones.addEventListener('change', e=>{
@@ -1900,18 +2106,140 @@ tbodyCesiones.addEventListener('change', e=>{
 tbodyCesiones.addEventListener('click', e=>{
   if(e.target.dataset.action === 'del-loan'){
     const tr = e.target.closest('tr');
-    if(confirm('¿Borrar este registro?')){
-      data.loans = data.loans.filter(x=>x.id !== tr.dataset.id);
-      saveData();
-      renderCesiones();
+    const item = data.loans.find(x=>x.id === tr.dataset.id);
+    if(!item) return;
+    if(item.tipo === 'recibido' && item.playerId){
+      if(confirm('¿Borrar esta cesión recibida? Como el jugador llegó a préstamo, también se va a quitar de la Plantilla.')){
+        data.loans = data.loans.filter(x=>x.id !== item.id);
+        removePlayerAndClean(item.playerId);
+        saveData();
+        renderCesiones();
+      }
+    } else {
+      if(confirm('¿Borrar este registro de cesión? El jugador deja de figurar como cedido en la Plantilla.')){
+        if(item.playerId){
+          const player = data.players.find(p=>p.id === item.playerId);
+          if(player) delete player.cesion;
+        }
+        data.loans = data.loans.filter(x=>x.id !== item.id);
+        saveData();
+        renderCesiones();
+        renderPlantilla();
+      }
     }
   }
 });
 
-document.getElementById('add-loan').addEventListener('click', ()=>{
-  data.loans.push({ id:uid(), tipo:'cedido', jugador:'Nuevo Jugador', club:'', duracion:'1 año', opcionCompra:'No', monto:'', fecha:'' });
+const loanOutModal = document.getElementById('loan-out-modal');
+const loanOutPlayerSelect = document.getElementById('loan-out-player-select');
+const loanOutClub = document.getElementById('loan-out-club');
+const loanOutDuracion = document.getElementById('loan-out-duracion');
+const loanOutOpcion = document.getElementById('loan-out-opcion');
+const loanOutMonto = document.getElementById('loan-out-monto');
+const loanOutFecha = document.getElementById('loan-out-fecha');
+
+document.getElementById('add-loan-out').addEventListener('click', ()=>{
+  if(data.players.length === 0){
+    alert('No hay jugadores en la plantilla para ceder.');
+    return;
+  }
+  loanOutPlayerSelect.innerHTML = data.players.map(p=>`<option value="${p.id}">${escapeHtml(p.nombre || 'Sin nombre')} (${p.pos})</option>`).join('');
+  loanOutClub.value = '';
+  loanOutDuracion.value = '1 año';
+  loanOutOpcion.value = 'No';
+  loanOutMonto.value = '';
+  loanOutFecha.value = '';
+  loanOutModal.classList.add('open');
+});
+
+document.getElementById('loan-out-cancel-btn').addEventListener('click', ()=>{ loanOutModal.classList.remove('open'); });
+
+document.getElementById('loan-out-confirm-btn').addEventListener('click', ()=>{
+  const pId = loanOutPlayerSelect.value;
+  const player = data.players.find(p=>p.id === pId);
+  if(!player) return;
+  const club = loanOutClub.value.trim();
+
+  data.loans.push({
+    id: uid(),
+    playerId: player.id,
+    tipo: 'cedido',
+    jugador: player.nombre,
+    club: club,
+    duracion: loanOutDuracion.value.trim(),
+    opcionCompra: loanOutOpcion.value,
+    monto: loanOutMonto.value.trim(),
+    fecha: loanOutFecha.value.trim()
+  });
+
+  player.cesion = { direccion: 'saliente', club: club };
+
   saveData();
-  renderCesiones();
+  renderAll();
+  loanOutModal.classList.remove('open');
+});
+
+const loanInModal = document.getElementById('loan-in-modal');
+const loanInNombre = document.getElementById('loan-in-nombre');
+const loanInPos = document.getElementById('loan-in-pos');
+const loanInEdad = document.getElementById('loan-in-edad');
+const loanInNacionalidad = document.getElementById('loan-in-nacionalidad');
+const loanInMedia = document.getElementById('loan-in-media');
+const loanInPotencial = document.getElementById('loan-in-potencial');
+const loanInClub = document.getElementById('loan-in-club');
+const loanInDuracion = document.getElementById('loan-in-duracion');
+const loanInOpcion = document.getElementById('loan-in-opcion');
+const loanInMonto = document.getElementById('loan-in-monto');
+const loanInFecha = document.getElementById('loan-in-fecha');
+
+document.getElementById('add-loan-in').addEventListener('click', ()=>{
+  loanInNombre.value = '';
+  loanInPos.innerHTML = getPosOptionsHtml('Delantero Centro');
+  loanInEdad.value = '';
+  loanInNacionalidad.value = '';
+  loanInMedia.value = '';
+  loanInPotencial.value = '';
+  loanInClub.value = '';
+  loanInDuracion.value = '1 año';
+  loanInOpcion.value = 'No';
+  loanInMonto.value = '';
+  loanInFecha.value = '';
+  loanInModal.classList.add('open');
+});
+
+document.getElementById('loan-in-cancel-btn').addEventListener('click', ()=>{ loanInModal.classList.remove('open'); });
+
+document.getElementById('loan-in-confirm-btn').addEventListener('click', ()=>{
+  const newId = uid();
+  const club = loanInClub.value.trim();
+  const player = {
+    id: newId,
+    nombre: loanInNombre.value.trim() || 'Nuevo Jugador',
+    pos: loanInPos.value,
+    edad: loanInEdad.value.trim(),
+    nacionalidad: loanInNacionalidad.value.trim(),
+    media: loanInMedia.value.trim(),
+    potencial: loanInPotencial.value.trim(),
+    valor: '',
+    salario: '',
+    cesion: { direccion: 'entrante', club: club }
+  };
+  data.players.push(player);
+  data.loans.push({
+    id: uid(),
+    playerId: newId,
+    tipo: 'recibido',
+    jugador: player.nombre,
+    club: club,
+    duracion: loanInDuracion.value.trim(),
+    opcionCompra: loanInOpcion.value,
+    monto: loanInMonto.value.trim(),
+    fecha: loanInFecha.value.trim()
+  });
+
+  saveData();
+  renderAll();
+  loanInModal.classList.remove('open');
 });
 
 const tbodyTopScorers = document.querySelector('#table-top-scorers tbody');
@@ -2357,7 +2685,7 @@ function renderTopList(containerId, field){
   }).join('');
 }
 
-document.getElementById('btn-export').addEventListener('click', ()=>{
+function exportCurrentCareer(){
   const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -2366,39 +2694,16 @@ document.getElementById('btn-export').addEventListener('click', ()=>{
   a.download = `${nombreArchivo}_backup.json`;
   a.click();
   URL.revokeObjectURL(url);
-});
+}
 
-const fileImport = document.getElementById('file-import');
-document.getElementById('btn-import').addEventListener('click', ()=> fileImport.click());
-fileImport.addEventListener('change', ()=>{
-  const file = fileImport.files[0];
+function importBackupIntoCurrentCareer(file){
   if(!file) return;
   const reader = new FileReader();
   reader.onload = () => {
     try{
       const parsed = JSON.parse(reader.result);
       if(!confirm('Esto va a reemplazar todos los datos actuales por los del archivo. ¿Continuar?')) return;
-      data = Object.assign(defaultData(), parsed);
-      data.youth = Array.isArray(parsed.youth) ? parsed.youth : [];
-      data.renewals = Array.isArray(parsed.renewals) ? parsed.renewals : [];
-      data.loans = Array.isArray(parsed.loans) ? parsed.loans : [];
-      data.topScorers = Array.isArray(parsed.topScorers) ? parsed.topScorers : [];
-      data.topAssists = Array.isArray(parsed.topAssists) ? parsed.topAssists : [];
-      data.topMatches = Array.isArray(parsed.topMatches) ? parsed.topMatches : [];
-      data.tactics = Object.assign({ formacion:'4-4-2', porFormacion:{}, presets:[] }, parsed.tactics || {});
-      data.seasonHistory = Array.isArray(parsed.seasonHistory) ? parsed.seasonHistory : [];
-      data.matches = (data.matches || []).map(m=>{
-        if(typeof m.goleadores === 'string'){
-          m.goleadores = m.goleadores.trim() ? [{ id:uid(), playerId:null, nombre:m.goleadores, goles:1 }] : [];
-        } else if(!Array.isArray(m.goleadores)){
-          m.goleadores = [];
-        }
-        return m;
-      });
-      data.transfers = (data.transfers || []).map(t=>{
-        if(!t.nombre && t.jugador) t.nombre = t.jugador;
-        return t;
-      });
+      data = normalizeData(parsed);
       saveData();
       renderAll();
     }catch(err){
@@ -2406,15 +2711,56 @@ fileImport.addEventListener('change', ()=>{
     }
   };
   reader.readAsText(file);
-  fileImport.value = '';
-});
+}
 
-document.getElementById('btn-reset').addEventListener('click', ()=>{
-  if(confirm('Esto borra TODOS los datos guardados. No se puede deshacer. ¿Seguro?')){
+function resetCurrentCareer(){
+  if(confirm('Esto borra TODOS los datos guardados de esta carrera. No se puede deshacer. ¿Seguro?')){
     data = defaultData();
     saveData();
     renderAll();
   }
+}
+
+document.getElementById('btn-export').addEventListener('click', exportCurrentCareer);
+
+const fileImport = document.getElementById('file-import');
+document.getElementById('btn-import').addEventListener('click', ()=> fileImport.click());
+fileImport.addEventListener('change', ()=>{
+  importBackupIntoCurrentCareer(fileImport.files[0]);
+  fileImport.value = '';
+});
+
+document.getElementById('btn-reset').addEventListener('click', resetCurrentCareer);
+
+// --- Accesos rápidos para mobile (botón flotante ⚙, ya que el pie del menú lateral se oculta en pantallas chicas) ---
+const mobileToolsModal = document.getElementById('mobile-tools-modal');
+document.getElementById('mobile-tools-btn').addEventListener('click', ()=>{
+  mobileToolsModal.classList.add('open');
+});
+document.getElementById('mt-close').addEventListener('click', ()=>{
+  mobileToolsModal.classList.remove('open');
+});
+document.getElementById('mt-switch-career').addEventListener('click', ()=>{
+  mobileToolsModal.classList.remove('open');
+  renderLauncherList();
+  document.getElementById('launcher-overlay').classList.add('open');
+});
+document.getElementById('mt-export').addEventListener('click', ()=>{
+  mobileToolsModal.classList.remove('open');
+  exportCurrentCareer();
+});
+const mobileFileImport = document.getElementById('mobile-file-import');
+document.getElementById('mt-import').addEventListener('click', ()=>{
+  mobileFileImport.click();
+});
+mobileFileImport.addEventListener('change', ()=>{
+  mobileToolsModal.classList.remove('open');
+  importBackupIntoCurrentCareer(mobileFileImport.files[0]);
+  mobileFileImport.value = '';
+});
+document.getElementById('mt-reset').addEventListener('click', ()=>{
+  mobileToolsModal.classList.remove('open');
+  resetCurrentCareer();
 });
 
 function renderAll(){
