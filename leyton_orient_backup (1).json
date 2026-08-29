@@ -1,0 +1,1157 @@
+{
+  "club": {
+    "nombre": "Leyton Orient",
+    "liga": "Inglaterra",
+    "temporada": "2025/2026",
+    "division": "EFL League One"
+  },
+  "players": [
+    {
+      "id": "mtei3yk8i3y3p",
+      "nombre": "Killian Cahill",
+      "pos": "Arquero",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "",
+      "salario": ""
+    },
+    {
+      "id": "mtei43qdru83j",
+      "nombre": "Tobi Oluwayemi",
+      "pos": "Arquero",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "",
+      "salario": ""
+    },
+    {
+      "id": "mtei4atzz8pn4",
+      "nombre": "James Morris",
+      "pos": "Lateral Izquierdo",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "",
+      "salario": ""
+    },
+    {
+      "id": "mtei4nupj16ds",
+      "nombre": "Rarmani Edwards-Green",
+      "pos": "Defensor Central",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "",
+      "salario": ""
+    },
+    {
+      "id": "mtei50i87m3ir",
+      "nombre": "Will Forrester",
+      "pos": "Defensor Central",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "",
+      "salario": ""
+    },
+    {
+      "id": "mtei5iagc6d9x",
+      "nombre": "Michael Craig",
+      "pos": "Lateral Derecho",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "",
+      "salario": ""
+    },
+    {
+      "id": "mtei5oidw61km",
+      "nombre": "Tyreeq Bakinson",
+      "pos": "Mediocentro Defensivo",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "",
+      "salario": ""
+    },
+    {
+      "id": "mtei5vipg6oa1",
+      "nombre": "Lemar Gordon",
+      "pos": "Mediocentro Izquierdo",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "",
+      "salario": ""
+    },
+    {
+      "id": "mtei61fmzd52l",
+      "nombre": "Demetri Mitchell",
+      "pos": "Mediocentro Izquierdo",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "",
+      "salario": ""
+    },
+    {
+      "id": "mtei68sn4rv36",
+      "nombre": "Theo Archibald",
+      "pos": "Mediocentro Izquierdo",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "",
+      "salario": ""
+    },
+    {
+      "id": "mtei69actx2lr",
+      "nombre": "Dylan Levitt",
+      "pos": "Mediocentro",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "",
+      "salario": ""
+    },
+    {
+      "id": "mtei69e83msty",
+      "nombre": "Idris El Mizouni",
+      "pos": "Mediocentro",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "",
+      "salario": ""
+    },
+    {
+      "id": "mtei7b4ubyqll",
+      "nombre": "Charlie Wellens",
+      "pos": "Mediocentro",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "",
+      "salario": ""
+    },
+    {
+      "id": "mtei7b8t6izda",
+      "nombre": "Dan Carter",
+      "pos": "Mediocentro Ofensivo",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "",
+      "salario": ""
+    },
+    {
+      "id": "mtei7bed5k37d",
+      "nombre": "Sonny Perkins",
+      "pos": "Mediocentro Derecho",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "",
+      "salario": ""
+    },
+    {
+      "id": "mtei7bk653acl",
+      "nombre": "Josh Koroma",
+      "pos": "Delantero Centro",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "",
+      "salario": ""
+    },
+    {
+      "id": "mtei7bqpjzxbq",
+      "nombre": "Aaron Connoly",
+      "pos": "Delantero Centro",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "",
+      "salario": ""
+    },
+    {
+      "id": "mtei8e2g2szqs",
+      "nombre": "Dom Ballard",
+      "pos": "Delantero Centro",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "",
+      "salario": ""
+    },
+    {
+      "id": "mteihcfy0jq6f",
+      "nombre": "Gugen Shahab",
+      "pos": "Defensor Central",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "2100000",
+      "salario": ""
+    },
+    {
+      "id": "mteixrb4ybk1g",
+      "nombre": "Colby Donovan",
+      "pos": "Lateral Derecho",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "2500000",
+      "salario": "7800"
+    },
+    {
+      "id": "mtejkv057f38v",
+      "nombre": "Maxloren Castro",
+      "pos": "Extremo Derecho",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "3200000",
+      "salario": ""
+    },
+    {
+      "id": "mtek2bkvus8zv",
+      "nombre": "Dostonbek Khamdanov",
+      "pos": "Mediocentro Derecho",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "1700000",
+      "salario": "6300"
+    },
+    {
+      "id": "mtekzm42sr1a1",
+      "nombre": "Frederick Betts",
+      "pos": "Arquero",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "",
+      "salario": ""
+    },
+    {
+      "id": "mtel0n4qjlkex",
+      "nombre": "Charlie Miller",
+      "pos": "Mediocentro Derecho",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "",
+      "salario": ""
+    }
+  ],
+  "youth": [],
+  "matches": [],
+  "transfers": [
+    {
+      "id": "mtei934jkesnf",
+      "playerId": "mtei27wgoh8d4",
+      "tipo": "out",
+      "nombre": "Noah Phillips",
+      "pos": "Arquero",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "",
+      "salario": "",
+      "monto": "400.000",
+      "club": "Cheltenham",
+      "fecha": "09/07/2025"
+    },
+    {
+      "id": "mteiajg9vjb6n",
+      "playerId": "mtei564coblc3",
+      "tipo": "out",
+      "nombre": "Tom James",
+      "pos": "Lateral Derecho",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "",
+      "salario": "",
+      "monto": "650000",
+      "club": "Juve Stabia",
+      "fecha": "12/07/2025"
+    },
+    {
+      "id": "mteihcfyukvq5",
+      "playerId": "mteihcfy0jq6f",
+      "tipo": "in",
+      "nombre": "Gugen Shahab",
+      "pos": "Defensor Central",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "2100000",
+      "salario": "",
+      "monto": "0",
+      "club": "Agentes Libres",
+      "fecha": ""
+    },
+    {
+      "id": "mteivj6bv5ehl",
+      "playerId": "mtei5bv3z040n",
+      "tipo": "out",
+      "nombre": "Sean Clare",
+      "pos": "Lateral Derecho",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "",
+      "salario": "",
+      "monto": "620000",
+      "club": "Estrella Roja de Belgrado",
+      "fecha": ""
+    },
+    {
+      "id": "mteixrb50xnoq",
+      "playerId": "mteixrb4ybk1g",
+      "tipo": "in",
+      "nombre": "Colby Donovan",
+      "pos": "Lateral Derecho",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "2500000",
+      "salario": "7800",
+      "monto": "1750000",
+      "club": "",
+      "fecha": ""
+    },
+    {
+      "id": "mtej2weqyvgcj",
+      "playerId": "mtei68zmai9u3",
+      "tipo": "out",
+      "nombre": "Azeem Abdulai",
+      "pos": "Mediocentro Izquierdo",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "",
+      "salario": "",
+      "monto": "1050000",
+      "club": "Crewe Alexandra",
+      "fecha": ""
+    },
+    {
+      "id": "mtej5rhjemcez",
+      "playerId": "mtej5rhjehh2c",
+      "tipo": "in",
+      "nombre": "Nate Gibbs",
+      "pos": "Extremo Derecho",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "600000",
+      "salario": "",
+      "monto": "0",
+      "club": "Inferiores",
+      "fecha": ""
+    },
+    {
+      "id": "mtejbsc287xjg",
+      "playerId": "mtej5rhjehh2c",
+      "tipo": "out",
+      "nombre": "Nate Gibbs",
+      "pos": "Extremo Derecho",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "600000",
+      "salario": "",
+      "monto": "800000",
+      "club": "Salford City",
+      "fecha": ""
+    },
+    {
+      "id": "mtejc00v5ieep",
+      "playerId": "mtei4hgjdnnth",
+      "tipo": "out",
+      "nombre": "Jack Simpson",
+      "pos": "Defensor Central",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "",
+      "salario": "",
+      "monto": "750000",
+      "club": "Sudtirol",
+      "fecha": ""
+    },
+    {
+      "id": "mtejkv05ss3ii",
+      "playerId": "mtejkv057f38v",
+      "tipo": "in",
+      "nombre": "Maxloren Castro",
+      "pos": "Extremo Derecho",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "3200000",
+      "salario": "",
+      "monto": "2150000",
+      "club": "Sporting Cristal",
+      "fecha": ""
+    },
+    {
+      "id": "mtejsr2s3rab8",
+      "playerId": "mtei4uun04cou",
+      "tipo": "out",
+      "nombre": "Dan Happe",
+      "pos": "Defensor Central",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "",
+      "salario": "",
+      "monto": "750000",
+      "club": "Antalyaspor",
+      "fecha": ""
+    },
+    {
+      "id": "mtejyr4hc5bvv",
+      "playerId": "mtei694y0vjuj",
+      "tipo": "out",
+      "nombre": "Ollie o'Neil",
+      "pos": "Mediocentro Izquierdo",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "",
+      "salario": "",
+      "monto": "2250000",
+      "club": "Sampdoria",
+      "fecha": ""
+    },
+    {
+      "id": "mtek2bkwrb9ng",
+      "playerId": "mtek2bkvus8zv",
+      "tipo": "in",
+      "nombre": "Dostonbek Khamdanov",
+      "pos": "Mediocentro Derecho",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "1700000",
+      "salario": "6300",
+      "monto": "0",
+      "club": "Agentes Libres",
+      "fecha": ""
+    },
+    {
+      "id": "mtekzm42q6hrc",
+      "playerId": "mtekzm42sr1a1",
+      "tipo": "in",
+      "nombre": "Frederick Betts",
+      "pos": "Arquero",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "",
+      "salario": "",
+      "monto": "0",
+      "club": "Inferiores",
+      "fecha": ""
+    },
+    {
+      "id": "mtel0n4qrd6z0",
+      "playerId": "mtel0n4qjlkex",
+      "tipo": "in",
+      "nombre": "Charlie Miller",
+      "pos": "Mediocentro Derecho",
+      "edad": "",
+      "nacionalidad": "",
+      "media": "",
+      "potencial": "",
+      "valor": "",
+      "salario": "",
+      "monto": "0",
+      "club": "Inferiores",
+      "fecha": ""
+    }
+  ],
+  "renewals": [],
+  "loans": [
+    {
+      "id": "mteiawr4idc41",
+      "tipo": "cedido",
+      "jugador": "Dan Carter",
+      "club": "Newport County",
+      "duracion": "2 años",
+      "opcionCompra": "No",
+      "monto": "70/30",
+      "fecha": ""
+    }
+  ],
+  "topScorers": [
+    {
+      "id": "mtei935dsijd4",
+      "playerId": "mtei3yk8i3y3p",
+      "jugador": "Killian Cahill",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dbtd2q",
+      "playerId": "mtei43qdru83j",
+      "jugador": "Tobi Oluwayemi",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dw37wr",
+      "playerId": "mtei4atzz8pn4",
+      "jugador": "James Morris",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dxm6az",
+      "playerId": "mtei4nupj16ds",
+      "jugador": "Rarmani Edwards-Green",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dcu3ly",
+      "playerId": "mtei50i87m3ir",
+      "jugador": "Will Forrester",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dusotp",
+      "playerId": "mtei5iagc6d9x",
+      "jugador": "Michael Craig",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935d0hsew",
+      "playerId": "mtei5oidw61km",
+      "jugador": "Tyreeq Bakinson",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935d7gqnj",
+      "playerId": "mtei5vipg6oa1",
+      "jugador": "Lemar Gordon",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dzmhtb",
+      "playerId": "mtei61fmzd52l",
+      "jugador": "Demetri Mitchell",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935d67h1l",
+      "playerId": "mtei68sn4rv36",
+      "jugador": "Theo Archibald",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935diy4ol",
+      "playerId": "mtei69actx2lr",
+      "jugador": "Dylan Levitt",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dytyje",
+      "playerId": "mtei69e83msty",
+      "jugador": "Idris El Mizouni",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dctbru",
+      "playerId": "mtei7b4ubyqll",
+      "jugador": "Charlie Wellens",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dgtreu",
+      "playerId": "mtei7b8t6izda",
+      "jugador": "Dan Carter",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dhmzqx",
+      "playerId": "mtei7bed5k37d",
+      "jugador": "Sonny Perkins",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dpcleq",
+      "playerId": "mtei7bk653acl",
+      "jugador": "Josh Koroma",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dfxrv2",
+      "playerId": "mtei7bqpjzxbq",
+      "jugador": "Aaron Connoly",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dpzkmk",
+      "playerId": "mtei8e2g2szqs",
+      "jugador": "Dom Ballard",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mteihcghtjkk6",
+      "playerId": "mteihcfy0jq6f",
+      "jugador": "Gugen Shahab",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mteixrbo1zsa8",
+      "playerId": "mteixrb4ybk1g",
+      "jugador": "Colby Donovan",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtejkv0rhxelv",
+      "playerId": "mtejkv057f38v",
+      "jugador": "Maxloren Castro",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtek2blhtyvtt",
+      "playerId": "mtek2bkvus8zv",
+      "jugador": "Dostonbek Khamdanov",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtekzm4mf2nt5",
+      "playerId": "mtekzm42sr1a1",
+      "jugador": "Frederick Betts",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtel0n56upbgr",
+      "playerId": "mtel0n4qjlkex",
+      "jugador": "Charlie Miller",
+      "goles": "0",
+      "partidos": "0",
+      "anios": ""
+    }
+  ],
+  "topAssists": [
+    {
+      "id": "mtei935d2tj4s",
+      "playerId": "mtei3yk8i3y3p",
+      "jugador": "Killian Cahill",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dwu14i",
+      "playerId": "mtei43qdru83j",
+      "jugador": "Tobi Oluwayemi",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935djszq0",
+      "playerId": "mtei4atzz8pn4",
+      "jugador": "James Morris",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935d0a81a",
+      "playerId": "mtei4nupj16ds",
+      "jugador": "Rarmani Edwards-Green",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dyz524",
+      "playerId": "mtei50i87m3ir",
+      "jugador": "Will Forrester",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935d0aayq",
+      "playerId": "mtei5iagc6d9x",
+      "jugador": "Michael Craig",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935de967s",
+      "playerId": "mtei5oidw61km",
+      "jugador": "Tyreeq Bakinson",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dtkt3q",
+      "playerId": "mtei5vipg6oa1",
+      "jugador": "Lemar Gordon",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dgml3u",
+      "playerId": "mtei61fmzd52l",
+      "jugador": "Demetri Mitchell",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dlqabj",
+      "playerId": "mtei68sn4rv36",
+      "jugador": "Theo Archibald",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dql326",
+      "playerId": "mtei69actx2lr",
+      "jugador": "Dylan Levitt",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dfz974",
+      "playerId": "mtei69e83msty",
+      "jugador": "Idris El Mizouni",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935d9s7u5",
+      "playerId": "mtei7b4ubyqll",
+      "jugador": "Charlie Wellens",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935ds4v87",
+      "playerId": "mtei7b8t6izda",
+      "jugador": "Dan Carter",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dxcz67",
+      "playerId": "mtei7bed5k37d",
+      "jugador": "Sonny Perkins",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dushrg",
+      "playerId": "mtei7bk653acl",
+      "jugador": "Josh Koroma",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935d3z75q",
+      "playerId": "mtei7bqpjzxbq",
+      "jugador": "Aaron Connoly",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935d74qdk",
+      "playerId": "mtei8e2g2szqs",
+      "jugador": "Dom Ballard",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mteihcghrrg6i",
+      "playerId": "mteihcfy0jq6f",
+      "jugador": "Gugen Shahab",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mteixrbomx22w",
+      "playerId": "mteixrb4ybk1g",
+      "jugador": "Colby Donovan",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtejkv0rkn0nn",
+      "playerId": "mtejkv057f38v",
+      "jugador": "Maxloren Castro",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtek2blhzpnnt",
+      "playerId": "mtek2bkvus8zv",
+      "jugador": "Dostonbek Khamdanov",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtekzm4m358f6",
+      "playerId": "mtekzm42sr1a1",
+      "jugador": "Frederick Betts",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtel0n56pw39x",
+      "playerId": "mtel0n4qjlkex",
+      "jugador": "Charlie Miller",
+      "asistencias": "0",
+      "partidos": "0",
+      "anios": ""
+    }
+  ],
+  "topMatches": [
+    {
+      "id": "mtei935d95nh7",
+      "playerId": "mtei3yk8i3y3p",
+      "jugador": "Killian Cahill",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935d9vj95",
+      "playerId": "mtei43qdru83j",
+      "jugador": "Tobi Oluwayemi",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dqmlkb",
+      "playerId": "mtei4atzz8pn4",
+      "jugador": "James Morris",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dvev0u",
+      "playerId": "mtei4nupj16ds",
+      "jugador": "Rarmani Edwards-Green",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935d6c04m",
+      "playerId": "mtei50i87m3ir",
+      "jugador": "Will Forrester",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dmoi00",
+      "playerId": "mtei5iagc6d9x",
+      "jugador": "Michael Craig",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dsyd2j",
+      "playerId": "mtei5oidw61km",
+      "jugador": "Tyreeq Bakinson",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935d5tgun",
+      "playerId": "mtei5vipg6oa1",
+      "jugador": "Lemar Gordon",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dp605y",
+      "playerId": "mtei61fmzd52l",
+      "jugador": "Demetri Mitchell",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dqv731",
+      "playerId": "mtei68sn4rv36",
+      "jugador": "Theo Archibald",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dogum3",
+      "playerId": "mtei69actx2lr",
+      "jugador": "Dylan Levitt",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935d0x5vo",
+      "playerId": "mtei69e83msty",
+      "jugador": "Idris El Mizouni",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dsic68",
+      "playerId": "mtei7b4ubyqll",
+      "jugador": "Charlie Wellens",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dbgq7q",
+      "playerId": "mtei7b8t6izda",
+      "jugador": "Dan Carter",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935d1mg6o",
+      "playerId": "mtei7bed5k37d",
+      "jugador": "Sonny Perkins",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935du0i73",
+      "playerId": "mtei7bk653acl",
+      "jugador": "Josh Koroma",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935dm8y1d",
+      "playerId": "mtei7bqpjzxbq",
+      "jugador": "Aaron Connoly",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtei935djrcgt",
+      "playerId": "mtei8e2g2szqs",
+      "jugador": "Dom Ballard",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mteihcgho4i2s",
+      "playerId": "mteihcfy0jq6f",
+      "jugador": "Gugen Shahab",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mteixrbo1bgg4",
+      "playerId": "mteixrb4ybk1g",
+      "jugador": "Colby Donovan",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtejkv0rtihx3",
+      "playerId": "mtejkv057f38v",
+      "jugador": "Maxloren Castro",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtek2blh9kmqx",
+      "playerId": "mtek2bkvus8zv",
+      "jugador": "Dostonbek Khamdanov",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtekzm4mza6r7",
+      "playerId": "mtekzm42sr1a1",
+      "jugador": "Frederick Betts",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    },
+    {
+      "id": "mtel0n56zbkzu",
+      "playerId": "mtel0n4qjlkex",
+      "jugador": "Charlie Miller",
+      "partidos": "0",
+      "goles": "0",
+      "asistencias": "0",
+      "anios": ""
+    }
+  ],
+  "trophies": [],
+  "tactics": {
+    "formacion": "4-4-2",
+    "porFormacion": {
+      "4-4-2": {
+        "starters": {},
+        "subs": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
+      }
+    },
+    "presets": []
+  },
+  "seasonHistory": []
+}
