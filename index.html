@@ -2660,28 +2660,167 @@ historialList.addEventListener('click', e=>{
 function openHistorialDetail(h){
   document.getElementById('historial-detail-title').textContent = `${h.club.nombre || 'Club'} — Temporada ${h.club.temporada || ''}`;
   document.getElementById('historial-detail-sub').textContent = `Archivado el ${h.fechaCierre} · Liga: ${h.club.liga || '-'} · División: ${h.club.division || '-'}`;
-  
+
   const body = document.getElementById('historial-detail-body');
-  
+
+  let v=0, e=0, d=0, gf=0, gc=0;
+  (h.matches || []).forEach(m=>{
+    const r = resultOf(m);
+    if(r === 'V') v++; else if(r === 'E') e++; else if(r === 'D') d++;
+    gf += parseInt(m.gf) || 0;
+    gc += parseInt(m.gc) || 0;
+  });
+  const titulosTemp = (h.trophies || []).filter(t => t.campeon).length;
+
   const competicionesHtml = (h.trophies && h.trophies.length)
-    ? h.trophies.map(t=> `<li><strong>${escapeHtml(t.competicion)}:</strong> ${escapeHtml(t.fase)} ${t.campeon ? '🏆 (Campeón)' : ''}</li>`).join('')
+    ? h.trophies.map(t=> `<li><strong>${escapeHtml(t.competicion)}:</strong> ${escapeHtml(t.fase || '')} ${t.campeon ? '🏆 (Campeón)' : ''}</li>`).join('')
     : '<li style="color:var(--text-faint); font-style:italic;">No se registraron competencias</li>';
 
   const partidosHtml = (h.matches && h.matches.length)
-    ? h.matches.map(m=>`<tr><td>${escapeHtml(m.jornada)}</td><td>${escapeHtml(m.competicion)}</td><td>${escapeHtml(m.rival)}</td><td class="num">${m.gf}-${m.gc}</td><td>${scorersSummary(m)}</td></tr>`).join('')
-    : '<tr><td colspan="5" style="color:var(--text-faint); font-style:italic;">Sin partidos</td></tr>';
+    ? h.matches.map(m=>{
+        const r = resultOf(m);
+        return `<tr>
+          <td>${escapeHtml(m.jornada)}</td>
+          <td>${escapeHtml(m.competicion)}</td>
+          <td>${escapeHtml(m.rival)}</td>
+          <td class="num">${escapeHtml(m.gf)}-${escapeHtml(m.gc)}</td>
+          <td>${r ? `<span class="badge ${r}">${r}</span>` : '—'}</td>
+          <td>${escapeHtml(scorersSummary(m)) || '—'}</td>
+          <td>${escapeHtml(m.fecha || '')}</td>
+        </tr>`;
+      }).join('')
+    : '<tr><td colspan="7" style="color:var(--text-faint); font-style:italic;">Sin partidos</td></tr>';
+
+  const fichajesHtml = (h.transfers && h.transfers.length)
+    ? h.transfers.map(t=>{
+        const isOut = t.tipo === 'out';
+        return `<tr>
+          <td><span class="badge ${isOut ? 'out' : 'in'}">${isOut ? 'Salida' : 'Entrada'}</span></td>
+          <td>${escapeHtml(t.nombre || '')}</td>
+          <td>${escapeHtml(t.pos || '')}</td>
+          <td>${escapeHtml(t.monto || '')}</td>
+          <td>${escapeHtml(t.club || '')}</td>
+          <td>${escapeHtml(t.fecha || '')}</td>
+        </tr>`;
+      }).join('')
+    : '<tr><td colspan="6" style="color:var(--text-faint); font-style:italic;">Sin fichajes registrados</td></tr>';
+
+  const renovacionesHtml = (h.renewals && h.renewals.length)
+    ? h.renewals.map(r=>`<tr>
+        <td>${escapeHtml(r.jugador || '')}</td>
+        <td>${escapeHtml(r.sueldoAnterior || '')}</td>
+        <td>${escapeHtml(r.sueldoNuevo || '')}</td>
+        <td>${escapeHtml(r.duracion || '')}</td>
+        <td>${escapeHtml(r.clausula || '')}</td>
+        <td>${escapeHtml(r.fecha || '')}</td>
+      </tr>`).join('')
+    : '<tr><td colspan="6" style="color:var(--text-faint); font-style:italic;">Sin renovaciones registradas</td></tr>';
+
+  const cesionesHtml = (h.loans && h.loans.length)
+    ? h.loans.map(l=>{
+        const isOut = l.tipo === 'saliente';
+        return `<tr>
+          <td><span class="badge ${isOut ? 'loan-out' : 'loan-in'}">${isOut ? 'Cedido' : 'Recibido'}</span></td>
+          <td>${escapeHtml(l.jugador || '')}</td>
+          <td>${escapeHtml(l.club || '')}</td>
+          <td>${escapeHtml(l.duracion || '')}</td>
+          <td>${escapeHtml(l.opcion || '')}</td>
+          <td>${escapeHtml(l.fecha || '')}</td>
+        </tr>`;
+      }).join('')
+    : '<tr><td colspan="6" style="color:var(--text-faint); font-style:italic;">Sin cesiones registradas</td></tr>';
+
+  const lideresHtml = (h.leaders && h.leaders.length)
+    ? [...h.leaders].sort((a,b)=>(parseInt(b.goles)||0)-(parseInt(a.goles)||0)).map(l=>`<tr>
+        <td><strong>${escapeHtml(l.nombre || '')}</strong></td>
+        <td class="num">${escapeHtml(l.partidos || 0)}</td>
+        <td class="num">${escapeHtml(l.goles || 0)}</td>
+        <td class="num">${escapeHtml(l.asistencias || 0)}</td>
+      </tr>`).join('')
+    : '<tr><td colspan="4" style="color:var(--text-faint); font-style:italic;">Sin datos de líderes</td></tr>';
+
+  const plantillaHtml = (h.players && h.players.length)
+    ? h.players.map(p=>`<tr>
+        <td><strong>${escapeHtml(p.nombre || '')}</strong></td>
+        <td>${escapeHtml(p.pos || '')}</td>
+        <td class="num">${escapeHtml(p.edad || '')}</td>
+        <td>${escapeHtml(p.nacionalidad || '')}</td>
+        <td class="num">${escapeHtml(p.media || '')}</td>
+        <td class="num">${escapeHtml(p.potencial || '')}</td>
+        <td>${escapeHtml(p.valor || '')}</td>
+        <td>${escapeHtml(p.salario || '')}</td>
+      </tr>`).join('')
+    : '<tr><td colspan="8" style="color:var(--text-faint); font-style:italic;">Sin plantilla guardada</td></tr>';
 
   body.innerHTML = `
-    <div style="margin-bottom:16px;">
-      <h4 style="font-family:'Oswald',sans-serif; color:var(--gold-text); margin-bottom:6px;">Competencias disputadas</h4>
+    <div class="stat-grid" style="margin-bottom:18px;">
+      <div class="stat-card"><div class="label">Partidos</div><div class="value">${(h.matches||[]).length}</div></div>
+      <div class="stat-card"><div class="label">Récord V-E-D</div><div class="value">${v}-${e}-${d}</div></div>
+      <div class="stat-card"><div class="label">GF / GC</div><div class="value">${gf} / ${gc}</div></div>
+      <div class="stat-card"><div class="label">Títulos</div><div class="value gold">${titulosTemp}</div></div>
+    </div>
+
+    <div class="section-block">
+      <h3>Competencias disputadas</h3>
       <ul style="padding-left:18px; margin:0; font-size:13px;">${competicionesHtml}</ul>
     </div>
-    <div>
-      <h4 style="font-family:'Oswald',sans-serif; color:var(--gold-text); margin-bottom:6px;">Partidos disputados (${h.matches.length})</h4>
-      <div style="max-height:220px; overflow-y:auto; background:var(--surface-2); border:1px solid var(--border); border-radius:6px;">
+
+    <div class="section-block" style="overflow-x:auto;">
+      <h3>Partidos (${(h.matches||[]).length})</h3>
+      <div style="max-height:260px; overflow-y:auto;">
         <table>
-          <thead><tr><th>Jornada</th><th>Competición</th><th>Rival</th><th>Score</th><th>Goleadores</th></tr></thead>
+          <thead><tr><th>Jornada</th><th>Competición</th><th>Rival</th><th>Resultado</th><th>R</th><th>Goleadores</th><th>Fecha</th></tr></thead>
           <tbody>${partidosHtml}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-block" style="overflow-x:auto;">
+      <h3>Fichajes (${(h.transfers||[]).length})</h3>
+      <div style="max-height:260px; overflow-y:auto;">
+        <table>
+          <thead><tr><th>Tipo</th><th>Jugador</th><th>Pos</th><th>Monto</th><th>Club</th><th>Fecha</th></tr></thead>
+          <tbody>${fichajesHtml}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-block" style="overflow-x:auto;">
+      <h3>Renovaciones (${(h.renewals||[]).length})</h3>
+      <div style="max-height:260px; overflow-y:auto;">
+        <table>
+          <thead><tr><th>Jugador</th><th>Sueldo ant.</th><th>Sueldo nuevo</th><th>Duración</th><th>Cláusula</th><th>Fecha</th></tr></thead>
+          <tbody>${renovacionesHtml}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-block" style="overflow-x:auto;">
+      <h3>Cesiones (${(h.loans||[]).length})</h3>
+      <div style="max-height:260px; overflow-y:auto;">
+        <table>
+          <thead><tr><th>Tipo</th><th>Jugador</th><th>Club</th><th>Duración</th><th>Opción</th><th>Fecha</th></tr></thead>
+          <tbody>${cesionesHtml}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-block" style="overflow-x:auto;">
+      <h3>Líderes de la temporada (${(h.leaders||[]).length})</h3>
+      <div style="max-height:260px; overflow-y:auto;">
+        <table>
+          <thead><tr><th>Jugador</th><th>Partidos</th><th>Goles</th><th>Asistencias</th></tr></thead>
+          <tbody>${lideresHtml}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-block" style="overflow-x:auto;">
+      <h3>Plantilla al cierre (${(h.players||[]).length})</h3>
+      <div style="max-height:260px; overflow-y:auto;">
+        <table>
+          <thead><tr><th>Jugador</th><th>Pos</th><th>Edad</th><th>Nac.</th><th>Media</th><th>Potencial</th><th>Valor</th><th>Salario</th></tr></thead>
+          <tbody>${plantillaHtml}</tbody>
         </table>
       </div>
     </div>
