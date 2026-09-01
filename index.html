@@ -288,6 +288,13 @@
   .mobile-tools-list{ display:flex; flex-direction:column; gap:10px; margin-bottom:6px; }
   .mobile-tools-list button{ width:100%; text-align:center; }
 
+  .sofifa-attribution{margin-top:22px;padding-top:14px;border-top:1px solid var(--border-soft);display:flex;justify-content:center;}
+  .sofifa-attribution a{display:inline-flex;align-items:center;gap:8px;color:var(--text-dim);text-decoration:none;font-size:11px;padding:7px 10px;border:1px solid var(--border);border-radius:6px;}
+  .sofifa-attribution a:hover{border-color:var(--gold-dim);color:var(--text);}
+  .sofifa-attribution img{width:22px;height:22px;object-fit:contain;border-radius:4px;}
+  .sofifa-import-preview{font-size:12px;color:var(--text-dim);line-height:1.5;margin-top:8px;}
+  .sofifa-import-status{font-size:11px;color:var(--text-faint);margin-top:8px;min-height:16px;}
+
   @media (max-width:800px){
     body{ flex-direction:column; }
     #sidebar{ position:relative; width:100%; height:auto; flex:none; flex-direction:row; align-items:center; overflow-x:auto; }
@@ -327,6 +334,12 @@
 
     <h3 class="launcher-list-title">Tus carreras guardadas</h3>
     <div id="launcher-careers"></div>
+    <div class="sofifa-attribution">
+      <a href="https://sofifa.com/" target="_blank" rel="noopener noreferrer" title="Datos y API proporcionados por SoFIFA">
+        <img src="https://sofifa.com/favicon.ico" alt="SoFIFA logo">
+        <span>Datos de jugadores proporcionados por SoFIFA</span>
+      </a>
+    </div>
   </div>
 </div>
 
@@ -422,6 +435,7 @@
     <div class="panel-sub">Elegí la posición de la lista desplegable y edita cualquier celda haciendo clic.</div>
     <div class="toolbar">
       <button class="action primary" id="add-player">+ Agregar jugador</button>
+      <button class="action ghost" id="import-sofifa">⇩ Importar plantilla desde SoFIFA</button>
       <button class="action ghost" id="sort-posicion">Ordenar por posición</button>
       <button class="action ghost" id="sort-potencial">Ordenar por potencial</button>
       <button class="action ghost" id="sort-media">Ordenar por media</button>
@@ -650,6 +664,30 @@
 
   <footer class="credit">cuaderno de carrera · datos guardados localmente en este navegador</footer>
 </main>
+
+<div class="modal-overlay" id="sofifa-import-modal">
+  <div class="modal-card" style="max-width:560px;">
+    <h3>Importar plantilla desde SoFIFA</h3>
+    <div class="modal-sub">Pegá la URL de un equipo de SoFIFA. Ejemplo: https://sofifa.com/team/52/as-roma/260046/</div>
+    <div class="field" style="margin-bottom:14px;">
+      <label>URL de SoFIFA</label>
+      <input type="url" id="sofifa-url" placeholder="https://sofifa.com/team/..." autocomplete="url">
+    </div>
+    <div class="field" style="margin-bottom:14px;">
+      <label>Qué hacer con la plantilla actual</label>
+      <select id="sofifa-import-mode">
+        <option value="replace">Reemplazar plantilla actual</option>
+        <option value="append">Agregar a la plantilla actual</option>
+      </select>
+    </div>
+    <div class="sofifa-import-preview" id="sofifa-import-preview">Se importarán nombre, posición, edad, nacionalidad, media, potencial, valor y salario.</div>
+    <div class="sofifa-import-status" id="sofifa-import-status"></div>
+    <div class="modal-actions">
+      <button class="action ghost" id="sofifa-cancel-btn">Cancelar</button>
+      <button class="action primary" id="sofifa-confirm-btn">Importar plantilla</button>
+    </div>
+  </div>
+</div>
 
 <div class="modal-overlay" id="scorer-modal">
   <div class="modal-card">
@@ -1307,6 +1345,136 @@ document.getElementById('add-player').addEventListener('click', ()=>{
   saveData();
   renderPlantilla();
   renderResumen();
+});
+
+
+// IMPORTACIÓN DESDE SOFIFA
+const sofifaImportModal = document.getElementById('sofifa-import-modal');
+const sofifaUrlInput = document.getElementById('sofifa-url');
+const sofifaImportMode = document.getElementById('sofifa-import-mode');
+const sofifaImportStatus = document.getElementById('sofifa-import-status');
+const sofifaImportPreview = document.getElementById('sofifa-import-preview');
+const sofifaConfirmBtn = document.getElementById('sofifa-confirm-btn');
+
+const SOFIFA_POSITION_MAP = {
+  0:'Arquero', 1:'Defensor Central', 2:'Lateral Derecho', 3:'Lateral Derecho',
+  4:'Defensor Central', 5:'Defensor Central', 6:'Defensor Central', 7:'Lateral Izquierdo',
+  8:'Lateral Izquierdo', 9:'Mediocentro Defensivo', 10:'Mediocentro Defensivo', 11:'Mediocentro Defensivo',
+  12:'Mediocentro Derecho', 13:'Mediocentro', 14:'Mediocentro', 15:'Mediocentro', 16:'Mediocentro Izquierdo',
+  17:'Mediocentro Ofensivo', 18:'Mediocentro Ofensivo', 19:'Mediocentro Ofensivo',
+  20:'Delantero Centro', 21:'Delantero Centro', 22:'Delantero Centro',
+  23:'Extremo Derecho', 24:'Delantero Centro', 25:'Delantero Centro', 26:'Delantero Centro', 27:'Extremo Izquierdo'
+};
+
+function parseSofifaUrl(value){
+  const text = String(value || '').trim();
+  // URL habitual: /team/52/as-roma/260046/
+  const match = text.match(/sofifa\.com\/team\/(\d+)(?:\/[^/?#]+)?(?:\/(\d+))?/i);
+  if(!match) throw new Error('La URL no parece ser una página válida de equipo de SoFIFA.');
+  return { teamId: match[1], rosterId: match[2] || null };
+}
+
+function formatSofifaMoney(value){
+  const n = Number(value);
+  if(!Number.isFinite(n) || n <= 0) return '';
+  return '€' + Math.round(n).toLocaleString('es-AR');
+}
+
+function sofifaPlayerName(player){
+  const common = String(player.commonName || '').trim();
+  if(common) return common;
+  return [player.firstName, player.lastName].filter(Boolean).join(' ').trim() || 'Jugador sin nombre';
+}
+
+function convertSofifaPlayer(player){
+  return {
+    id: uid(),
+    nombre: sofifaPlayerName(player),
+    pos: SOFIFA_POSITION_MAP[player.position1] || 'Delantero Centro',
+    edad: player.age != null ? String(player.age) : '',
+    nacionalidad: player.country || '',
+    media: player.overallRating != null ? String(player.overallRating) : '',
+    potencial: player.potential != null ? String(player.potential) : '',
+    valor: formatSofifaMoney(player.price),
+    salario: formatSofifaMoney(player.wage)
+  };
+}
+
+function extractSofifaPlayers(payload){
+  const team = payload && payload.data ? payload.data : payload;
+  if(!team || !Array.isArray(team.players)) throw new Error('SoFIFA no devolvió una plantilla válida para este equipo.');
+  return { team, players: team.players.filter(p => Number(p.position1) >= 0 && Number(p.position1) <= 27).map(convertSofifaPlayer) };
+}
+
+function setSofifaStatus(message, isError=false){
+  sofifaImportStatus.textContent = message;
+  sofifaImportStatus.style.color = isError ? 'var(--loss)' : 'var(--text-faint)';
+}
+
+document.getElementById('import-sofifa').addEventListener('click', ()=>{
+  sofifaUrlInput.value = '';
+  sofifaImportMode.value = data.players.length ? 'replace' : 'append';
+  sofifaImportPreview.textContent = 'Pegá una URL de SoFIFA y se importarán los datos disponibles de toda la plantilla.';
+  setSofifaStatus('');
+  sofifaImportModal.classList.add('open');
+  setTimeout(()=>sofifaUrlInput.focus(), 50);
+});
+
+document.getElementById('sofifa-cancel-btn').addEventListener('click', ()=> sofifaImportModal.classList.remove('open'));
+
+sofifaConfirmBtn.addEventListener('click', async ()=>{
+  let ids;
+  try{
+    ids = parseSofifaUrl(sofifaUrlInput.value);
+  }catch(err){
+    setSofifaStatus(err.message, true);
+    return;
+  }
+
+  const endpoint = ids.rosterId
+    ? `https://api.sofifa.net/team/${encodeURIComponent(ids.teamId)}/${encodeURIComponent(ids.rosterId)}`
+    : `https://api.sofifa.net/team/${encodeURIComponent(ids.teamId)}`;
+
+  sofifaConfirmBtn.disabled = true;
+  sofifaConfirmBtn.textContent = 'Importando...';
+  setSofifaStatus('Consultando la API de SoFIFA...');
+
+  try{
+    const response = await fetch(endpoint, { headers:{ 'Accept':'application/json' } });
+    if(!response.ok){
+      if(response.status === 429) throw new Error('SoFIFA limitó temporalmente las solicitudes. Esperá un minuto e intentá de nuevo.');
+      throw new Error(`SoFIFA respondió con el error ${response.status}.`);
+    }
+    const payload = await response.json();
+    const result = extractSofifaPlayers(payload);
+    if(result.players.length === 0) throw new Error('No se encontraron jugadores importables en esta plantilla.');
+
+    if(sofifaImportMode.value === 'replace'){
+      if(data.players.length && !confirm(`Se reemplazarán los ${data.players.length} jugadores actuales por ${result.players.length} jugadores de ${result.team.name || 'SoFIFA'}. ¿Continuar?`)) return;
+      data.players = result.players;
+      data.tactics.porFormacion = {};
+      data.tactics.presets = [];
+      data.leaders = [];
+    }else{
+      data.players.push(...result.players);
+    }
+
+    // Completar el club solo si todavía está vacío, sin sobrescribir la carrera del usuario.
+    if(!data.club.nombre && result.team.name) data.club.nombre = result.team.name;
+    if(!data.club.liga && result.team.country) data.club.liga = result.team.country;
+
+    saveData();
+    renderAll();
+    sofifaImportModal.classList.remove('open');
+    alert(`Plantilla importada correctamente: ${result.players.length} jugadores de ${result.team.name || 'SoFIFA'}.`);
+  }catch(err){
+    console.error('Error al importar desde SoFIFA', err);
+    const msg = err && err.message ? err.message : 'No se pudo importar la plantilla.';
+    setSofifaStatus(msg + ' Si el navegador bloquea la conexión, verificá que tu sitio esté publicado y sea accesible.', true);
+  }finally{
+    sofifaConfirmBtn.disabled = false;
+    sofifaConfirmBtn.textContent = 'Importar plantilla';
+  }
 });
 
 document.getElementById('sort-posicion').addEventListener('click', ()=>{
