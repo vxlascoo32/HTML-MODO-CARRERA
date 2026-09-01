@@ -1386,6 +1386,35 @@ function parsePlayerImportRow(row, loanType = ''){
   if(!name || ['Name','Nombre','Player','Jugador'].includes(name)) return null;
 
   const cells = Array.from(row.querySelectorAll('td'));
+  if(!cells.length){
+    const valueByLabel = label => {
+      const labelNode = Array.from(row.querySelectorAll('abbr')).find(node => node.textContent.trim().toLowerCase() === label.toLowerCase());
+      return labelNode?.parentElement?.nextElementSibling?.textContent.trim() || '';
+    };
+    const ageText = Array.from(row.querySelectorAll('div')).find(node => /\d+\s*y\.o\./i.test(node.textContent))?.textContent || '';
+    const overallNode = Array.from(row.querySelectorAll('em[title]')).find(node => node.parentElement?.textContent.includes('Overall rating'));
+    const potentialNode = Array.from(row.querySelectorAll('em[title]')).find(node => node.parentElement?.textContent.includes('Potential'));
+    const position = row.querySelector('.pos')?.textContent.trim() || '';
+    const teamLinks = Array.from(row.querySelectorAll('a[href*="/team/"]'));
+    const loanedFromLabel = Array.from(row.querySelectorAll('div')).find(node => node.textContent.trim() === 'Loaned from');
+    const loanedFromClub = loanedFromLabel?.nextElementSibling?.querySelector('a[href*="/team/"]')?.textContent.trim() || '';
+    const loanClub = loanType === 'saliente'
+      ? teamLinks[0]?.textContent.trim() || ''
+      : loanedFromClub;
+    return {
+      nombre: name,
+      pos: resolveImportPosition(position),
+      edad: ageText.match(/\d+/)?.[0] || '',
+      nacionalidad: normalizeSpanishNationality(row.querySelector('img.flag[title]')?.getAttribute('title') || ''),
+      media: overallNode?.getAttribute('title') || '',
+      potencial: potentialNode?.getAttribute('title') || '',
+      valor: valueByLabel('Value'),
+      salario: valueByLabel('Wage'),
+      loanType,
+      loanClub
+    };
+  }
+
   const ageCell = cells.find(cell => cell.matches('[data-col="ae"]')) || cells[2] || null;
   const overallCell = cells.find(cell => cell.matches('[data-col="oa"]')) || cells.find(cell => cell.querySelector('em[title]')) || cells[3] || null;
   const potentialCell = cells.find(cell => cell.matches('[data-col="pt"]')) || cells[4] || null;
@@ -1424,16 +1453,19 @@ function parseImportedPlayersFromHtml(html){
   if(!html || typeof html !== 'string') return [];
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
-  const rows = [...doc.querySelectorAll('tr')];
+  const rows = [...doc.querySelectorAll('tr, li[class*="player-"]')];
 
   const candidates = rows
     .map(row => {
       const table = row.closest('table');
-      const sectionTitle = table?.previousElementSibling?.textContent.trim().toLowerCase() || '';
+      const list = row.closest('ul');
+      const sectionTitle = table?.previousElementSibling?.textContent.trim().toLowerCase()
+        || list?.previousElementSibling?.textContent.trim().toLowerCase()
+        || '';
       const rowText = row.textContent.toLowerCase();
       const loanType = sectionTitle.includes('on loan')
         ? 'saliente'
-        : rowText.includes('on loan')
+        : rowText.includes('loaned from')
           ? 'entrante'
           : '';
       return parsePlayerImportRow(row, loanType);
