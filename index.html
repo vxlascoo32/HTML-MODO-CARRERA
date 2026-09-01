@@ -575,6 +575,7 @@
     <div class="toolbar">
       <button class="action primary" id="add-loan-out">+ Cesión Saliente</button>
       <button class="action ghost" id="add-loan-in" style="color:var(--blue-in); border-color:var(--blue-in);">+ Cesión Recibida (préstamo)</button>
+      <button class="action ghost" id="clear-loans" style="color:var(--draw); border-color:var(--draw);">Borrar cesiones</button>
     </div>
     <div class="section-block" style="overflow-x:auto;">
       <table id="table-cesiones">
@@ -1223,8 +1224,19 @@ function renderPlantilla(){
   data.players.forEach(p=>{
     const tr = document.createElement('tr');
     tr.dataset.id = p.id;
+    const clubName = (data.club && data.club.nombre ? data.club.nombre : '').trim();
+    const loanClubRaw = p.cesion ? String(p.cesion.club || '').trim() : '';
+    const isOwnClubLoan = Boolean(
+      p.cesion &&
+      loanClubRaw &&
+      clubName &&
+      normalizeClubName(loanClubRaw) === normalizeClubName(clubName)
+    );
+    const loanClubText = p.cesion
+      ? (isOwnClubLoan ? 'el club' : (loanClubRaw || 'otro club'))
+      : '';
     const loanTag = p.cesion
-      ? `<span class="player-loan-tag ${p.cesion.direccion}">${p.cesion.direccion === 'saliente' ? '🔄 Cedido en ' + escapeHtml(p.cesion.club || 'otro club') : '🔄 Cedido de ' + escapeHtml(p.cesion.club || 'otro club')}</span>`
+      ? `<span class="player-loan-tag ${p.cesion.direccion}">${p.cesion.direccion === 'saliente' ? '🔄 Cedido en ' + escapeHtml(loanClubText) : '🔄 Cedido de ' + escapeHtml(loanClubText)}</span>`
       : '';
     tr.innerHTML = `
       <td><span class="cell-edit" contenteditable="true" data-field="nombre">${escapeHtml(p.nombre)}</span>${loanTag}</td>
@@ -1379,6 +1391,15 @@ function parseCurrencyText(value){
   return clean || '';
 }
 
+function normalizeClubName(value){
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9]/g, '')
+    .trim()
+    .toLowerCase();
+}
+
 function parsePlayerImportRow(row, loanType = ''){
   const nameLink = row.querySelector('a[href*="/player/"]');
   const nameText = nameLink ? nameLink.textContent : row.querySelector('td a')?.textContent || '';
@@ -1399,8 +1420,8 @@ function parsePlayerImportRow(row, loanType = ''){
     const loanedFromLabel = Array.from(row.querySelectorAll('div')).find(node => node.textContent.trim() === 'Loaned from');
     const loanedFromClub = loanedFromLabel?.nextElementSibling?.querySelector('a[href*="/team/"]')?.textContent.trim() || '';
     const loanClub = loanType === 'saliente'
-      ? teamLinks[0]?.textContent.trim() || ''
-      : loanedFromClub;
+      ? (teamLinks[0]?.textContent.trim() || '')
+      : (loanedFromClub || '');
     return {
       nombre: name,
       pos: resolveImportPosition(position),
@@ -1433,7 +1454,9 @@ function parsePlayerImportRow(row, loanType = ''){
 
   const nationalityCandidates = Array.from(row.querySelectorAll('img[title]')).map(img => normalizeSpanishNationality(img.getAttribute('title') || '')).filter(Boolean);
   const nacionalidad = nationalityCandidates[0] || '';
-  const loanClub = row.querySelector('[data-col="tm"] a[href*="/team/"], a[href*="/team/"]')?.textContent.trim() || '';
+  const teamCandidates = Array.from(row.querySelectorAll('a[href*="/team/"]')).map(el => el.textContent.trim()).filter(Boolean);
+  const teamNameFromCell = row.querySelector('[data-col="tm"] a[href*="/team/"], a[href*="/team/"]')?.textContent.trim() || '';
+  const loanClub = (teamNameFromCell || teamCandidates[0] || '').trim();
 
   return {
     nombre: name,
@@ -1449,7 +1472,7 @@ function parsePlayerImportRow(row, loanType = ''){
   };
 }
 
-function parseImportedPlayersFromHtml(html){
+function parseImportedPlayersFromHtml(html, sourceType = 'html'){
   if(!html || typeof html !== 'string') return [];
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
@@ -1462,12 +1485,24 @@ function parseImportedPlayersFromHtml(html){
       const sectionTitle = table?.previousElementSibling?.textContent.trim().toLowerCase()
         || list?.previousElementSibling?.textContent.trim().toLowerCase()
         || '';
-      const rowText = row.textContent.toLowerCase();
-      const loanType = sectionTitle.includes('on loan')
-        ? 'saliente'
-        : rowText.includes('loaned from')
-          ? 'entrante'
-          : '';
+      const rowText = (row.textContent || '').toLowerCase();
+
+      if(sourceType === 'mht'){
+        const isOnLoanSection = /(^|\s)on loan\b/.test(sectionTitle);
+        const hasLoanedFrom = /loaned from/.test(rowText);
+        const mhtLoanType = isOnLoanSection && hasLoanedFrom ? 'saliente' : '';
+        return parsePlayerImportRow(row, mhtLoanType);
+      }
+
+      const isOnLoanSection = /(^|\s)on loan\b/.test(sectionTitle);
+      const hasLoanedFrom = /loaned from|cedido de|cedido desde|prestado desde|prestado de/.test(rowText);
+      const hasLoanedOut = /loaned out|cedido a|prestado a/.test(rowText);
+      const hasOnLoanMarker = /\bon loan\b/.test(rowText);
+      let loanType = '';
+      if(hasLoanedFrom) loanType = 'entrante';
+      else if(hasLoanedOut) loanType = 'saliente';
+      else if(isOnLoanSection) loanType = 'saliente';
+      else if(hasOnLoanMarker) loanType = 'entrante';
       return parsePlayerImportRow(row, loanType);
     })
     .filter(Boolean)
@@ -1589,7 +1624,9 @@ importTemplateFileInput.addEventListener('change', event => {
   reader.onload = () => {
     try{
       const content = String(reader.result || '');
-      const imported = parseImportedPlayersFromHtml(getImportedFileHtml(file, content));
+      const isMht = /\.(mht|mhtml)$/i.test(file.name) || /multipart\/related/i.test(content.slice(0, 2000));
+      const importedHtml = getImportedFileHtml(file, content);
+      const imported = parseImportedPlayersFromHtml(importedHtml, isMht ? 'mht' : 'html');
       if(!imported.length){
         alert('No se encontraron jugadores en este archivo HTML o MHT. Prueba con una página de la plantilla de SoFIFA o FC Tools Hub.');
         return;
@@ -2456,6 +2493,26 @@ tbodyCesiones.addEventListener('click', e=>{
     }
   }
 });
+
+function clearAllLoans(){
+  if(data.loans.length === 0){
+    alert('No hay cesiones para borrar.');
+    return;
+  }
+
+  if(confirm('¿Borrar toda la información del apartado de cesiones? Se quitará la marca de préstamo de los jugadores de la plantilla.')){
+    data.players.forEach(player => {
+      if(player.cesion) delete player.cesion;
+    });
+    data.loans = [];
+    saveData();
+    renderCesiones();
+    renderPlantilla();
+    renderResumen();
+  }
+}
+
+document.getElementById('clear-loans').addEventListener('click', clearAllLoans);
 
 // Modal Cesión Saliente
 const loanOutModal = document.getElementById('loan-out-modal');
