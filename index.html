@@ -427,7 +427,7 @@
       <button class="action ghost" id="sort-media">Ordenar por media</button>
       <button class="action ghost" id="import-template-button" title="Importar plantilla desde un archivo HTML">Importar plantilla</button>
       <button class="action ghost" id="clear-template-button">Borrar toda la plantilla</button>
-      <input type="file" id="import-template-file-input" accept=".html,.htm,text/html" style="display:none;">
+      <input type="file" id="import-template-file-input" accept=".html,.htm,.mht,.mhtml,text/html,application/x-mimearchive" style="display:none;">
     </div>
     <div class="section-block" style="overflow-x:auto;">
       <table id="table-plantilla">
@@ -1512,6 +1512,41 @@ function addImportedPlayers(players){
   alert(`Se importaron ${importedPlayers.length} jugadores a la plantilla y ${importedLoans.length} cesiones.`);
 }
 
+function decodeMhtTransferEncoding(value, encoding){
+  const normalizedEncoding = String(encoding || '').trim().toLowerCase();
+  if(normalizedEncoding === 'base64'){
+    const binary = atob(value.replace(/\s/g, ''));
+    const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
+    return new TextDecoder('utf-8').decode(bytes);
+  }
+  if(normalizedEncoding === 'quoted-printable'){
+    const binary = value.replace(/=\r?\n/g, '').replace(/=([0-9A-F]{2})/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+    const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
+    return new TextDecoder('utf-8').decode(bytes);
+  }
+  return value;
+}
+
+function extractHtmlFromMht(mht){
+  const source = String(mht || '').replace(/^\uFEFF/, '');
+  const htmlPart = source.match(/Content-Type:\s*text\/html[^\r\n]*\r?\n(?:[^\r\n]*\r?\n)*?\r?\n([\s\S]*?)(?=\r?\n--[^\r\n]+(?:--)?\s*$)/im);
+  if(htmlPart){
+    const bodyStart = source.indexOf('\r\n\r\n', htmlPart.index) >= 0
+      ? source.indexOf('\r\n\r\n', htmlPart.index) + 4
+      : source.indexOf('\n\n', htmlPart.index) + 2;
+    const headers = source.slice(htmlPart.index, bodyStart);
+    const encoding = headers.match(/Content-Transfer-Encoding:\s*([^\r\n]+)/i)?.[1] || '';
+    return decodeMhtTransferEncoding(htmlPart[1], encoding);
+  }
+  const htmlStart = source.search(/<html[\s>]/i);
+  return htmlStart >= 0 ? source.slice(htmlStart) : '';
+}
+
+function getImportedFileHtml(file, content){
+  const isMht = /\.(mht|mhtml)$/i.test(file.name) || /multipart\/related/i.test(content.slice(0, 2000));
+  return isMht ? extractHtmlFromMht(content) : content;
+}
+
 const importTemplateFileInput = document.getElementById('import-template-file-input');
 
 importTemplateFileInput.addEventListener('change', event => {
@@ -1521,15 +1556,16 @@ importTemplateFileInput.addEventListener('change', event => {
   const reader = new FileReader();
   reader.onload = () => {
     try{
-      const imported = parseImportedPlayersFromHtml(String(reader.result || ''));
+      const content = String(reader.result || '');
+      const imported = parseImportedPlayersFromHtml(getImportedFileHtml(file, content));
       if(!imported.length){
-        alert('No se encontraron jugadores en este archivo HTML. Prueba con una página de la plantilla de SoFIFA o FC Tools Hub.');
+        alert('No se encontraron jugadores en este archivo HTML o MHT. Prueba con una página de la plantilla de SoFIFA o FC Tools Hub.');
         return;
       }
       addImportedPlayers(imported);
     }catch(error){
       console.error(error);
-      alert('El archivo HTML no es válido o no pudo leerse.');
+      alert('El archivo HTML o MHT no es válido o no pudo leerse.');
     }
   };
   reader.readAsText(file);
