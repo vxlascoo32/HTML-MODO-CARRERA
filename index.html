@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cuaderno de Carrera · FC 26</title>
+<title>Cuaderno de Modo Carrera - made by vxlascoo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
@@ -420,11 +420,14 @@
   <section class="tab" id="tab-plantilla">
     <h1 class="panel-title">Plantilla</h1>
     <div class="panel-sub">Elegí la posición de la lista desplegable y edita cualquier celda haciendo clic.</div>
-    <div class="toolbar">
+    <div class="toolbar" style="align-items:center;">
       <button class="action primary" id="add-player">+ Agregar jugador</button>
       <button class="action ghost" id="sort-posicion">Ordenar por posición</button>
       <button class="action ghost" id="sort-potencial">Ordenar por potencial</button>
       <button class="action ghost" id="sort-media">Ordenar por media</button>
+      <button class="action ghost" id="import-template-button" title="Importar plantilla desde un archivo HTML">Importar plantilla</button>
+      <button class="action ghost" id="clear-template-button">Borrar toda la plantilla</button>
+      <input type="file" id="import-template-file-input" accept=".html,.htm,text/html" style="display:none;">
     </div>
     <div class="section-block" style="overflow-x:auto;">
       <table id="table-plantilla">
@@ -1213,12 +1216,15 @@ function renderPlantilla(){
   tbodyPlantilla.innerHTML = '';
   if(data.players.length === 0){
     tbodyPlantilla.innerHTML = '<tr class="empty-row"><td colspan="9">No hay jugadores cargados. Agregá el primero con el botón de arriba.</td></tr>';
+    document.getElementById('count-plantilla').textContent = '0';
+    return;
   }
+
   data.players.forEach(p=>{
     const tr = document.createElement('tr');
     tr.dataset.id = p.id;
     const loanTag = p.cesion
-      ? `<span class="player-loan-tag ${p.cesion.direccion}">${p.cesion.direccion === 'saliente' ? '🔄 Cedido en ' + escapeHtml(p.cesion.club || 'otro club') : '🔄 A préstamo de ' + escapeHtml(p.cesion.club || 'otro club')}</span>`
+      ? `<span class="player-loan-tag ${p.cesion.direccion}">${p.cesion.direccion === 'saliente' ? '🔄 Cedido en ' + escapeHtml(p.cesion.club || 'otro club') : '🔄 Cedido de ' + escapeHtml(p.cesion.club || 'otro club')}</span>`
       : '';
     tr.innerHTML = `
       <td><span class="cell-edit" contenteditable="true" data-field="nombre">${escapeHtml(p.nombre)}</span>${loanTag}</td>
@@ -1301,6 +1307,261 @@ function removePlayerAndClean(playerId){
   saveData();
   renderAll();
 }
+
+function resolveImportPosition(rawPosition){
+  const normalized = String(rawPosition || '').trim().toUpperCase().replace(/[^A-Z]/g, '');
+  const map = {
+    GK:'Arquero',
+    LB:'Lateral Izquierdo', LWB:'Lateral Izquierdo',
+    RB:'Lateral Derecho', RWB:'Lateral Derecho',
+    CB:'Defensor Central', LCB:'Defensor Central', RCB:'Defensor Central',
+    CDM:'Mediocentro Defensivo', DM:'Mediocentro Defensivo', LDM:'Mediocentro Defensivo', RDM:'Mediocentro Defensivo',
+    CM:'Mediocentro', LCM:'Mediocentro', RCM:'Mediocentro',
+    CAM:'Mediocentro Ofensivo', AM:'Mediocentro Ofensivo',
+    LM:'Extremo Izquierdo', LW:'Extremo Izquierdo', LAM:'Extremo Izquierdo', LWM:'Extremo Izquierdo',
+    RM:'Extremo Derecho', RW:'Extremo Derecho', RAM:'Extremo Derecho', RWM:'Extremo Derecho',
+    ST:'Delantero Centro', CF:'Delantero Centro'
+  };
+  return map[normalized] || POSITIONS[POSITIONS.length - 1];
+}
+
+function normalizeSpanishNationality(value){
+  const raw = String(value || '').trim();
+  if(!raw) return '';
+  const map = {
+    'Argentina':'Argentina',
+    'Brazil':'Brasil',
+    'Belgium':'Bélgica',
+    'Canada':'Canadá',
+    'Chile':'Chile',
+    'Colombia':'Colombia',
+    'Côte d\'Ivoire':'Costa de Marfil',
+    'France':'Francia',
+    'Germany':'Alemania',
+    'Greece':'Grecia',
+    'Italy':'Italia',
+    'Netherlands':'Países Bajos',
+    'Poland':'Polonia',
+    'Portugal':'Portugal',
+    'Serbia':'Serbia',
+    'Spain':'España',
+    'Sweden':'Suecia',
+    'Türkiye':'Turquía',
+    'Ukraine':'Ucrania',
+    'Uzbekistan':'Uzbekistán',
+    'Saudi Arabia':'Arabia Saudita',
+    'Japan':'Japón',
+    'United States':'Estados Unidos',
+    'Brazilian':'Brasil',
+    'Uruguay':'Uruguay',
+    'Slovenia':'Eslovenia',
+    'Croatia':'Croacia',
+    'Morocco':'Marruecos',
+    'Ecuador':'Ecuador',
+    'Denmark':'Dinamarca',
+    'Norway':'Noruega',
+    'England':'Inglaterra',
+    'Scotland':'Escocia',
+    'Mexico':'México',
+    'Austria':'Austria',
+    'Germany':'Alemania',
+    'Iceland':'Islandia',
+    'Bosnia and Herzegovina':'Bosnia y Herzegovina',
+    'Republic of Ireland':'Irlanda',
+    'Romania':'Rumania'
+  };
+  return map[raw] || raw;
+}
+
+function parseCurrencyText(value){
+  if(value === null || value === undefined) return '';
+  const clean = String(value).replace(/\s+/g, ' ').trim();
+  return clean || '';
+}
+
+function parsePlayerImportRow(row, loanType = ''){
+  const nameLink = row.querySelector('a[href*="/player/"]');
+  const nameText = nameLink ? nameLink.textContent : row.querySelector('td a')?.textContent || '';
+  const name = String(nameText || '').replace(/\s+/g, ' ').trim();
+  if(!name || ['Name','Nombre','Player','Jugador'].includes(name)) return null;
+
+  const cells = Array.from(row.querySelectorAll('td'));
+  const ageCell = cells.find(cell => cell.matches('[data-col="ae"]')) || cells[2] || null;
+  const overallCell = cells.find(cell => cell.matches('[data-col="oa"]')) || cells.find(cell => cell.querySelector('em[title]')) || cells[3] || null;
+  const potentialCell = cells.find(cell => cell.matches('[data-col="pt"]')) || cells[4] || null;
+  const valueCell = cells.find(cell => cell.matches('[data-col="vl"]')) || cells[6] || null;
+  const wageCell = cells.find(cell => cell.matches('[data-col="wg"]')) || cells[7] || null;
+
+  const age = ageCell ? ageCell.textContent.replace(/[^0-9]/g, '').trim() : '';
+  const media = overallCell ? (overallCell.getAttribute('title') || overallCell.textContent).replace(/[^0-9]/g, '').trim() : '';
+  const potencial = potentialCell ? (potentialCell.getAttribute('title') || potentialCell.textContent).replace(/[^0-9]/g, '').trim() : '';
+  const valor = valueCell ? parseCurrencyText(valueCell.textContent) : '';
+  const salario = wageCell ? parseCurrencyText(wageCell.textContent) : '';
+
+  const positionCandidates = Array.from(row.querySelectorAll('.pos')).map(el => el.textContent.trim()).filter(Boolean);
+  const positionFromText = positionCandidates.length ? positionCandidates[0] : (cells[5]?.textContent || '').trim();
+  const pos = resolveImportPosition(positionFromText);
+
+  const nationalityCandidates = Array.from(row.querySelectorAll('img[title]')).map(img => normalizeSpanishNationality(img.getAttribute('title') || '')).filter(Boolean);
+  const nacionalidad = nationalityCandidates[0] || '';
+  const loanClub = row.querySelector('[data-col="tm"] a[href*="/team/"], a[href*="/team/"]')?.textContent.trim() || '';
+
+  return {
+    nombre: name,
+    pos,
+    edad: age,
+    nacionalidad,
+    media,
+    potencial,
+    valor,
+    salario,
+    loanType,
+    loanClub
+  };
+}
+
+function parseImportedPlayersFromHtml(html){
+  if(!html || typeof html !== 'string') return [];
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  const rows = [...doc.querySelectorAll('tr')];
+
+  const candidates = rows
+    .map(row => {
+      const table = row.closest('table');
+      const sectionTitle = table?.previousElementSibling?.textContent.trim().toLowerCase() || '';
+      const rowText = row.textContent.toLowerCase();
+      const loanType = sectionTitle.includes('on loan')
+        ? 'saliente'
+        : rowText.includes('on loan')
+          ? 'entrante'
+          : '';
+      return parsePlayerImportRow(row, loanType);
+    })
+    .filter(Boolean)
+    .filter(player => player.nombre && player.nombre.length > 1 && !['Name','Nombre','Player','Jugador'].includes(player.nombre));
+
+  const deduped = [];
+  const seen = new Set();
+  candidates.forEach(player => {
+    const key = player.nombre.toLowerCase();
+    if(!seen.has(key)) {
+      seen.add(key);
+      deduped.push({
+        id: uid(),
+        nombre: player.nombre,
+        pos: player.pos || 'Delantero Centro',
+        edad: player.edad || '',
+        nacionalidad: player.nacionalidad || '',
+        media: player.media || '',
+        potencial: player.potencial || '',
+        valor: player.valor || '',
+        salario: player.salario || '',
+        loanType: player.loanType || '',
+        loanClub: player.loanClub || ''
+      });
+    }
+  });
+
+  return deduped;
+}
+
+function addImportedPlayers(players){
+  const existingNames = new Set(data.players.map(player => (player.nombre || '').trim().toLowerCase()));
+  const existingLoanNames = new Set(data.loans.map(loan => (loan.jugador || '').trim().toLowerCase()));
+  const importedPlayers = (players || []).filter(player => player && player.nombre && !player.loanType && !existingNames.has(player.nombre.trim().toLowerCase()));
+  const importedLoans = (players || []).filter(player => player && player.nombre && player.loanType && !existingNames.has(player.nombre.trim().toLowerCase()) && !existingLoanNames.has(player.nombre.trim().toLowerCase()));
+
+  if(!importedPlayers.length && !importedLoans.length){
+    alert('La plantilla importada ya está presente en esta carrera.');
+    return;
+  }
+
+  data.players.push(...importedPlayers);
+  importedLoans.forEach(player => {
+    const playerId = uid();
+    const club = player.loanClub || '';
+    data.players.push({
+      id: playerId,
+      nombre: player.nombre,
+      pos: player.pos || 'Delantero Centro',
+      edad: player.edad || '',
+      nacionalidad: player.nacionalidad || '',
+      media: player.media || '',
+      potencial: player.potencial || '',
+      valor: player.valor || '',
+      salario: player.salario || '',
+      cesion: { direccion: player.loanType, club }
+    });
+    data.loans.push({
+      id: uid(),
+      tipo: player.loanType,
+      playerId,
+      jugador: player.nombre,
+      club,
+      duracion: '',
+      opcion: 'No',
+      monto: '',
+      fecha: ''
+    });
+  });
+  saveData();
+  renderPlantilla();
+  renderCesiones();
+  renderResumen();
+  alert(`Se importaron ${importedPlayers.length} jugadores a la plantilla y ${importedLoans.length} cesiones.`);
+}
+
+const importTemplateFileInput = document.getElementById('import-template-file-input');
+
+importTemplateFileInput.addEventListener('change', event => {
+  const file = event.target.files && event.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const imported = parseImportedPlayersFromHtml(String(reader.result || ''));
+      if(!imported.length){
+        alert('No se encontraron jugadores en este archivo HTML. Prueba con una página de la plantilla de SoFIFA o FC Tools Hub.');
+        return;
+      }
+      addImportedPlayers(imported);
+    }catch(error){
+      console.error(error);
+      alert('El archivo HTML no es válido o no pudo leerse.');
+    }
+  };
+  reader.readAsText(file);
+  importTemplateFileInput.value = '';
+});
+
+document.getElementById('import-template-button').addEventListener('click', () => {
+  importTemplateFileInput.click();
+});
+
+document.getElementById('clear-template-button').addEventListener('click', () => {
+  if(!data.players.length) {
+    alert('La plantilla ya está vacía.');
+    return;
+  }
+  if(!confirm('¿Estás seguro de borrar toda la plantilla? También se quitarán sus jugadores de las alineaciones. Esta acción no se puede deshacer.')) return;
+
+  const playerIds = new Set(data.players.map(player => player.id));
+  data.players = [];
+  Object.values(data.tactics.porFormacion).forEach(asig => {
+    if(asig.starters){
+      Object.keys(asig.starters).forEach(slotId => {
+        if(playerIds.has(asig.starters[slotId])) asig.starters[slotId] = '';
+      });
+    }
+    if(asig.subs){
+      asig.subs = asig.subs.map(id => playerIds.has(id) ? '' : id);
+    }
+  });
+  saveData();
+  renderAll();
+});
 
 document.getElementById('add-player').addEventListener('click', ()=>{
   data.players.push({ id:uid(), nombre:'Nuevo jugador', pos:'Delantero Centro', edad:'', nacionalidad:'', media:'', potencial:'', valor:'', salario:'' });
